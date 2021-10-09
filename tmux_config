@@ -1,0 +1,16 @@
+unbind r
+bind r source-file ~/.tmux.conf
+
+# remap prefix to Control + o
+set -g prefix C-o
+unbind C-b
+bind C-o send-prefix
+
+# switch panes
+bind h select-pane -L
+bind j select-pane -D
+bind k select-pane -U
+bind l select-pane -R
+
+bind v split-window -v
+bind h split-window -h
