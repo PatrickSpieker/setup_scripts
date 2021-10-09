@@ -12,5 +12,12 @@ bind j select-pane -D
 bind k select-pane -U
 bind l select-pane -R
 
-bind r split-window -v
-bind c split-window -h
+# r for vertical splits, c for horizontal
+bind r split-window -h
+bind c split-window -v
+
+# setting the status bar to black bg blue fg
+set -g default-terminal "screen-256color"
+set -g status-bg orange
+set -g status-fg black
+set -g pane-active-border-style "bg=default fg=orange"
