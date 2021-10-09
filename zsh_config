@@ -1,5 +1,7 @@
 alias vim="nvim"
 alias vi="nvim"
 alias gs="git status"
-PROMPT='> '
+alias gacp="git add . && git commit -m 'WIP'"
+touch ~/.hushlogin
+PROMPT='%~ > '
 
