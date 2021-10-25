@@ -4,20 +4,17 @@
 # /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 brew install neovim
 brew install tmux
-
-
-git config --global user.email "patrick@patrickspieker.com"
-git config --global user.name "patrick"
+brew install fzf
 
 cp ./vim_config ~/.vimrc
-
+# nvim setup
 if [ -d "/Users/patrickspieker/.config/nvim" ] 
 then
 else
   mkdir ~/.config/nvim
 fi
-
 cp ./vim_config ~/.config/nvim/init.vim
+
 cp ./zsh_config ~/.zshrc
 cp ./tmux_config ~/.tmux.conf
 source ~/.zshrc
