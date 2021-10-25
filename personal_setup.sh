@@ -5,4 +5,7 @@ echo "Running setup general..."
 echo "Done running setup general; now running personal specific settings..."
 git config --global user.email "patrick@patrickspieker.com"
 git config --global user.name "patrick"
+
+cp ./zsh_config ~/.zshrc
+source ~/.zshrc
 echo "Done!"

@@ -14,7 +14,5 @@ else
   mkdir ~/.config/nvim
 fi
 cp ./vim_config ~/.config/nvim/init.vim
-
-cp ./zsh_config ~/.zshrc
 cp ./tmux_config ~/.tmux.conf
-source ~/.zshrc
+
