@@ -9,7 +9,7 @@ syntax on
 " remap ESC to jj
 inoremap jj <esc>
 
-" ================ Turn Off Swap Files ==============
+" Turn Off Swap Files 
 
 set noswapfile
 set nobackup
@@ -41,3 +41,37 @@ vnoremap <Down> <Nop>
 vnoremap <Left> <Nop>
 vnoremap <Right> <Nop>
 vnoremap <Up> <Nop>
+
+" ======== Plugins ========
+call plug#begin('~/.local/nvim/plugins')
+
+" Install these with :PlugInstall inside of a nvim instance
+Plug 'mileszs/ack.vim'
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
+
+call plug#end()
+
+" ===== Fzf config 
+" so you don't have to type :Files
+noremap <C-p> :Files<CR>
+
+" ==== Ack config
+" so you can search for files easier
+"   - docs: https://github.com/mileszs/ack.vim
+" workflow: do Ctrl - i
+noremap <C-i> :Ack<Space>
+
+" ==== Editing
+" making the default splitting to the right, or below
+" The default is to the left, which is dumb as hell
+set splitright
+set splitbelow
+
+" Create window splits easier with just vv or ss
+nnoremap <silent> vv <C-w>v
+nnoremap <silent> ss <C-w>s
+
+nnoremap ; :
+
+
