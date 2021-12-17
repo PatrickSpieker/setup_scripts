@@ -21,3 +21,4 @@ set -g default-terminal "screen-256color"
 set -g status-bg orange
 set -g status-fg black
 set -g pane-active-border-style "bg=default fg=orange"
+set -g mouse on

@@ -6,6 +6,7 @@ brew install neovim
 brew install tmux
 brew install fzf
 brew install ack # like grep but better????
+brew install ruby
 sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 
