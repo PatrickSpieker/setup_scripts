@@ -34,17 +34,18 @@ git config --global user.name "pspieker"
 #
 # NEOVIM Installation
 brew install neovim # for most text editing needs
+
+if [ -d "/Users/patrickspieker/.config/nvim" ] 
+then
+  echo "NVIM config directory already existed; continuing..."
+else
+  mkdir ~/.config/nvim
+fi
+
 # Softlinking the NVIM config in this folder to the correct file system location
 # Note that the _entire_ file path is needed here - 
 # (should set up a bash variable to store the path to this location)
 ln -sf /Users/patrickspieker/Library/Mobile\ Documents/com~apple~CloudDocs/setup_scripts/vimrc_main ~/.config/nvim/init.vim
-cp ./vim_config ~/.vimrc
-
-if [ -d "/Users/patrickspieker/.config/nvim" ] 
-then
-else
-  mkdir ~/.config/nvim
-fi
 sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 # -------- END VIM CONFIG --------
