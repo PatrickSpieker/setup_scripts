@@ -45,10 +45,12 @@ vnoremap <Up> <Nop>
 " ======== Plugins ========
 call plug#begin('~/.local/nvim/plugins')
 
-" Install these with :PlugInstall inside of a nvim instance
+" Install these with :PlugInstall inside of a nvim instance - you'll need to
+" restart nvim
 Plug 'mileszs/ack.vim'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
+Plug 'preservim/nerdtree'
 
 call plug#end()
 
