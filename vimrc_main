@@ -47,12 +47,16 @@ call plug#begin('~/.local/nvim/plugins')
 
 " Install these with :PlugInstall inside of a nvim instance - you'll need to
 " restart nvim
-Plug 'mileszs/ack.vim'
+Plug 'mileszs/ack.vim' " like a better grep (specifically for code) in Vim
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'preservim/nerdtree'
 
 call plug#end()
+
+" ==== Setting up The Silver Searcher, aka ag, which works ontop of ack.vim but is just better??
+let g:ackprg = 'ag --nogroup --nocolor --column'
+
 
 " ===== Fzf config 
 " so you don't have to type :Files

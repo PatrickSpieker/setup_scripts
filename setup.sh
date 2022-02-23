@@ -24,6 +24,7 @@ brew install tmux # for terminal multi-plexing
 brew install fzf # file fuzzy finder - mostly used in the nvim context
 brew install ruby # Old version of Ruby is usually the default, so want to upgrade
 brew install ffmpeg # for extracting / dealing with audio files, converting, etc. 
+brew install the_silver_searcher # aka ag, a way better way to search code than grep / ack
 
 #
 # Configuring personal git things
