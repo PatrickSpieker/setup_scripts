@@ -1,7 +1,10 @@
+" Mapping the leader to the 'gh' combo
+:let mapleader = "gh"
 
 set visualbell "no sounds - from dbalatero
 set showmode
 set number
+colorscheme desert
 
 "turn on syntax highlighting
 syntax on
@@ -10,7 +13,6 @@ syntax on
 inoremap jj <esc>
 
 " Turn Off Swap Files 
-
 set noswapfile
 set nobackup
 set nowb
@@ -54,19 +56,20 @@ Plug 'preservim/nerdtree'
 
 call plug#end()
 
-" ==== Setting up The Silver Searcher, aka ag, which works ontop of ack.vim but is just better??
-let g:ackprg = 'ag --nogroup --nocolor --column'
-
-
-" ===== Fzf config 
+" ===== FZF config 
 " so you don't have to type :Files
-noremap <C-p> :Files<CR>
+noremap <Leader>p :Files<CR>
 
 " ==== Ack config
 " so you can search for files easier
 "   - docs: https://github.com/mileszs/ack.vim
-" workflow: do Ctrl - i
-noremap <C-i> :Ack<Space>
+" using ripgrep as the backend for Ack.vim's search - this is _fast_ 
+" compared to grep, ack's backend, or ag (the silver searcher)
+let g:ackprg = 'rg --vimgrep'
+" autoclose the list of search results after an option is selected
+let g:ack_autoclose = 1
+" workflow: do Leader - i 
+noremap <Leader>i :Ack<Space>
 
 " ==== Editing
 " making the default splitting to the right, or below
@@ -80,4 +83,18 @@ nnoremap <silent> ss <C-w>s
 
 nnoremap ; :
 
+nnoremap <Leader>a :echo "Hello there you memer"<CR>
+" this remapping is super nice for all the C-w 
+" vim makes you do to switch between windows
+nnoremap <Leader>w <C-w>
+
+" ======= NVIM Terminal remapping
+:tnoremap jj <C-\><C-n>
+" After the above remapping, your basic NVIM + terminal workflow looks like:
+"   - open w/ :te or :terminal
+"   - exit by running 'exit' in the terminal
+"   - <Leader>w to nav between windows
+"   - jj when in terminal mode to switch to vim mode
+"   - any command that puts you in 'insert' mode to switch from vim mode to 
+"       terminal mode; ex: i or a
 

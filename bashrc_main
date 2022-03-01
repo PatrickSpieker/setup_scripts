@@ -15,3 +15,6 @@ export GEM_HOME="$HOME/.gem"
 export dr='/Users/patrickspieker/Library/Mobile Documents/com~apple~CloudDocs'
 # Lmao the amount of interpolation here is TOOOOOO damn high
 alias cddr="cd \"$dr\""
+
+# Setting the default FZF command to be backed by ripgrep for speed
+export FZF_DEFAULT_COMMAND='rg --files --hidden --smart-case --glob "!.git/"'
