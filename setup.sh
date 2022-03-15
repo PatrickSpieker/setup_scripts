@@ -25,8 +25,9 @@ brew install fzf # file fuzzy finder - mostly used in the nvim context
 brew install ruby # Old version of Ruby is usually the default, so want to upgrade
 brew install ffmpeg # for extracting / dealing with audio files, converting, etc. 
 brew install ripgrep # best empirical backend for both fzf (filename searching) and ack (file content searching)
+brew install yt-dlp/taps/yt-dlp # faster version of youtube download
+brew install asdf # runtime version manager - allows you to switch between Ruby / Python versions easily; replaces rbenv or virtualenv
 
-#
 # Configuring personal git things
 git config --global user.email "patrick@patrickspieker.com"
 git config --global user.name "pspieker"
@@ -53,6 +54,16 @@ sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.
 
 # soft linking tmux config
 ln -sf /Users/patrickspieker/Library/Mobile\ Documents/com~apple~CloudDocs/setup_scripts/tmux_conf_main ~/.tmux.conf
+
+# asdf (runtime version manager setup)
+# installing the first-party Ruby plugin
+asdf plugin add ruby https://github.com/asdf-vm/asdf-ruby.git
+# install ruby 3.1.0
+asdf install ruby 3.1.0
+# setting the default version (written in .tool-versions) to Ruby 3.1
+# - asdf traverses up from the current directory looking for a .tool-versions file to read the runtime preferences from
+asdf global ruby 3.1.0
+
 
 # this will - run the stuff in bash_profile, which sources bashrc, so this needs to be the last step. 
 # This helps you avoid having to start a new shell to actually have these changes take effect. 
