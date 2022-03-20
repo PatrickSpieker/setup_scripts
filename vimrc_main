@@ -4,12 +4,11 @@
 set visualbell "no sounds - from dbalatero
 set showmode
 set number
-colorscheme desert
 
 "turn on syntax highlighting
 syntax on
 
-" remap ESC to jj
+" remap ESC to jj - to allow INSERT -> VISUAL transition to be easier
 inoremap jj <esc>
 
 " Turn Off Swap Files 
@@ -48,13 +47,19 @@ vnoremap <Up> <Nop>
 call plug#begin('~/.local/nvim/plugins')
 
 " Install these with :PlugInstall inside of a nvim instance - you'll need to
-" restart nvim
+" restart nvim, then call PlugInstall, then you should be good
 Plug 'mileszs/ack.vim' " like a better grep (specifically for code) in Vim
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'preservim/nerdtree'
+Plug 'sainnhe/everforest'
 
 call plug#end()
+
+" colorscheme - adding after Plug has installed these; needs to be after
+" plug#end()
+colorscheme everforest
+set background=dark
 
 " ===== FZF config 
 " so you don't have to type :Files
@@ -95,6 +100,6 @@ nnoremap <Leader>w <C-w>
 "   - exit by running 'exit' in the terminal
 "   - <Leader>w to nav between windows
 "   - jj when in terminal mode to switch to vim mode
-"   - any command that puts you in 'insert' mode to switch from vim mode to 
-"       terminal mode; ex: i or a
+"   - any command that puts you in 'insert' mode to switch from vim mode to i
+"   or a
 
