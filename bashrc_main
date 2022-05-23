@@ -3,8 +3,25 @@ alias vim="nvim"
 alias vi="nvim"
 alias gs="git status -uno"
 alias gacp="git add . && git commit -m 'WIP' && git push origin HEAD"
-alias myn='vim ~/Library/Mobile\ Documents/com~apple~CloudDocs/batf.txt'
+alias myn='vim ~/Library/Mobile\ Documents/com~apple~CloudDocs/bamdf.md'
 alias rp='vim ~/Library/Mobile\ Documents/com~apple~CloudDocs/ramen_profitable/current.txt'
+alias pb='cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/web-stuff/pspieker-blog/ && JEKYLL_ENV=production bundle exec jekyll build && cp -r ./_site/* ../patrickspieker.github.io/blog'
+
+generate_draft() {
+  cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/web-stuff/pspieker-blog/_drafts
+  SECS=$(date +%s)
+  vim $SECS".md"
+}
+alias gd=generate_draft
+generate_post() {
+  cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/web-stuff/pspieker-blog/_posts
+  YEAR=$(date +%Y)
+  MONTH=$(date +%m)
+  DAY=$(date +%d)
+  SECS=$(date +%s)
+  vim $YEAR"-"$MONTH"-"$DAY"_"$SECS".md"
+}
+alias gp=generate_post
 
 
 # Adding things to my path

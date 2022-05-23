@@ -9,24 +9,24 @@
 # xcode-select --install # Apple's Command Line Tools - needed for a bunch of random Homebrew things 
 
 # BASH INSTALLATION - changing shell to an upgraded version of bash 
-brew install bash # just need the basics of shell - no customization beyond that (who needs color schemes?)
+# brew install bash # just need the basics of shell - no customization beyond that (who needs color schemes?)
 # should probably check if the above command worked ^^ ??? check with $? or something
 echo "Adding new bash to list of allowable shells..."
-echo "/usr/local/bin/bash" | sudo tee -a /etc/shells >> /dev/null # adding the upgraded bash to our shell options
+# echo "/usr/local/bin/bash" | sudo tee -a /etc/shells >> /dev/null # adding the upgraded bash to our shell options
 echo "Making the system shell the new bash..."
-chsh -s /usr/local/bin/bash # actually changing the shell now that the new bash is an option
+# chsh -s /usr/local/bin/bash # actually changing the shell now that the new bash is an option
 # Soft linking the bashrc, then creating bash_profile such that it just references rc - all config should be in rc
-ln -sf /Users/patrickspieker/Library/Mobile\ Documents/com~apple~CloudDocs/setup_scripts/bashrc_main ~/.bashrc
+# ln -sf /Users/patrickspieker/Library/Mobile\ Documents/com~apple~CloudDocs/setup_scripts/bashrc_main ~/.bashrc
 echo "source ~/.bashrc" > ~/.bash_profile
 echo "Finished configuing new bash!"
 
-brew install tmux # for terminal multi-plexing
-brew install fzf # file fuzzy finder - mostly used in the nvim context
-brew install ruby # Old version of Ruby is usually the default, so want to upgrade
-brew install ffmpeg # for extracting / dealing with audio files, converting, etc. 
-brew install ripgrep # best empirical backend for both fzf (filename searching) and ack (file content searching)
-brew install yt-dlp/taps/yt-dlp # faster version of youtube download
-brew install asdf # runtime version manager - allows you to switch between Ruby / Python versions easily; replaces rbenv or virtualenv
+# brew install tmux # for terminal multi-plexing
+# brew install fzf # file fuzzy finder - mostly used in the nvim context
+# brew install ruby # Old version of Ruby is usually the default, so want to upgrade
+# brew install ffmpeg # for extracting / dealing with audio files, converting, etc. 
+# brew install ripgrep # best empirical backend for both fzf (filename searching) and ack (file content searching)
+# brew install yt-dlp/taps/yt-dlp # faster version of youtube download
+# brew install asdf # runtime version manager - allows you to switch between Ruby / Python versions easily; replaces rbenv or virtualenv
 
 # Configuring personal git things
 git config --global user.email "patrick@patrickspieker.com"
