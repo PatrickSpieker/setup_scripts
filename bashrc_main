@@ -33,6 +33,9 @@ export PATH="/Users/patrickspieker/.gem/bin:$PATH"
 export PATH=`gem environment gemdir`/bin:$PATH
 export PATH="/usr/local/sbin:$PATH"
 
+export JAVA_HOME="$HOME/jdk-18.0.1.1.jdk/Contents/Home"
+export PATH="$JAVA_HOME/bin:$PATH"
+
 # Creates a file so that iTerm shuts up about my last login >:)
 touch ~/.hushlogin
 PROMPT='%~ > '
