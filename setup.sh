@@ -12,6 +12,7 @@ xcode-select --install # Apple's Command Line Tools - needed for a bunch of rand
 brew install bash # just need the basics of shell - no customization beyond that (who needs color schemes?)
 brew info bash # need this to get the path of the installed bash executable
 # should probably check if the above command worked ^^ ??? check with $? or something
+# For M1's for example, should be /opt/homebrew/bin/bash, which itself is a symlink
 echo "Adding new bash to list of allowable shells..."
 echo "/path/to/bash" | sudo tee -a /etc/shells >> /dev/null # adding the upgraded bash to our shell options
 echo "Making the system shell the new bash..."
@@ -19,11 +20,11 @@ chsh -s /path/to/bash # actually changing the shell now that the new bash is an 
 echo $BASH_VERSION
 
 # Soft linking the bashrc, then creating bash_profile such that it just references rc - all config should be in rc
-# ln -sf /Users/patrickspieker/Library/Mobile\ Documents/com~apple~CloudDocs/setup_scripts/bashrc_main ~/.bashrc
-echo "source ~/.bashrc" > ~/.bash_profile
+ln -sf /Users/patrickspieker/Library/Mobile\ Documents/com~apple~CloudDocs/setup_scripts/bashrc_main ~/.bashrc
+# Appending with >> as opposed to overwriting with >
+echo "source ~/.bashrc" >> ~/.bash_profile
 echo "Finished configuing new bash!"
 
-# brew install tmux # for terminal multi-plexing
 # brew install fzf # file fuzzy finder - mostly used in the nvim context
 # brew install ruby # Old version of Ruby is usually the default, so want to upgrade
 # brew install ffmpeg # for extracting / dealing with audio files, converting, etc. 
