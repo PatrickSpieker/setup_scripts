@@ -25,10 +25,10 @@ ln -sf /Users/patrickspieker/Library/Mobile\ Documents/com~apple~CloudDocs/setup
 echo "source ~/.bashrc" >> ~/.bash_profile
 echo "Finished configuing new bash!"
 
-# brew install fzf # file fuzzy finder - mostly used in the nvim context
-# brew install ruby # Old version of Ruby is usually the default, so want to upgrade
-# brew install ffmpeg # for extracting / dealing with audio files, converting, etc. 
-# brew install ripgrep # best empirical backend for both fzf (filename searching) and ack (file content searching)
+brew install fzf # file fuzzy finder - mostly used in the nvim context
+brew install ruby # Old version of Ruby is usually the default, so want to upgrade
+brew install ffmpeg # for extracting / dealing with audio files, converting, etc. 
+brew install ripgrep # best empirical backend for both fzf (filename searching) and ack (file content searching)
 # brew install yt-dlp/taps/yt-dlp # faster version of youtube download
 # brew install asdf # runtime version manager - allows you to switch between Ruby / Python versions easily; replaces rbenv or virtualenv
 
