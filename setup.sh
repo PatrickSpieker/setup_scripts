@@ -52,8 +52,8 @@ sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.
        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 # -------- END VIM CONFIG --------
 
-# soft linking tmux config
-ln -sf /Users/patrickspieker/Library/Mobile\ Documents/com~apple~CloudDocs/setup_scripts/tmux_conf_main ~/.tmux.conf
+# soft linking tmux config - don't think I use this or need it?
+# ln -sf /Users/patrickspieker/Library/Mobile\ Documents/com~apple~CloudDocs/setup_scripts/tmux_conf_main ~/.tmux.conf
 
 # asdf (runtime version manager setup)
 # installing the first-party Ruby plugin
