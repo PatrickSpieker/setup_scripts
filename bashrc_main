@@ -54,3 +54,4 @@ export FZF_DEFAULT_COMMAND='rg --files --hidden --smart-case --glob "!.git/"'
 # turning off the god awful bash bell - used to happen on autocomplete
 bind 'set bell-style none'
 
+. "$HOME/.cargo/env"

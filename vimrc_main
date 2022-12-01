@@ -1,3 +1,12 @@
+" TODO:
+" - copy the name of the current file to the system clipboard
+" - link the system clipboard to the vim clipboard properly - so yy puts the
+"   text on the vim clipboard, and so that command c is pasted into vim with
+"   pp
+" - autoformat on save of the file
+
+
+
 " Mapping the leader to the 'gh' combo
 :let mapleader = "gh"
 
