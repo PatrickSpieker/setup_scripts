@@ -47,10 +47,6 @@ alias cddr="cd \"$dr\""
 # Setting the default FZF command to be backed by ripgrep for speed
 export FZF_DEFAULT_COMMAND='rg --files --hidden --smart-case --glob "!.git/"'
 
-# asdf (installed with brew) needs this run so it can modify runtimes
-# - this modifies $PATH for asdf, so I don't need to do it manually
-. /usr/local/opt/asdf/libexec/asdf.sh
-
 # turning off the god awful bash bell - used to happen on autocomplete
 bind 'set bell-style none'
 

@@ -5,18 +5,19 @@
 
 # HOMEBREW Installation 
 # need to mark this script as executable with: chmod 755 ./setup.sh
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-xcode-select --install # Apple's Command Line Tools - needed for a bunch of random Homebrew things 
+# /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+# xcode-select --install # Apple's Command Line Tools - needed for a bunch of random Homebrew things 
 
 # BASH INSTALLATION - changing shell to an upgraded version of bash 
-brew install bash # just need the basics of shell - no customization beyond that (who needs color schemes?)
-brew info bash # need this to get the path of the installed bash executable
+# brew install bash # just need the basics of shell - no customization beyond that (who needs color schemes?)
+# brew info bash # need this to get the path of the installed bash executable
+
 # should probably check if the above command worked ^^ ??? check with $? or something
 # For M1's for example, should be /opt/homebrew/bin/bash, which itself is a symlink
 echo "Adding new bash to list of allowable shells..."
 echo "/path/to/bash" | sudo tee -a /etc/shells >> /dev/null # adding the upgraded bash to our shell options
 echo "Making the system shell the new bash..."
-chsh -s /path/to/bash # actually changing the shell now that the new bash is an option
+chsh -s /usr/local/bin/bash # actually changing the shell now that the new bash is an option
 echo $BASH_VERSION
 
 # Soft linking the bashrc, then creating bash_profile such that it just references rc - all config should be in rc
@@ -25,13 +26,12 @@ ln -sf /Users/patrickspieker/Library/Mobile\ Documents/com~apple~CloudDocs/setup
 echo "source ~/.bashrc" >> ~/.bash_profile
 echo "Finished configuing new bash!"
 
-brew install fzf # file fuzzy finder - mostly used in the nvim context
-brew install ruby # Old version of Ruby is usually the default, so want to upgrade
-brew install ffmpeg # for extracting / dealing with audio files, converting, etc. 
-brew install ripgrep # best empirical backend for both fzf (filename searching) and ack (file content searching)
-brew install node
+# brew install fzf # file fuzzy finder - mostly used in the nvim context
+# brew install ruby # Old version of Ruby is usually the default, so want to upgrade
+# brew install ffmpeg # for extracting / dealing with audio files, converting, etc. 
+# brew install ripgrep # best empirical backend for both fzf (filename searching) and ack (file content searching)
+# brew install node
 # brew install yt-dlp/taps/yt-dlp # faster version of youtube download
-# brew install asdf # runtime version manager - allows you to switch between Ruby / Python versions easily; replaces rbenv or virtualenv
 
 # Configuring personal git things
 git config --global user.email "patrick@patrickspieker.com"
@@ -40,7 +40,7 @@ git config --global user.name "pspieker"
 # -------- VIM + NVIM config --------
 #
 # NEOVIM Installation
-brew install neovim # for most text editing needs
+# brew install neovim # for most text editing needs
 
 if [ -d "/Users/patrickspieker/.config/nvim" ] 
 then
@@ -59,16 +59,6 @@ sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.
 
 # soft linking tmux config - don't think I use this or need it?
 # ln -sf /Users/patrickspieker/Library/Mobile\ Documents/com~apple~CloudDocs/setup_scripts/tmux_conf_main ~/.tmux.conf
-
-# asdf (runtime version manager setup)
-# installing the first-party Ruby plugin
-asdf plugin add ruby https://github.com/asdf-vm/asdf-ruby.git
-# install ruby 3.1.0
-asdf install ruby 3.1.0
-# setting the default version (written in .tool-versions) to Ruby 3.1
-# - asdf traverses up from the current directory looking for a .tool-versions file to read the runtime preferences from
-asdf global ruby 3.1.0
-
 
 # this will - run the stuff in bash_profile, which sources bashrc, so this needs to be the last step. 
 # This helps you avoid having to start a new shell to actually have these changes take effect. 
