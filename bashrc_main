@@ -1,29 +1,16 @@
-alias ll="ls -l"
+
+
+# Note that I only alias vim to nvim here; vi I think is used for rebasing,
+# and I've seen errors on a rebase when the rebase tries to open some vi-based
+# text editor - thus, I removed this to see if that helps
 alias vim="nvim"
-alias vi="nvim"
+
+# ----- GIT COMMANDS ----- 
 alias gs="git status -uno"
 alias gacp="git add . && git commit -m 'WIP' && git push origin HEAD"
-alias myn='vim ~/Library/Mobile\ Documents/com~apple~CloudDocs/bamdf.md'
-alias rp='vim ~/Library/Mobile\ Documents/com~apple~CloudDocs/ramen_profitable/current.txt'
-alias pb='cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/web-stuff/pspieker-blog/ && JEKYLL_ENV=production bundle exec jekyll build && cp -r ./_site/* ../patrickspieker.github.io/blog'
+# ----- END GIT COMMANDS -----
 
-generate_draft() {
-  cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/web-stuff/pspieker-blog/_drafts
-  SECS=$(date +%s)
-  vim $SECS".md"
-}
-alias gd=generate_draft
-generate_post() {
-  cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/web-stuff/pspieker-blog/_posts
-  YEAR=$(date +%Y)
-  MONTH=$(date +%m)
-  DAY=$(date +%d)
-  SECS=$(date +%s)
-  vim $YEAR"-"$MONTH"-"$DAY"_"$SECS".md"
-}
-alias gp=generate_post
-
-
+# ----- PATH Appendings -----
 # Adding things to my path
 # prepending the Ruby bin path
 export PATH="/usr/local/opt/ruby/bin:$PATH" 
@@ -32,9 +19,10 @@ export PATH="/Users/patrickspieker/.gem/bin:$PATH"
 # making gem command look at the proper version of Ruby
 export PATH=`gem environment gemdir`/bin:$PATH
 export PATH="/usr/local/sbin:$PATH"
-
+# JAVA
 export JAVA_HOME="$HOME/jdk-18.0.1.1.jdk/Contents/Home"
 export PATH="$JAVA_HOME/bin:$PATH"
+# SMLNJ (not installed via homebrew)
 export PATH="$PATH:/usr/local/smlnj/bin"
 
 # Creates a file so that iTerm shuts up about my last login >:)
@@ -46,9 +34,11 @@ export dr='/Users/patrickspieker/Library/Mobile Documents/com~apple~CloudDocs'
 alias cddr="cd \"$dr\""
 
 # Setting the default FZF command to be backed by ripgrep for speed
+# - note that this is what powers fzf.vim's search
 export FZF_DEFAULT_COMMAND="rg --files --hidden --smart-case --glob '!.git/'"
 
 # turning off the god awful bash bell - used to happen on autocomplete
 bind 'set bell-style none'
 
+# Some Rust thing? Not actually sure what this does
 . "$HOME/.cargo/env"

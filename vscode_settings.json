@@ -1,5 +1,5 @@
 {
-    "workbench.colorTheme": "Solarized Dark",
+    "workbench.colorTheme": "Monokai Dimmed",
     "vim.insertModeKeyBindings": [
         {
           "before": ["j", "j"],
