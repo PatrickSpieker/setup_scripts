@@ -46,7 +46,7 @@ export dr='/Users/patrickspieker/Library/Mobile Documents/com~apple~CloudDocs'
 alias cddr="cd \"$dr\""
 
 # Setting the default FZF command to be backed by ripgrep for speed
-export FZF_DEFAULT_COMMAND='rg --files --hidden --smart-case'
+export FZF_DEFAULT_COMMAND="rg --files --hidden --smart-case --glob '!.git/'"
 
 # turning off the god awful bash bell - used to happen on autocomplete
 bind 'set bell-style none'
