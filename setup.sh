@@ -56,6 +56,15 @@ ln -sf /Users/patrickspieker/Library/Mobile\ Documents/com~apple~CloudDocs/setup
 sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 # -------- END VIM CONFIG --------
+#
+# -------- VSCODE Config ---------
+# Soft linking the bashrc, then creating bash_profile such that it just references rc - all config should be in rc
+ln -sf /Users/patrickspieker/Library/Mobile\ Documents/com~apple~CloudDocs/setup_scripts/vscode_settings \
+  ~/Library/Application\ Support/Code/User/settings.json
+# Appending with >> as opposed to overwriting with >
+echo "Finished configuing VS Code!"
+# -------- END VS CODE CONFIG ------
+
 
 # soft linking tmux config - don't think I use this or need it?
 # ln -sf /Users/patrickspieker/Library/Mobile\ Documents/com~apple~CloudDocs/setup_scripts/tmux_conf_main ~/.tmux.conf
