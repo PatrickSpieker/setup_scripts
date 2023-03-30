@@ -27,7 +27,7 @@ export PATH="$PATH:/usr/local/smlnj/bin"
 
 # Creates a file so that iTerm shuts up about my last login >:)
 touch ~/.hushlogin
-PROMPT='%~ > '
+PS1='> '
 
 export dr='/Users/patrickspieker/Library/Mobile Documents/com~apple~CloudDocs'
 # Lmao the amount of interpolation here is TOOOOOO damn high
