@@ -25,6 +25,10 @@ export PATH="$JAVA_HOME/bin:$PATH"
 # SMLNJ (not installed via homebrew)
 export PATH="$PATH:/usr/local/smlnj/bin"
 
+# Adding VSCode to the path so we can do things like "code ."
+export PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
+
+
 # Creates a file so that iTerm shuts up about my last login >:)
 touch ~/.hushlogin
 PS1='> '
@@ -42,3 +46,4 @@ bind 'set bell-style none'
 
 # Some Rust thing? Not actually sure what this does
 . "$HOME/.cargo/env"
+
