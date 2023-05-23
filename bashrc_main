@@ -8,6 +8,7 @@ alias vim="nvim"
 # ----- GIT COMMANDS ----- 
 alias gs="git status -uno"
 alias gacp="git add . && git commit -m 'WIP' && git push origin HEAD"
+alias glp="git log --pretty=oneline"
 # ----- END GIT COMMANDS -----
 
 # ----- PATH Appendings -----

@@ -3,7 +3,8 @@
 # This file exists both for literal development environment config purposes (to programmically redo my setup)
 # and also for human config purposes :) - to remind me how my setup works + tips and tricks
 #
-# NOTE: need to mark this script as executable with: chmod 755 ./setup.sh
+# NOTE: 
+# When you clone this repo, you need to mark this script as executable with: chmod 755 ./setup.sh
 
 # ----- HOMEBREW Installation -----
 # xcode-select --install # Apple's Command Line Tools - needed for a bunch of random Homebrew things 
@@ -36,6 +37,8 @@ echo "Finished configuing new bash!"
 # brew install ripgrep # best empirical backend for both fzf (filename searching) and ack (file content searching)
 # brew install node
 # brew install yt-dlp/taps/yt-dlp # faster version of youtube download
+# brew install --cask emacs # thinking of trying this
+# brew install watchman # for sorbet
 
 # Configuring personal git things
 git config --global user.email "patrick@patrickspieker.com"

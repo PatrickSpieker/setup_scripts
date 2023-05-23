@@ -1,0 +1,14 @@
+Just a list of applications not installed via homebrew that are useful:
+- BetterSnapTool
+- Discord
+- Flux
+- Chrome
+- iTerm 2
+- Slack
+- Spotify
+- Todoist
+- VSCode
+- VLC
+- WhatsApp
+- Zoom
+
