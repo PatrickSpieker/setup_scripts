@@ -1,4 +1,5 @@
 {
+    // Need to install: vim plugin via VSCode GUI
     "workbench.colorTheme": "Visual Studio Dark",
     "vim.insertModeKeyBindings": [
         {
