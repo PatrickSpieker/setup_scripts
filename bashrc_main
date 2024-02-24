@@ -25,6 +25,8 @@ export JAVA_HOME="$HOME/jdk-18.0.1.1.jdk/Contents/Home"
 export PATH="$JAVA_HOME/bin:$PATH"
 # SMLNJ (not installed via homebrew)
 export PATH="$PATH:/usr/local/smlnj/bin"
+# Adding homebrew to the path
+export PATH=/opt/homebrew/bin:$PATH
 
 # Adding VSCode to the path so we can do things like "code ."
 export PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin"

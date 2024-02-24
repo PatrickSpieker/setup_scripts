@@ -1,5 +1,4 @@
 {
-    // Need to install: vim plugin via VSCode GUI
     "workbench.colorTheme": "Visual Studio Dark",
     "vim.insertModeKeyBindings": [
         {
@@ -8,5 +7,11 @@
         }
       ],
       "security.workspace.trust.untrustedFiles": "open",
-      "sorbet.enabled": true
+      "sorbet.enabled": true,
+      "lldb.library": "/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/Versions/A/LLDB",
+      "lldb.launch.expressions": "native",
+      "workbench.editor.enablePreview": false,
+      "editor.wordWrap": "on",
+      "window.zoomLevel": 1,
+      "workbench.startupEditor": "none"
 }

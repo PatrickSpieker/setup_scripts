@@ -33,20 +33,25 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 # Soft linking the bashrc, then creating bash_profile such that it just references rc - all config should be in rc
 ln -sf ./setup_scripts/bashrc_main ~/.bashrc
+
+# soft linking the bash profile to source the bashrc (I should learn about login vs non-login shells at some point)
+ln -sf ./setup_scripts/bash_profile_main ~/.bash_profile
 # Appending with >> as opposed to overwriting with >
 echo "source ~/.bashrc" >> ~/.bash_profile
 echo "Finished configuing new bash!"
 
 # ----- INSTALLATION VIA HOMEBREW -----
-# brew install fzf # file fuzzy finder - mostly used in the nvim context
-# brew install ruby # Old version of Ruby is usually the default, so want to upgrade
-# brew install ffmpeg # for extracting / dealing with audio files, converting, etc. 
-# brew install ripgrep # best empirical backend for both fzf (filename searching) and ack (file content searching)
-# brew install node
-# brew install yt-dlp/taps/yt-dlp # faster version of youtube download
-# brew install --cask emacs # thinking of trying this
-# brew install watchman # for sorbet
-# brew install neovim
+brew install fzf # file fuzzy finder - mostly used in the nvim context
+brew install ruby # Old version of Ruby is usually the default, so want to upgrade
+brew install ffmpeg # for extracting / dealing with audio files, converting, etc. 
+brew install ripgrep # best empirical backend for both fzf (filename searching) and ack (file content searching)
+brew install node
+brew install yt-dlp/taps/yt-dlp # faster version of youtube download
+brew install --cask emacs # thinking of trying this
+brew install watchman # for sorbet
+brew install neovim
+brew install sqlite-utils
+
 
 # Configuring personal git things
 git config --global user.email "patrick@patrickspieker.com"
