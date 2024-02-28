@@ -1,4 +1,4 @@
-#!/bin/bash
+#/bin/bash
 
 # This file exists both for literal development environment config purposes (to programmically redo my setup)
 # and also for human config purposes :) - to remind me how my setup works + tips and tricks
