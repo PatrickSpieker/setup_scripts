@@ -1,50 +1,51 @@
-
-
-# Note that I only alias vim to nvim here; vi I think is used for rebasing,
-# and I've seen errors on a rebase when the rebase tries to open some vi-based
-# text editor - thus, I removed this to see if that helps
+# Note that I only alias vim to nvim here
+# vi is used for rebasing, and I've seen errors on a rebase 
+# when the rebase tries to open some vi-based text editor
 alias vim="nvim"
 
 # ----- GIT COMMANDS ----- 
 alias gs="git status -uno"
-alias gacp="git add . && git commit -m 'WIP' && git push origin HEAD"
+function gacp() {
+    git add -u
+    git commit -m '$1'
+    git push origin HEAD
+}
 alias glp="git log --pretty=oneline"
 # ----- END GIT COMMANDS -----
 
 # ----- PATH Appendings -----
-# Adding things to my path
-# prepending the Ruby bin path
+# Prepending the Ruby bin path
 export PATH="/usr/local/opt/ruby/bin:$PATH" 
-# prepending the Ruby Gems path
+# Prepending the Ruby gems path
 export PATH="/Users/patrickspieker/.gem/bin:$PATH"
-# making gem command look at the proper version of Ruby
+# Prepending making gem command look at the proper version of Ruby
 export PATH=`gem environment gemdir`/bin:$PATH
-export PATH="/usr/local/sbin:$PATH"
-# JAVA
+# Appending Java 18
 export JAVA_HOME="$HOME/jdk-18.0.1.1.jdk/Contents/Home"
 export PATH="$JAVA_HOME/bin:$PATH"
-# SMLNJ (not installed via homebrew)
+# Appending SMLNJ (not installed via homebrew)
 export PATH="$PATH:/usr/local/smlnj/bin"
 # Adding homebrew to the path
 export PATH=/opt/homebrew/bin:$PATH
-
-# Adding VSCode to the path so we can do things like "code ."
+# Not sure why this is here?
+export PATH="/usr/local/sbin:$PATH"
+# Prepending VSCode to the path so we can do things like "code ."
 export PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
+# ----- END PATH Appendings -----
 
 
-# Creates a file so that iTerm shuts up about my last login >:)
+# ----- MISC -----
+# Creates a file so that iTerm doesn't show a login message
 touch ~/.hushlogin
-PS1='> '
 
-export dr='/Users/patrickspieker/Library/Mobile Documents/com~apple~CloudDocs'
-# Lmao the amount of interpolation here is TOOOOOO damn high
-alias cddr="cd \"$dr\""
+# Prompt Definition
+PS1='> '
 
 # Setting the default FZF command to be backed by ripgrep for speed
 # - note that this is what powers fzf.vim's search
 export FZF_DEFAULT_COMMAND="rg --files --hidden --smart-case --glob '!.git/'"
 
-# turning off the god awful bash bell - used to happen on autocomplete
+# Turning off the Bash bell - used to happen on autocomplete
 bind 'set bell-style none'
 
 # Some Rust thing? Not actually sure what this does
