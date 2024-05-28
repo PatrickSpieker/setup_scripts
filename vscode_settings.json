@@ -21,5 +21,11 @@
   },
   "[python]": {
     "editor.defaultFormatter": "ms-python.black-formatter"
-  }
+  },
+  "[ruby]": {
+    "editor.defaultFormatter": "Shopify.ruby-lsp"
+  },
+  "rubyLsp.rubyVersionManager": "chruby",
+  "rubyLsp.formatter": "rubocop",
+  "vim.easymotion": true
 }

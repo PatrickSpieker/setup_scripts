@@ -25,12 +25,15 @@ export JAVA_HOME="$HOME/jdk-18.0.1.1.jdk/Contents/Home"
 export PATH="$JAVA_HOME/bin:$PATH"
 # Appending SMLNJ (not installed via homebrew)
 export PATH="$PATH:/usr/local/smlnj/bin"
-# Adding homebrew to the path
+# Appending homebrew to the path
 export PATH=/opt/homebrew/bin:$PATH
 # Not sure why this is here?
 export PATH="/usr/local/sbin:$PATH"
 # Prepending VSCode to the path so we can do things like "code ."
 export PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
+# Appending go to the path
+export GOPATH="$HOME/go"
+PATH="$GOPATH/bin:$PATH"
 # ----- END PATH Appendings -----
 
 
@@ -51,3 +54,11 @@ bind 'set bell-style none'
 # Some Rust thing? Not actually sure what this does
 . "$HOME/.cargo/env"
 
+
+# pnpm
+export PNPM_HOME="/Users/patrickspieker/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
