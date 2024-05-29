@@ -27,5 +27,6 @@
   },
   "rubyLsp.rubyVersionManager": "chruby",
   "rubyLsp.formatter": "rubocop",
-  "vim.easymotion": true
+  "vim.easymotion": true,
+  "github.copilot.editor.enableAutoCompletions": true
 }
