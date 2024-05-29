@@ -7,7 +7,7 @@ alias vim="nvim"
 alias gs="git status -uno"
 function gacp() {
     git add -u
-    git commit -m '$1'
+    git commit -m "$1"
     git push origin HEAD
 }
 alias glp="git log --pretty=oneline"

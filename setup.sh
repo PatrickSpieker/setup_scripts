@@ -85,7 +85,8 @@ ln -sf ./vscode_settings \
 echo "Finished configuing VS Code!"
 # -------- END VS CODE CONFIG ------
 
-# this will run the stuff in bash_profile, which sources bashrc, so this needs to be the last step. 
+
+# This will run the stuff in bash_profile, which sources bashrc, so this needs to be the last step. 
 # This helps you avoid having to start a new shell to actually have these changes take effect. 
 source ~/.bash_profile
 echo "Done!"
