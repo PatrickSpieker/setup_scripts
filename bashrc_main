@@ -42,7 +42,8 @@ PATH="$GOPATH/bin:$PATH"
 touch ~/.hushlogin
 
 # Prompt Definition
-PS1='> '
+# (currently overridden by oh-my-bash)
+# PS1='> '
 
 # Setting the default FZF command to be backed by ripgrep for speed
 # - note that this is what powers fzf.vim's search
@@ -54,6 +55,37 @@ bind 'set bell-style none'
 # Some Rust thing? Not actually sure what this does
 . "$HOME/.cargo/env"
 
+# ------ START oh-my-bash
+# Enable the subsequent settings only in interactive sessions
+case $- in
+  *i*) ;;
+    *) return;;
+esac
+
+# Path to your oh-my-bash installation.
+export OSH='/Users/patrickspieker/.oh-my-bash'
+
+# Set name of the theme to load. Optionally, if you set this to "random"
+# it'll load a random theme each time that oh-my-bash is loaded.
+OSH_THEME="purity"
+
+# To disable the uses of "sudo" by oh-my-bash, please set "false" to
+# this variable.  The default behavior for the empty value is "true".
+OMB_USE_SUDO=true
+
+completions=(
+  git
+  composer
+  ssh
+)
+
+plugins=(
+  git
+  bashmarks
+)
+
+source "$OSH"/oh-my-bash.sh
+# ------ END oh-my-bash
 
 # pnpm
 export PNPM_HOME="/Users/patrickspieker/Library/pnpm"

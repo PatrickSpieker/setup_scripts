@@ -105,6 +105,12 @@ nnoremap <Leader>a :echo "Hello there you memer"<CR>
 " vim makes you do to switch between windows
 nnoremap <Leader>w <C-w>
 
+" Remap yanking to always use the system clipboard
+nnoremap y "+y
+nnoremap yy "+yy
+vnoremap y "+y
+vnoremap yy "+yy
+
 " ======= NVIM Terminal remapping
 :tnoremap jj <C-\><C-n>
 " After the above remapping, your basic NVIM + terminal workflow looks like:

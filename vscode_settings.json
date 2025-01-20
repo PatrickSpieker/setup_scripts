@@ -25,8 +25,20 @@
   "[ruby]": {
     "editor.defaultFormatter": "Shopify.ruby-lsp"
   },
-  "rubyLsp.rubyVersionManager": "chruby",
+  "rubyLsp.rubyVersionManager": {
+    "identifier": "chruby"
+  },
   "rubyLsp.formatter": "rubocop",
   "vim.easymotion": true,
-  "github.copilot.editor.enableAutoCompletions": true
+  "github.copilot.editor.enableAutoCompletions": true,
+  "explorer.confirmDelete": false,
+  "sqltools.useNodeRuntime": true,
+  "[sql]": {
+    "editor.defaultFormatter": "mtxr.sqltools"
+  },
+  "go.toolsManagement.autoUpdate": true,
+  "git.openRepositoryInParentFolders": "never",
+  "[go]": {
+    "editor.defaultFormatter": "golang.go"
+  }
 }
