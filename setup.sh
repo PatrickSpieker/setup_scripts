@@ -52,6 +52,10 @@ brew install --cask emacs # thinking of trying this
 brew install watchman # for sorbet
 brew install neovim
 brew install sqlite-utils
+brew install --cask docker
+brew install docker-buildx
+mkdir -p ~/.docker/cli-plugins
+ln -sfn /opt/homebrew/opt/docker-buildx/bin/docker-buildx ~/.docker/cli-plugins/docker-buildx
 
 # Configuring personal git things
 git config --global user.email "patrick@patrickspieker.com"

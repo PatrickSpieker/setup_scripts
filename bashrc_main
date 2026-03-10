@@ -13,6 +13,76 @@ function gacp() {
 alias glp="git log --pretty=oneline"
 # ----- END GIT COMMANDS -----
 
+# ----- SBA: Sandboxed AI Agent -----
+sba() {
+  local env_file=""
+  local agent="claude"
+  local branch=""
+  local task=""
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -e)
+        env_file="$2"
+        shift 2
+        ;;
+      -t)
+        task="$2"
+        shift 2
+        ;;
+      --agent)
+        agent="$2"
+        shift 2
+        ;;
+      --branch)
+        branch="$2"
+        shift 2
+        ;;
+      *)
+        echo "Usage: sba -e <env-file> -t <task> [--agent claude|codex|gemini] [--branch <name>]"
+        return 1
+        ;;
+    esac
+  done
+
+  if [ -z "$env_file" ]; then
+    echo "❌ -e <env-file> is required"
+    echo "Usage: sba -e <env-file> -t <task> [--agent claude|codex|gemini] [--branch <name>]"
+    return 1
+  fi
+
+  if [ ! -f "$env_file" ]; then
+    echo "❌ Env file not found: $env_file"
+    return 1
+  fi
+
+  local sba_dir="$HOME/code/setup_scripts/sba"
+
+  # Build image if not already built
+  if ! docker image inspect sba:latest &>/dev/null; then
+    echo "🔨 Building sba Docker image..."
+    docker buildx build -t sba:latest "$sba_dir"
+  fi
+
+  local branch_args=()
+  if [ -n "$branch" ]; then
+    branch_args=(-e BRANCH="$branch")
+  fi
+
+  local task_args=()
+  if [ -n "$task" ]; then
+    task_args=(-e TASK="$task")
+  fi
+
+  docker run -it --rm \
+    --env-file "$env_file" \
+    -e AGENT="$agent" \
+    "${branch_args[@]}" \
+    "${task_args[@]}" \
+    sba:latest
+}
+# ----- END SBA -----
+
 # ----- PATH Appendings -----
 # Prepending the Ruby bin path
 export PATH="/usr/local/opt/ruby/bin:$PATH" 
