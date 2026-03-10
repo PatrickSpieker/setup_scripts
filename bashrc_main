@@ -5,6 +5,7 @@ alias vim="nvim"
 
 # ----- GIT COMMANDS ----- 
 alias gs="git status -uno"
+alias gc="git commit -am"
 function gacp() {
     git add -u
     git commit -m "$1"
@@ -166,3 +167,5 @@ esac
 # pnpm end
 
 cd ~/code
+
+. "$HOME/.local/bin/env"
