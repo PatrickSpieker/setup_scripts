@@ -5,7 +5,7 @@
 # NOTE: when you clone this repo, you need to mark this script as executable with: chmod 755 ./setup.sh
 
 # First, you may need to create / add the new laptop SSH key with: 
-ssh-keygen -b 4096 -t rsa
+# ssh-keygen -b 4096 -t rsa
 
 # ----- HOMEBREW Installation -----
 xcode-select --install # Apple's Command Line Tools - needed for a bunch of random Homebrew things 
@@ -32,6 +32,7 @@ ln -sf ./setup_scripts/bashrc_main ~/.bashrc
 
 # Soft linking the bash profile to source the bashrc (I should learn about login vs non-login shells at some point)
 ln -sf ./setup_scripts/bash_profile_main ~/.bash_profile
+
 # Appending with >> as opposed to overwriting with >
 echo "source ~/.bashrc" >> ~/.bash_profile
 echo "Finished configuing new bash!"
@@ -84,6 +85,13 @@ ln -sf ./vscode_settings \
 # Appending with >> as opposed to overwriting with >
 echo "Finished configuing VS Code!"
 # -------- END VS CODE CONFIG ------
+
+
+# ---- Cursor config ----
+curl https://cursor.com/install -fsS | bash
+# Agents.md
+
+
 
 
 # This will run the stuff in bash_profile, which sources bashrc, so this needs to be the last step. 
