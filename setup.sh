@@ -62,6 +62,7 @@ brew install neovim
 brew install sqlite-utils
 brew install --cask docker
 brew install docker-buildx
+brew install swiftbar
 mkdir -p ~/.docker/cli-plugins
 ln -sfn /opt/homebrew/opt/docker-buildx/bin/docker-buildx ~/.docker/cli-plugins/docker-buildx
 
@@ -127,6 +128,13 @@ cp ~/.codex/skills/.system/
 ln -sn "$(pwd)/skills" ~/.codex/skills
 # reminder: codex skills are kicked off with $skill_name, not /skill_name
 
+# configuring SwiftBar
+# - uses my script for tracking usage
+mkdir -p ~/.swiftbar
+ln -sn "$(pwd)/swiftbar_plugins" ~/.swiftbar/plugins
+
+
+# TODO: add Karabiner elements for caps lock remapping to esc
 
 # This will run the stuff in bash_profile, which sources bashrc, so this needs to be the last step. 
 # This helps you avoid having to start a new shell to actually have these changes take effect. 
