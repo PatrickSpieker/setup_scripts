@@ -1,6 +1,6 @@
 runtime: apple
 grants:
-  - anthropic
+  - claude
   - github
 
 hooks:
