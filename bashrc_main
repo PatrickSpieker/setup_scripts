@@ -33,7 +33,18 @@ alias vim="nvim"
 # -------------
 
 
-# ----- GIT COMMANDS ----- 
+# ----- MOAT -----
+moat-init() {
+  if [[ -f moat.yaml ]]; then
+    echo "moat.yaml already exists in this directory."
+    return 1
+  fi
+  cp ~/setup_scripts/templates/moat.yaml ./moat.yaml
+  echo "Copied moat.yaml template. Customize as needed, then run: moat claude ."
+}
+# ----- END MOAT -----
+
+# ----- GIT COMMANDS -----
 alias gs="git status -uno"
 alias gc="git commit -am"
 alias gad="git add ."

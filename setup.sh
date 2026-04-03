@@ -63,6 +63,8 @@ brew install sqlite-utils
 brew install --cask docker
 brew install docker-buildx
 brew install swiftbar
+brew tap majorcontext/tap
+brew install moat
 mkdir -p ~/.docker/cli-plugins
 ln -sfn /opt/homebrew/opt/docker-buildx/bin/docker-buildx ~/.docker/cli-plugins/docker-buildx
 
@@ -133,8 +135,67 @@ ln -sn "$(pwd)/skills" ~/.codex/skills
 mkdir -p ~/.swiftbar
 ln -sn "$(pwd)/swiftbar_plugins" ~/.swiftbar/plugins
 
+# Karabiner Elements: remap Caps Lock to Escape
+mkdir -p ~/.config/karabiner/assets/complex_modifications
+cat > ~/.config/karabiner/assets/complex_modifications/caps_lock_to_escape.json <<'EOF'
+{
+  "title": "Patrick customizations",
+  "rules": [
+    {
+      "description": "Caps Lock to Escape",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "caps_lock",
+            "modifiers": {
+              "optional": [
+                "any"
+              ]
+            }
+          },
+          "to": [
+            {
+              "key_code": "escape"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+EOF
 
-# TODO: add Karabiner elements for caps lock remapping to esc
+if [ -f ~/.config/karabiner/karabiner.json ]; then
+  tmp_karabiner="$(mktemp)"
+  jq --arg description "Caps Lock to Escape" --argjson rule '{
+    "description": "Caps Lock to Escape",
+    "manipulators": [
+      {
+        "type": "basic",
+        "from": {
+          "key_code": "caps_lock",
+          "modifiers": {
+            "optional": ["any"]
+          }
+        },
+        "to": [
+          {
+            "key_code": "escape"
+          }
+        ]
+      }
+    ]
+  }' '
+    .profiles |= map(
+      .complex_modifications = (.complex_modifications // {}) |
+      .complex_modifications.rules = (
+        ((.complex_modifications.rules // []) | map(select(.description != $description))) + [$rule]
+      )
+    )
+  ' ~/.config/karabiner/karabiner.json > "$tmp_karabiner" && mv "$tmp_karabiner" ~/.config/karabiner/karabiner.json
+fi
+
 
 # This will run the stuff in bash_profile, which sources bashrc, so this needs to be the last step. 
 # This helps you avoid having to start a new shell to actually have these changes take effect. 
