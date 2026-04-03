@@ -4,35 +4,8 @@ grants:
   - github
 
 hooks:
-  post_build: |
-    set -euo pipefail
-
-    # Pull in personal Claude skills from setup_scripts
-    git clone https://github.com/PatrickSpieker/setup_scripts.git /tmp/setup-scripts
-
-    if [ ! -d /tmp/setup-scripts/skills ]; then
-      echo "ERROR: skills directory not found after clone"
-      exit 1
-    fi
-
-    mkdir -p ~/.claude/skills
-    ln -sn /tmp/setup-scripts/skills ~/.claude/skills
-
-  pre_run: |
-    set -euo pipefail
-
-    # Pre-push hook: block pushes to main/master
-    mkdir -p /workspace/.git/hooks
-    cat > /workspace/.git/hooks/pre-push << 'HOOK'
-    #!/usr/bin/env bash
-    while read local_ref local_sha remote_ref remote_sha; do
-      if [[ "$remote_ref" =~ refs/heads/(main|master)$ ]]; then
-        echo "ERROR: Pushing to main/master is blocked in moat containers."
-        exit 1
-      fi
-    done
-    HOOK
-    chmod +x /workspace/.git/hooks/pre-push
+  post_build: git clone https://github.com/PatrickSpieker/setup_scripts.git /tmp/setup-scripts && mkdir -p ~/.claude/skills && ln -sn /tmp/setup-scripts/skills ~/.claude/skills
+  pre_run: cp /tmp/setup-scripts/hooks/pre-push /workspace/.git/hooks/pre-push && chmod +x /workspace/.git/hooks/pre-push
 
 command:
   - claude
