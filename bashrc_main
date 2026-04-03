@@ -1,42 +1,45 @@
 
-# Basic aliases
-# -------------
-
-# Can run this to pickup changes to either
-# uses pushd / popd to use the 1970's-era directory stack (cd and save directory on special stack)
+# ===== BASIC ALIASES =====
+# Run this alias to pick up changes to bashrc or bash_profile.
+# Uses pushd/popd to preserve your current directory across the source.
 alias bashrc='pushd . > /dev/null && source ~/.bash_profile && popd > /dev/null'
 
-alias cp='cp -iv'                           # Preferred 'cp' implementation
-alias mv='mv -iv'                           # Preferred 'mv' implementation
-alias ln='ln -iv'                           # Safer symlink creation
-alias mkdir='mkdir -pv'                     # Preferred 'mkdir' implementation
-alias cd..='cd ../'                         # Go back 1 directory level (for fast typers)
-alias ..='cd ../'                           # Go back 1 directory level
-alias ...='cd ../../'                       # Go back 2 directory levels
-alias ~="cd ~"                              # ~:            Go Home
-alias c='clear'                             # c:            Clear terminal display
+alias cp='cp -iv'                           # prompt before overwrite, verbose
+alias mv='mv -iv'                           # prompt before overwrite, verbose
+alias ln='ln -iv'                           # safer symlink creation
+alias mkdir='mkdir -pv'                     # create parents, verbose
+alias cd..='cd ../'                         # typo-friendly
+alias ..='cd ../'                           # go up 1 level
+alias ...='cd ../../'                       # go up 2 levels
+alias ~="cd ~"                              # go home
+alias c='clear'
 alias memes="echo 'this is a good meme'"
 alias h='history'
 alias cl='claude'
+alias mcl='moat claude .'
 
 alias sd='open -a Docker'
 alias sac='container system start'
 
+# Note: vim is aliased to nvim here, but vi is left alone.
+# vi is used for git rebase and swapping it out causes errors.
+alias vim="nvim"
+# ===== END BASIC ALIASES =====
+
+
+# ===== CODEX SKILLS =====
+# Sync skills from this repo into ~/.codex/skills on every shell start.
+# ln -sfn is idempotent, so this is safe to run repeatedly.
 sync-skills() {
   for skill in ~/setup_scripts/skills/*/; do
     ln -sfn "$skill" ~/.codex/skills/"$(basename "$skill")" > /dev/null
   done
 }
 sync-skills
-# Note that I only alias vim to nvim here
-# vi is used for rebasing, and I've seen errors on a rebase 
-# when the rebase tries to open some vi-based text editor
-alias vim="nvim"
-# End basic aliases
-# -------------
+# ===== END CODEX SKILLS =====
 
 
-# ----- MOAT -----
+# ===== MOAT =====
 moat-init() {
   if [[ -f moat.yaml ]]; then
     echo "moat.yaml already exists in this directory."
@@ -45,9 +48,10 @@ moat-init() {
   cp ~/setup_scripts/templates/moat.yaml ./moat.yaml
   echo "Copied moat.yaml template. Customize as needed, then run: moat claude ."
 }
-# ----- END MOAT -----
+# ===== END MOAT =====
 
-# ----- GIT COMMANDS -----
+
+# ===== GIT =====
 alias gs="git status -uno"
 alias gc="git commit -am"
 alias gad="git add ."
@@ -58,63 +62,60 @@ function gacp() {
 }
 alias gpoh="git push origin HEAD"
 alias glp="git log --pretty=oneline"
-# ----- END GIT COMMANDS -----
+# ===== END GIT =====
 
-# ----- PATH Appendings -----
-# Prepending the Ruby bin path
-export PATH="/usr/local/opt/ruby/bin:$PATH" 
-# Prepending the Ruby gems path
+
+# ===== PATH =====
+# Ruby (Homebrew-managed; takes precedence over system Ruby)
+export PATH="/usr/local/opt/ruby/bin:$PATH"
+# Ruby gems
 export PATH="/Users/patrickspieker/.gem/bin:$PATH"
-# Prepending making gem command look at the proper version of Ruby
-export PATH=`gem environment gemdir`/bin:$PATH
-# Appending Java 18
+# Ruby gem executables (resolved at shell start)
+export PATH="$(gem environment gemdir)/bin:$PATH"
+# Java 18
 export JAVA_HOME="$HOME/jdk-18.0.1.1.jdk/Contents/Home"
 export PATH="$JAVA_HOME/bin:$PATH"
-# Appending SMLNJ (not installed via homebrew)
+# SML/NJ (not available via Homebrew)
 export PATH="$PATH:/usr/local/smlnj/bin"
-# Appending homebrew to the path
+# Homebrew
 export PATH=/opt/homebrew/bin:$PATH
 # Not sure why this is here?
 export PATH="/usr/local/sbin:$PATH"
-# Prepending VSCode to the path so we can do things like "code ."
+# VS Code CLI — enables `code .`
 export PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
-# Appending go to the path
+# Go
 export GOPATH="$HOME/go"
-PATH="$GOPATH/bin:$PATH"
-# ----- END PATH Appendings -----
+export PATH="$GOPATH/bin:$PATH"
+# ===== END PATH =====
 
 
-# ----- MISC -----
-# Prompt Definition
-# (currently overridden by oh-my-bash)
+# ===== MISC =====
+# Prompt definition — currently overridden by oh-my-bash below.
 # PS1='> '
 
-# Setting the default FZF command to be backed by ripgrep for speed
-# - note that this is what powers fzf.vim's search
+# FZF backed by ripgrep for speed (also powers fzf.vim's file search).
 export FZF_DEFAULT_COMMAND="rg --files --hidden --smart-case --glob '!.git/'"
 
-# Turning off the Bash bell - used to happen on autocomplete
+# Disable the bash bell (used to fire on autocomplete).
 bind 'set bell-style none'
 
-# Some Rust thing? Not actually sure what this does
+# Some Rust thing — not actually sure what this does.
 . "$HOME/.cargo/env"
+# ===== END MISC =====
 
-# ------ START oh-my-bash
-# Enable the subsequent settings only in interactive sessions
+
+# ===== OH-MY-BASH =====
+# Only load in interactive sessions.
 case $- in
   *i*) ;;
     *) return;;
 esac
 
-# Path to your oh-my-bash installation.
 export OSH='/Users/patrickspieker/.oh-my-bash'
 
-# Set name of the theme to load. Optionally, if you set this to "random"
-# it'll load a random theme each time that oh-my-bash is loaded.
 OSH_THEME="purity"
 
-# To disable the uses of "sudo" by oh-my-bash, please set "false" to
-# this variable.  The default behavior for the empty value is "true".
+# Set to false to disable oh-my-bash's sudo usage.
 OMB_USE_SUDO=true
 
 completions=(
@@ -129,16 +130,19 @@ plugins=(
 )
 
 source "$OSH"/oh-my-bash.sh
-# ------ END oh-my-bash
+# ===== END OH-MY-BASH =====
 
-# pnpm
+
+# ===== PNPM =====
 export PNPM_HOME="/Users/patrickspieker/Library/pnpm"
 case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
-# pnpm end
+# ===== END PNPM =====
 
+
+# Default working directory — open new shells in ~/code.
 cd ~/code
 
 . "$HOME/.local/bin/env"

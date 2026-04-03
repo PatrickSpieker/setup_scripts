@@ -1,141 +1,130 @@
-#/bin/bash
+#!/bin/bash
 
-# This file exists both for literal development environment config purposes (to programmically redo my setup)
-# and also for human config purposes - to remind me how my setup works + tips and tricks
-# NOTE: when you clone this repo, you need to mark this script as executable with: chmod 755 ./setup.sh
+# This file exists both for literal development environment config purposes (to
+# programmatically redo my setup) and also for human config purposes — to remind
+# me how my setup works and document tips and tricks.
+#
+# NOTE: when you clone this repo, mark this script as executable first:
+#   chmod 755 ./setup.sh
+#
+# First, you may need to create / add the new laptop SSH key with:
+#   ssh-keygen -b 4096 -t rsa
 
-# First, you may need to create / add the new laptop SSH key with: 
-# ssh-keygen -b 4096 -t rsa
+# Resolve absolute path to this repo, regardless of where you run setup.sh from.
+REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 
 
-# ----- HOMEBREW Installation -----
-xcode-select --install # Apple's Command Line Tools - needed for a bunch of random Homebrew things 
+# ===== XCODE COMMAND LINE TOOLS =====
+# Needed for a bunch of random Homebrew things.
+xcode-select --install
+
+
+
+# ===== HOMEBREW =====
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
 
 
-# ----- BASH INSTALLATION ----- 
-# - changing shell to an upgraded version of bash 
-brew install bash # just need the basics of shell - no customization beyond that (who needs color schemes?)
-brew info bash # need this to get the path of the installed bash executable
+# ===== BASH =====
+# Upgrade from the ancient macOS-bundled bash to the latest Homebrew version.
+brew install bash
+brew info bash  # shows you the path of the installed bash executable
 
-# For M1's for example, should be /opt/homebrew/bin/bash, which itself is a symlink
-# For non-M1, I discovered this with: readlink /usr/local/bin/bash
+# For M1+: /opt/homebrew/bin/bash (symlink)
+# For Intel: /usr/local/bin/bash
+# Check the actual path with: readlink $(brew --prefix)/bin/bash
+BREW_BASH="$(brew --prefix)/bin/bash"
+
+# Add upgraded bash to the list of allowed shells (idempotent).
 echo "Adding new bash to list of allowable shells..."
-# Adding the upgraded bash to our shell options
-echo "/path/to/bash" | sudo tee -a /etc/shells >> /dev/null 
-echo "Making the system shell the new bash..."
-# Actually changing the shell now that the new bash is an option
-chsh -s /usr/local/bin/bash 
-# This should now be the new version of bash
-echo $BASH_VERSION 
+grep -qxF "$BREW_BASH" /etc/shells || echo "$BREW_BASH" | sudo tee -a /etc/shells > /dev/null
 
-# Soft linking the bashrc, then creating bash_profile such that it just references rc - all config should be in rc
-ln -sfn ./setup_scripts/bashrc_main ~/.bashrc
+# Change the default shell only if it's not already set.
+echo "Setting system shell to the new bash..."
+[ "$SHELL" != "$BREW_BASH" ] && chsh -s "$BREW_BASH"
 
-# Soft linking the bash profile to source the bashrc (I should learn about login vs non-login shells at some point)
-ln -sfn ./setup_scripts/bash_profile_main ~/.bash_profile
+echo "$BASH_VERSION"  # should now be the new version
 
-# Appending with >> as opposed to overwriting with >
-echo "source ~/.bashrc" >> ~/.bash_profile
-echo "Finished configuing new bash!"
+# Symlink bashrc and bash_profile into place.
+# bash_profile_main just sources bashrc — all real config lives in bashrc.
+ln -sfn "$REPO_DIR/bashrc_main" ~/.bashrc
+ln -sfn "$REPO_DIR/bash_profile_main" ~/.bash_profile
+
+echo "Finished configuring bash!"
 
 
 
-# ----- Installation ----- 
-# Installing Rust
+# ===== RUST =====
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 
 
-# Homebrew installations
-brew install fzf # file fuzzy finder - mostly used in the nvim context
-brew install ruby # Old version of Ruby is usually the default, so want to upgrade
-brew install ffmpeg # for extracting / dealing with audio files, converting, etc. 
-brew install ripgrep # best backend for both fzf (filename searching) and ack (file content searching)
-brew install node
-brew install yt-dlp/taps/yt-dlp # faster version of youtube-dl
-brew install --cask emacs # thinking of trying this
-brew install watchman # for sorbet
-brew install neovim
-brew install sqlite-utils
-brew install --cask docker
-brew install docker-buildx
-brew install swiftbar
-brew tap majorcontext/tap
-brew install moat
-mkdir -p ~/.docker/cli-plugins
-ln -sfn /opt/homebrew/opt/docker-buildx/bin/docker-buildx ~/.docker/cli-plugins/docker-buildx
+# ===== HOMEBREW PACKAGES =====
+# Install everything from the Brewfile (idempotent — skips already-installed packages).
+brew bundle --file="$REPO_DIR/Brewfile"
 
 
 
-# Configuring personal git things
+# ===== GIT =====
 git config --global user.email "patrick@patrickspieker.com"
 git config --global user.name "pspieker"
 
 
 
-# -------- VIM + NVIM config --------
-#
-# NEOVIM Installation
-# brew install neovim # for most text editing needs
-if [ -d "/Users/patrickspieker/.config/nvim" ] 
-then
-  echo "NVIM config directory already existed; continuing..."
-else
-  mkdir ~/.config/nvim
-fi
+# ===== NEOVIM =====
+# vim-plug is the plugin manager; install it, then open nvim and run :PlugInstall.
+mkdir -p ~/.config/nvim
 
-# Softlinking the NVIM config in this folder to the correct file system location
-# Note that the _entire_ file path is needed here - 
-# (should set up a bash variable to store the path to this location)
-ln -sf ./vimrc_main ~/.config/nvim/init.vim
+# Symlink the nvim config from this repo.
+# Note: the full file path is required here (relative paths don't work for nvim init).
+ln -sfn "$REPO_DIR/vimrc_main" ~/.config/nvim/init.vim
+
+# Download vim-plug.
 sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-# -------- END VIM CONFIG --------
 
 
 
-# -------- VSCODE Config ---------
-# VS Code should already be installed at this point
-# Soft linking the bashrc, then creating bash_profile such that it just references rc - all config should be in rc
-# ln dest src is the API here; feels backwards
-ln -sfn ./vscode_settings \
+# ===== VS CODE =====
+# VS Code should already be installed at this point.
+# Symlink the settings file. (ln dest src — yes, the argument order feels backwards.)
+ln -sfn "$REPO_DIR/vscode_settings.json" \
   ~/Library/Application\ Support/Code/User/settings.json
 
-# Appending with >> as opposed to overwriting with >
-echo "Finished configuing VS Code!"
-# -------- END VS CODE CONFIG ------
+echo "Finished configuring VS Code!"
 
 
 
-# ---- Cursor config ----
+# ===== CURSOR =====
 curl https://cursor.com/install -fsS | bash
-# Agents.md
 
 
 
-# Claude configuration
-# sets up: skills (now favored over commands)
-mkdir -p ~/.claude/skills
+# ===== CLAUDE (Claude Code) =====
+# Sets up skills — the preferred way to extend Claude Code behavior.
+# Note: ln -sfn on a directory requires the full absolute path.
+mkdir -p ~/.claude
+ln -sfn "$REPO_DIR/skills" ~/.claude/skills
 
-# this won't work:
-# ln -s ./skills ~/.claude/skills
-# needs the absolute path as in:
-ln -sn "$(pwd)/skills" ~/.claude/skills
 
-# Codex configuration
-cp ~/.codex/skills/.system/
-ln -sn "$(pwd)/skills" ~/.codex/skills
-# reminder: codex skills are kicked off with $skill_name, not /skill_name
 
-# configuring SwiftBar
-# - uses my script for tracking usage
+# ===== CODEX =====
+# reminder: codex skills are invoked with $skill_name, not /skill_name
+mkdir -p ~/.codex
+ln -sfn "$REPO_DIR/skills" ~/.codex/skills
+
+
+
+# ===== SWIFTBAR =====
+# SwiftBar reads plugins from ~/.swiftbar/plugins.
 mkdir -p ~/.swiftbar
-ln -sn "$(pwd)/swiftbar_plugins" ~/.swiftbar/plugins
+ln -sfn "$REPO_DIR/swiftbar_plugins" ~/.swiftbar/plugins
 
-# Karabiner Elements: remap Caps Lock to Escape
+
+
+# ===== KARABINER ELEMENTS =====
+# Remap Caps Lock to Escape system-wide.
 mkdir -p ~/.config/karabiner/assets/complex_modifications
 cat > ~/.config/karabiner/assets/complex_modifications/caps_lock_to_escape.json <<'EOF'
 {
@@ -166,6 +155,7 @@ cat > ~/.config/karabiner/assets/complex_modifications/caps_lock_to_escape.json 
 }
 EOF
 
+# If karabiner.json already exists, merge the rule in (idempotent via jq upsert).
 if [ -f ~/.config/karabiner/karabiner.json ]; then
   tmp_karabiner="$(mktemp)"
   jq --arg description "Caps Lock to Escape" --argjson rule '{
@@ -197,7 +187,9 @@ if [ -f ~/.config/karabiner/karabiner.json ]; then
 fi
 
 
-# This will run the stuff in bash_profile, which sources bashrc, so this needs to be the last step. 
-# This helps you avoid having to start a new shell to actually have these changes take effect. 
+
+# ===== DONE =====
+# Source the new config so changes take effect without opening a new shell.
+# (This needs to be the last step since it runs everything in bash_profile.)
 source ~/.bash_profile
 echo "Done!"

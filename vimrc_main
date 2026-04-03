@@ -1,31 +1,28 @@
 " TODO:
 " - copy the name of the current file to the system clipboard
-" - link the system clipboard to the vim clipboard properly - so yy puts the
-"   text on the vim clipboard, and so that command c is pasted into vim with
-"   pp
-" - autoformat on save of the file
+" - link the system clipboard to the vim clipboard properly — so yy puts text
+"   on the vim clipboard, and command-v pastes into vim with pp
+" - autoformat on save
 
 
+" ===== BASICS =====
+" Map leader to the 'gh' combo.
+let mapleader = "gh"
 
-" Mapping the leader to the 'gh' combo
-:let mapleader = "gh"
-
-set visualbell "no sounds - from dbalatero
+set visualbell    " no sounds
 set showmode
 set number
-
-"turn on syntax highlighting
 syntax on
 
-" remap ESC to jj - to allow INSERT -> VISUAL transition to be easier
+" remap ESC to jj — makes INSERT -> NORMAL transition much easier
 inoremap jj <esc>
 
-" Turn Off Swap Files 
+" Disable swap files.
 set noswapfile
 set nobackup
 set nowb
 
-" Tab things - taken from dbalatero; might remove some of these
+" 2-space indentation.
 set autoindent
 set smartindent
 set smarttab
@@ -34,33 +31,34 @@ set softtabstop=2
 set tabstop=2
 set expandtab
 
-" Yank to the system clipboard
+" Yank to the system clipboard.
 set clipboard=unnamed
 
-" Remove arrow keys in Insert Mode
-inoremap <Down> <Nop>
-inoremap <Left> <Nop>
+" Disable arrow keys (INSERT mode).
+inoremap <Down>  <Nop>
+inoremap <Left>  <Nop>
 inoremap <Right> <Nop>
-inoremap <Up> <Nop>
+inoremap <Up>    <Nop>
 
-" Remove arrow keys in Normal Mode
-nnoremap <Down> <Nop>
-nnoremap <Left> <Nop>
+" Disable arrow keys (NORMAL mode).
+nnoremap <Down>  <Nop>
+nnoremap <Left>  <Nop>
 nnoremap <Right> <Nop>
-nnoremap <Up> <Nop>
+nnoremap <Up>    <Nop>
 
-" Remove arrow keys in Visual Mode
-vnoremap <Down> <Nop>
-vnoremap <Left> <Nop>
+" Disable arrow keys (VISUAL mode).
+vnoremap <Down>  <Nop>
+vnoremap <Left>  <Nop>
 vnoremap <Right> <Nop>
-vnoremap <Up> <Nop>
+vnoremap <Up>    <Nop>
+" ===== END BASICS =====
 
-" ======== Plugins ========
+
+" ===== PLUGINS =====
+" Install with :PlugInstall inside nvim — restart first, then run :PlugInstall.
 call plug#begin('~/.local/nvim/plugins')
 
-" Install these with :PlugInstall inside of a nvim instance - you'll need to
-" restart nvim, then call PlugInstall, then you should be good
-Plug 'mileszs/ack.vim' " like a better grep (specifically for code) in Vim
+Plug 'mileszs/ack.vim'                              " better grep for code
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'preservim/nerdtree'
@@ -68,56 +66,62 @@ Plug 'sainnhe/everforest'
 
 call plug#end()
 
-" colorscheme - adding after Plug has installed these; needs to be after
-" plug#end()
+" Colorscheme (must be set after plug#end).
 colorscheme everforest
 set background=dark
+" ===== END PLUGINS =====
 
-" ===== FZF config 
-" so you don't have to type :Files
+
+" ===== FZF =====
+" <Leader>p to open the file picker (saves typing :Files).
 noremap <Leader>p :Files<CR>
+" ===== END FZF =====
 
-" ==== Ack config
-" so you can search for files easier
-"   - docs: https://github.com/mileszs/ack.vim
-" using ripgrep as the backend for Ack.vim's search - this is _fast_ 
-" compared to grep, ack's backend, or ag (the silver searcher)
+
+" ===== ACK (ripgrep backend) =====
+" docs: https://github.com/mileszs/ack.vim
+" Using ripgrep as the backend — faster than grep, ack, or ag.
 let g:ackprg = 'rg --vimgrep'
-" autoclose the list of search results after an option is selected
+" Close the results list after selecting an entry.
 let g:ack_autoclose = 1
-" workflow: do Leader - i 
+" <Leader>i to search across files.
 noremap <Leader>i :Ack<Space>
+" ===== END ACK =====
 
-" ==== Editing
-" making the default splitting to the right, or below
-" The default is to the left, which is dumb as hell
+
+" ===== EDITING =====
+" Split to the right and below (default left/above is disorienting).
 set splitright
 set splitbelow
 
-" Create window splits easier with just vv or ss
+" Create splits with vv (vertical) or ss (horizontal).
 nnoremap <silent> vv <C-w>v
 nnoremap <silent> ss <C-w>s
 
+" ; as an alias for : — saves reaching for shift.
 nnoremap ; :
 
+" Fun easter egg.
 nnoremap <Leader>a :echo "Hello there you memer"<CR>
-" this remapping is super nice for all the C-w 
-" vim makes you do to switch between windows
+
+" <Leader>w as a shorthand for the C-w window prefix.
 nnoremap <Leader>w <C-w>
 
-" Remap yanking to always use the system clipboard
-nnoremap y "+y
+" Always yank to the system clipboard.
+nnoremap y  "+y
 nnoremap yy "+yy
-vnoremap y "+y
+vnoremap y  "+y
 vnoremap yy "+yy
+" ===== END EDITING =====
 
-" ======= NVIM Terminal remapping
-:tnoremap jj <C-\><C-n>
-" After the above remapping, your basic NVIM + terminal workflow looks like:
-"   - open w/ :te or :terminal
-"   - exit by running 'exit' in the terminal
-"   - <Leader>w to nav between windows
-"   - jj when in terminal mode to switch to vim mode
-"   - any command that puts you in 'insert' mode to switch from vim mode to i
-"   or a
 
+" ===== TERMINAL =====
+" jj exits terminal mode (back to normal vim navigation).
+" Workflow:
+"   - open with :te or :terminal
+"   - jj to switch from terminal mode to vim mode
+"   - <Leader>w to navigate between windows
+"   - i or a to switch back to terminal mode
+"   - exit (shell command) to close the terminal
+tnoremap jj <C-\><C-n>
+" ===== END TERMINAL =====
