@@ -60,9 +60,6 @@ PATH="$GOPATH/bin:$PATH"
 
 
 # ----- MISC -----
-# Creates a file so that iTerm doesn't show a login message
-touch ~/.hushlogin
-
 # Prompt Definition
 # (currently overridden by oh-my-bash)
 # PS1='> '
