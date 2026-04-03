@@ -12,4 +12,6 @@ Just a list of applications not installed via homebrew that are useful:
 - WhatsApp
 - Zoom
 - Magnet (Window manager)
+- Apple's containerization framework: https://github.com/apple/container/releases
+
 

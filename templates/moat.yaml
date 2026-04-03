@@ -1,4 +1,4 @@
-runtime: docker
+runtime: apple
 credentials:
   - anthropic
   - github
