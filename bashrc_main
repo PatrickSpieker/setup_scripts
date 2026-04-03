@@ -3,7 +3,8 @@
 # -------------
 
 # Can run this to pickup changes to either
-alias bashrc='source ~/.bash_profile'
+# uses pushd / popd to use the 1970's-era directory stack (cd and save directory on special stack)
+alias bashrc='pushd . > /dev/null && source ~/.bash_profile && popd > /dev/null'
 
 alias cp='cp -iv'                           # Preferred 'cp' implementation
 alias mv='mv -iv'                           # Preferred 'mv' implementation
@@ -15,6 +16,7 @@ alias ...='cd ../../'                       # Go back 2 directory levels
 alias ~="cd ~"                              # ~:            Go Home
 alias c='clear'                             # c:            Clear terminal display
 alias memes="echo 'this is a good meme'"
+alias h='history'
 
 # Note that I only alias vim to nvim here
 # vi is used for rebasing, and I've seen errors on a rebase 
