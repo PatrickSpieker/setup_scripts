@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+while read local_ref local_sha remote_ref remote_sha; do
+  if [[ "$remote_ref" =~ refs/heads/(main|master)$ ]]; then
+    echo "ERROR: Pushing to main/master is blocked in moat containers."
+    exit 1
+  fi
+done
