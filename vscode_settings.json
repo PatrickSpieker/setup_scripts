@@ -1,10 +1,10 @@
 {
-  "workbench.colorTheme": "Visual Studio Dark",
+  "workbench.colorTheme": "Quiet Light",
   "vim.insertModeKeyBindings": [
     {
       "before": ["j", "j"],
-      "after": ["<Esc>"]
-    }
+      "after": ["<Esc>"],
+    },
   ],
   "security.workspace.trust.untrustedFiles": "open",
   "sorbet.enabled": true,
@@ -17,16 +17,16 @@
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
   },
   "[python]": {
-    "editor.defaultFormatter": "ms-python.black-formatter"
+    "editor.defaultFormatter": "ms-python.black-formatter",
   },
   "[ruby]": {
-    "editor.defaultFormatter": "Shopify.ruby-lsp"
+    "editor.defaultFormatter": "Shopify.ruby-lsp",
   },
   "rubyLsp.rubyVersionManager": {
-    "identifier": "chruby"
+    "identifier": "chruby",
   },
   "rubyLsp.formatter": "rubocop",
   "vim.easymotion": true,
@@ -34,11 +34,11 @@
   "explorer.confirmDelete": false,
   "sqltools.useNodeRuntime": true,
   "[sql]": {
-    "editor.defaultFormatter": "mtxr.sqltools"
+    "editor.defaultFormatter": "mtxr.sqltools",
   },
   "go.toolsManagement.autoUpdate": true,
   "git.openRepositoryInParentFolders": "never",
   "[go]": {
-    "editor.defaultFormatter": "golang.go"
-  }
+    "editor.defaultFormatter": "golang.go",
+  },
 }
