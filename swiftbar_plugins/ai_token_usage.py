@@ -89,18 +89,33 @@ def get_month_str():
 
 # ─── Data fetching ────────────────────────────────────────────────────────────
 
+def normalize_date(d):
+    """Convert Codex date format '%b %d, %Y' (e.g. 'Apr 03, 2026') to ISO 8601 'YYYY-MM-DD'."""
+    try:
+        return datetime.strptime(d, "%b %d, %Y").strftime("%Y-%m-%d")
+    except (ValueError, TypeError):
+        return d
+
+
 def fetch_daily(tool_args):
     """Fetch daily usage from a ccusage tool. Returns list of daily records."""
     since = (datetime.now() - timedelta(days=30)).strftime("%Y%m%d")
     data = run_ccusage(tool_args + ["daily", "--since", since])
     if not data:
         return []
-    # ccusage wraps daily records under {"daily": [...], "totals": {...}}
+    # ccusage response format varies: Claude wraps as {"daily": [...], "totals": {...}},
+    # while some versions may return a bare list of daily records.
     if isinstance(data, dict) and "daily" in data:
-        return data["daily"]
-    if isinstance(data, list):
-        return data
-    return []
+        records = data["daily"]
+    elif isinstance(data, list):
+        records = data
+    else:
+        return []
+    # Normalize date formats (Codex uses "Mon DD, YYYY", Claude uses "YYYY-MM-DD")
+    for r in records:
+        if "date" in r:
+            r["date"] = normalize_date(r["date"])
+    return records
 
 
 def fetch_claude_daily():
@@ -136,7 +151,8 @@ def extract_totals(records, date_filter=None):
         cache_create += int(r.get("cacheCreationTokens", 0) or 0)
         cache_read += int(r.get("cacheReadTokens", 0) or 0)
 
-        c = r.get("totalCost", r.get("cost", 0)) or 0
+        # Claude uses "totalCost", Codex uses "costUSD"
+        c = r.get("totalCost", r.get("costUSD", r.get("cost", 0))) or 0
         if isinstance(c, str):
             c = float(c.replace("$", "").replace(",", "").strip() or "0")
         total_cost += float(c)
