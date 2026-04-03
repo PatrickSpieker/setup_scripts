@@ -18,6 +18,7 @@ alias c='clear'                             # c:            Clear terminal displ
 alias memes="echo 'this is a good meme'"
 alias h='history'
 alias cl='claude'
+alias sd='open -a Docker'
 
 sync-skills() {
   for skill in ~/setup_scripts/skills/*/; do

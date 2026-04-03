@@ -26,4 +26,6 @@ setup: |
   HOOK
   chmod +x /workspace/.git/hooks/pre-push
 
-command: claude --dangerously-skip-permissions
+command:
+  - claude
+  - --dangerously-skip-permissions
