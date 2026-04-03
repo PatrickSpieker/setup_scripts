@@ -7,9 +7,13 @@
 # First, you may need to create / add the new laptop SSH key with: 
 # ssh-keygen -b 4096 -t rsa
 
+
+
 # ----- HOMEBREW Installation -----
 xcode-select --install # Apple's Command Line Tools - needed for a bunch of random Homebrew things 
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+
 
 # ----- BASH INSTALLATION ----- 
 # - changing shell to an upgraded version of bash 
@@ -37,9 +41,13 @@ ln -sf ./setup_scripts/bash_profile_main ~/.bash_profile
 echo "source ~/.bashrc" >> ~/.bash_profile
 echo "Finished configuing new bash!"
 
+
+
 # ----- Installation ----- 
 # Installing Rust
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+
 
 # Homebrew installations
 brew install fzf # file fuzzy finder - mostly used in the nvim context
@@ -57,9 +65,13 @@ brew install docker-buildx
 mkdir -p ~/.docker/cli-plugins
 ln -sfn /opt/homebrew/opt/docker-buildx/bin/docker-buildx ~/.docker/cli-plugins/docker-buildx
 
+
+
 # Configuring personal git things
 git config --global user.email "patrick@patrickspieker.com"
 git config --global user.name "pspieker"
+
+
 
 # -------- VIM + NVIM config --------
 #
@@ -81,19 +93,32 @@ sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.
 # -------- END VIM CONFIG --------
 
 
+
 # -------- VSCODE Config ---------
 # VS Code should already be installed at this point
 # Soft linking the bashrc, then creating bash_profile such that it just references rc - all config should be in rc
+# ln dest src is the API here; feels backwards
 ln -sf ./vscode_settings \
   ~/Library/Application\ Support/Code/User/settings.json
+
 # Appending with >> as opposed to overwriting with >
 echo "Finished configuing VS Code!"
 # -------- END VS CODE CONFIG ------
 
 
+
 # ---- Cursor config ----
 curl https://cursor.com/install -fsS | bash
 # Agents.md
+
+
+
+# Claude configuration
+# sets up: skills (now favored over commands)
+mkdir -p ~/.claude/skills
+ln -s ./skills ~/.claude/skills
+
+
 
 
 
