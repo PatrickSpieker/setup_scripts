@@ -1,3 +1,8 @@
+---
+name: gh-commit
+description: Create small, logical commits with conventional commit messages.
+---
+
 # Commit
 
 Create small, logical commits with conventional commit messages.

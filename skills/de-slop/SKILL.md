@@ -1,3 +1,8 @@
+---
+name: de-slop
+description: Before a PR, remove obvious AI artifacts and cleanup noise.
+---
+
 # De-Slop
 
 Before a PR, remove obvious AI artifacts and cleanup noise.

@@ -1,3 +1,8 @@
+---
+name: new-cmd
+description: Create a command from conversation history or user description.
+---
+
 # New Command
 
 Create a command from conversation history or user description.

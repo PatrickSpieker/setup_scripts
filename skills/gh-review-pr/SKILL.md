@@ -1,3 +1,8 @@
+---
+name: gh-review-pr
+description: Review a GitHub PR quickly but thoroughly, focusing on correctness, tests, and risk.
+---
+
 # Review PR
 
 Review a GitHub PR quickly but thoroughly, focusing on correctness, tests, and risk.

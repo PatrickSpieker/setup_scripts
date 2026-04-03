@@ -1,3 +1,8 @@
+---
+name: new-skill
+description: Create a skill from conversation history or user description.
+---
+
 # New Skill
 
 Create a skill from conversation history or user description.

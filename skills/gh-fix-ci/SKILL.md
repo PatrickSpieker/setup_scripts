@@ -1,3 +1,8 @@
+---
+name: gh-fix-ci
+description: Find the first failing CI check, fix it, and re-run the smallest verification command.
+---
+
 # Fix CI
 
 Find the first failing check, fix it, and re-run the smallest verification command.

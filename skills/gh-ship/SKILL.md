@@ -1,3 +1,8 @@
+---
+name: gh-ship
+description: Commit, push, and create PR in one step.
+---
+
 # Ship
 
 Commit, push, and create PR in one step.

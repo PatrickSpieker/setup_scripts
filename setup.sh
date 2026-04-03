@@ -116,11 +116,11 @@ curl https://cursor.com/install -fsS | bash
 # Claude configuration
 # sets up: skills (now favored over commands)
 mkdir -p ~/.claude/skills
-ln -s ./skills ~/.claude/skills
 
-
-
-
+# this won't work:
+# ln -s ./skills ~/.claude/skills
+# needs the absolute path as in:
+ln -s "$(pwd)/skills" ~/.claude/skills
 
 
 # This will run the stuff in bash_profile, which sources bashrc, so this needs to be the last step. 

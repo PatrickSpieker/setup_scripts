@@ -1,3 +1,8 @@
+---
+name: delegate-cursor-background-task
+description: Create a GitHub issue or Linear ticket to hand off work to Cursor's background agent.
+---
+
 # Delegate Cursor Background Task
 
 Create a GitHub issue or Linear ticket with `@cursor` in the body to hand off work to Cursor's background agent.

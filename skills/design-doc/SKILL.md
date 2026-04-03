@@ -1,3 +1,8 @@
+---
+name: design-doc
+description: Format implementation plans as structured design documents for technical review and discussion.
+---
+
 # Design Doc Command
 
 Format implementation plans as structured design documents for technical review and discussion.

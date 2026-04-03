@@ -17,6 +17,7 @@ alias ~="cd ~"                              # ~:            Go Home
 alias c='clear'                             # c:            Clear terminal display
 alias memes="echo 'this is a good meme'"
 alias h='history'
+alias cl='claude'
 
 # Note that I only alias vim to nvim here
 # vi is used for rebasing, and I've seen errors on a rebase 
@@ -29,6 +30,7 @@ alias vim="nvim"
 # ----- GIT COMMANDS ----- 
 alias gs="git status -uno"
 alias gc="git commit -am"
+alias gad="git add ."
 function gacp() {
     git add -u
     git commit -m "$1"

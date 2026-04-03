@@ -1,3 +1,8 @@
+---
+name: gh-address-pr-comments
+description: Resolve actionable review comments for a PR, one-by-one.
+---
+
 # Address PR Comments
 
 Resolve actionable review comments for a PR, one-by-one.

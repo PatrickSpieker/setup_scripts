@@ -1,3 +1,8 @@
+---
+name: work-forever
+description: Run in highly autonomous mode for long-running tasks with minimal questions.
+---
+
 # Work Forever
 
 Run in highly autonomous mode for long-running tasks with minimal questions.

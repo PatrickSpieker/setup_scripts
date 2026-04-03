@@ -1,3 +1,8 @@
+---
+name: make-tests
+description: Add tests for the change you're working on.
+---
+
 # Make Tests
 
 Add tests for the change you’re working on.
