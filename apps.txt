@@ -3,7 +3,7 @@ Just a list of applications not installed via homebrew that are useful:
 - Discord
 - Flux
 - Chrome
-- iTerm 2
+- ghostty
 - Slack
 - Spotify
 - Todoist
@@ -11,4 +11,5 @@ Just a list of applications not installed via homebrew that are useful:
 - VLC
 - WhatsApp
 - Zoom
+- Magnet (Window manager)
 
