@@ -32,6 +32,7 @@ function gacp() {
     git commit -m "$1"
     git push origin HEAD
 }
+alias gpoh="git push origin HEAD"
 alias glp="git log --pretty=oneline"
 # ----- END GIT COMMANDS -----
 
