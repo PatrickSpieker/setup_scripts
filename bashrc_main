@@ -19,6 +19,12 @@ alias memes="echo 'this is a good meme'"
 alias h='history'
 alias cl='claude'
 
+sync-skills() {
+  for skill in ~/setup_scripts/skills/*/; do
+    ln -sfn "$skill" ~/.codex/skills/"$(basename "$skill")" > /dev/null
+  done
+}
+sync-skills
 # Note that I only alias vim to nvim here
 # vi is used for rebasing, and I've seen errors on a rebase 
 # when the rebase tries to open some vi-based text editor

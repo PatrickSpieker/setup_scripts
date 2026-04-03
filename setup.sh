@@ -32,10 +32,10 @@ chsh -s /usr/local/bin/bash
 echo $BASH_VERSION 
 
 # Soft linking the bashrc, then creating bash_profile such that it just references rc - all config should be in rc
-ln -sf ./setup_scripts/bashrc_main ~/.bashrc
+ln -sfn ./setup_scripts/bashrc_main ~/.bashrc
 
 # Soft linking the bash profile to source the bashrc (I should learn about login vs non-login shells at some point)
-ln -sf ./setup_scripts/bash_profile_main ~/.bash_profile
+ln -sfn ./setup_scripts/bash_profile_main ~/.bash_profile
 
 # Appending with >> as opposed to overwriting with >
 echo "source ~/.bashrc" >> ~/.bash_profile
@@ -98,7 +98,7 @@ sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.
 # VS Code should already be installed at this point
 # Soft linking the bashrc, then creating bash_profile such that it just references rc - all config should be in rc
 # ln dest src is the API here; feels backwards
-ln -sf ./vscode_settings \
+ln -sfn ./vscode_settings \
   ~/Library/Application\ Support/Code/User/settings.json
 
 # Appending with >> as opposed to overwriting with >
@@ -120,7 +120,12 @@ mkdir -p ~/.claude/skills
 # this won't work:
 # ln -s ./skills ~/.claude/skills
 # needs the absolute path as in:
-ln -s "$(pwd)/skills" ~/.claude/skills
+ln -sn "$(pwd)/skills" ~/.claude/skills
+
+# Codex configuration
+cp ~/.codex/skills/.system/
+ln -sn "$(pwd)/skills" ~/.codex/skills
+# reminder: codex skills are kicked off with $skill_name, not /skill_name
 
 
 # This will run the stuff in bash_profile, which sources bashrc, so this needs to be the last step. 
