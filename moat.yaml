@@ -2,6 +2,7 @@ runtime: apple
 grants:
   - claude
   - github
+  - ssh:github.com
 
 hooks:
   post_build: git clone https://github.com/PatrickSpieker/setup_scripts.git /tmp/setup-scripts && mkdir -p ~/.claude && ln -sfn /tmp/setup-scripts/skills ~/.claude/skills
