@@ -20,12 +20,17 @@ brew bundle --file Brewfile
 setup_scripts/
 ├── setup.sh                 # Main install script (Homebrew, bash, vim, skills, SwiftBar)
 ├── Brewfile                 # Homebrew packages (git, gh, neovim, ripgrep, fzf, claude-code, codex, etc.)
-├── AGENTS.md                # Agent-facing instructions for this repo
+├── AGENTS.md                # Agent-facing instructions (symlinked to .claude/claude.md)
+├── moat.yaml                # Moat runtime config (grants, hooks for skills + pre-push)
 ├── bashrc_main              # Bash config (aliases, git shortcuts, PATH, oh-my-bash, fzf)
 ├── bash_profile_main        # Bash profile (sources bashrc)
 ├── vimrc_main               # Neovim config (vim-plug, keymaps, plugins)
 ├── vscode_settings.json     # VS Code settings
 ├── obsidian_vimrc           # Obsidian vim keybindings
+├── hooks/
+│   └── pre-push             # Blocks Claude Code from pushing to main/master
+├── templates/
+│   └── moat.yaml            # Template moat config for new projects
 ├── skills/                  # AI agent skills (Claude Code + Codex CLI)
 │   ├── gh-commit/           #   Conventional commits
 │   ├── gh-ship/             #   Commit + push + create PR
@@ -44,7 +49,7 @@ setup_scripts/
 │   ├── pdf-viewing/         #   OCR and rasterize PDFs
 │   └── slidev-presentation-kit/ # Create/edit Slidev presentations
 └── swiftbar_plugins/
-    └── ai_token_usage.py    # Menu bar token usage tracker (Claude + Codex)
+    └── ai_token_usage.1m.py # Menu bar token usage tracker (Claude + Codex, 1-min refresh)
 ```
 
 ## Skills
@@ -85,9 +90,25 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 | `vscode_settings.json` | `~/Library/Application Support/Code/User/settings.json` | |
 | `obsidian_vimrc` | (manual) | Vim keybindings for Obsidian |
 
+## Moat
+
+`moat.yaml` configures the [Moat](https://majorcontext.com/moat/llms.txt) sandbox runtime:
+
+- **Grants:** `claude`, `github`, `ssh:github.com`
+- **post_build hook:** Clones this repo and symlinks `skills/` to `~/.claude/skills/`
+- **pre_run hook:** Installs the `hooks/pre-push` hook to block Claude Code from pushing to main/master
+
+`templates/moat.yaml` is a starter config for new projects.
+
+## Hooks
+
+| Hook | Purpose |
+|------|---------|
+| `hooks/pre-push` | Prevents Claude Code (`$CLAUDECODE=1`) from pushing to `main` or `master` |
+
 ## SwiftBar Plugin
 
-`swiftbar_plugins/ai_token_usage.py` shows a token usage leaderboard for Claude Code and Codex in the macOS menu bar. Installed by `setup.sh` via symlink to `~/.swiftbar/plugins/`.
+`swiftbar_plugins/ai_token_usage.1m.py` shows a token usage leaderboard for Claude Code and Codex in the macOS menu bar (1-minute refresh). Installed by `setup.sh` via symlink to `~/.swiftbar/plugins/`.
 
 ## Shell Highlights
 
@@ -96,3 +117,5 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 - `noclobber` enabled
 - fzf backed by ripgrep (`rg --files --hidden`)
 - Git aliases: `gs` (status), `gc` (commit -am), `gacp` (add + commit + push), `gpoh` (push origin HEAD)
+- Moat + Claude: `mcl` (new worktree session), `mclpr <pr>` (resume PR branch), `mclb <branch>` (resume any remote branch)
+- Docker: `sd` (open Docker), `sac` (start container system)
