@@ -16,7 +16,11 @@ alias c='clear'
 alias memes="echo 'this is a good meme'"
 alias h='history'
 alias cl='claude'
-alias mcl='moat claude .'
+unalias mcl 2>/dev/null
+mcl() {
+  local branch="${1:-moat/$(date +%Y%m%d-%H%M%S)}"
+  moat wt "$branch"
+}
 
 alias sd='open -a Docker'
 alias sac='container system start'
