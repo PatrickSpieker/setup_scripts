@@ -19,7 +19,7 @@ alias cl='claude'
 unalias mcl 2>/dev/null
 mcl() {
   local branch="${1:-moat/$(date +%Y%m%d-%H%M%S)}"
-  moat claude --worktree "$branch" -- --model opus
+  moat claude --worktree "$branch" -- --model=opus
 }
 
 alias sd='open -a Docker'
