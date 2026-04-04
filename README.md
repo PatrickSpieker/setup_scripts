@@ -20,6 +20,7 @@ brew bundle --file Brewfile
 setup_scripts/
 ├── setup.sh                 # Main install script (Homebrew, bash, vim, skills, SwiftBar)
 ├── Brewfile                 # Homebrew packages (git, gh, neovim, ripgrep, fzf, claude-code, codex, etc.)
+├── moat.yaml                # Moat sandbox config (grants, hooks for skills + pre-push)
 ├── AGENTS.md                # Agent-facing instructions for this repo
 ├── bashrc_main              # Bash config (aliases, git shortcuts, PATH, oh-my-bash, fzf)
 ├── bash_profile_main        # Bash profile (sources bashrc)
@@ -43,8 +44,12 @@ setup_scripts/
 │   ├── youtube-extractor/   #   Extract YouTube transcripts + metadata
 │   ├── pdf-viewing/         #   OCR and rasterize PDFs
 │   └── slidev-presentation-kit/ # Create/edit Slidev presentations
+├── hooks/
+│   └── pre-push             # Git pre-push hook (installed by moat.yaml pre_run)
+├── templates/
+│   └── moat.yaml            # moat.yaml starter template (copied by moat-init)
 └── swiftbar_plugins/
-    └── ai_token_usage.py    # Menu bar token usage tracker (Claude + Codex)
+    └── ai_token_usage.1m.py # Menu bar token usage tracker (Claude + Codex)
 ```
 
 ## Skills
@@ -75,6 +80,24 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 - **Claude Code:** `setup.sh` symlinks `skills/` to `~/.claude/skills/`
 - **Codex CLI:** `sync-skills` in `bashrc_main` symlinks each skill to `~/.codex/skills/` on every shell startup
 
+## Moat Integration
+
+[Moat](https://majorcontext.com/moat/llms.txt) runs Claude Code in an isolated sandbox. This repo provides both a ready-to-use config and helpers for bootstrapping new repos.
+
+**`moat.yaml`** (root) — used when Moat runs *inside* this repo:
+- Grants: `claude`, `github`, `ssh:github.com`
+- `post_build` hook clones this repo and symlinks skills into `~/.claude/skills`
+- `pre_run` hook installs the `pre-push` git hook, using `git rev-parse --git-dir` for worktree compatibility
+
+**Shell functions** (in `bashrc_main`):
+
+| Function | Purpose |
+|----------|---------|
+| `mcl [branch]` | Launch Moat + Claude Code in a git worktree. Defaults to `moat/YYYYMMDD-HHMMSS` branch. Runs `moat claude --worktree "$branch" -- --model=opus`. |
+| `moat-init` | Copy `templates/moat.yaml` into the current directory so any repo can use Moat. |
+
+**`templates/moat.yaml`** — a starter config for other repos, identical to the root config. Run `moat-init` in a repo, customize grants/hooks, then `mcl` to launch.
+
 ## Dotfiles
 
 | File | Installs to | Notes |
@@ -87,7 +110,7 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 
 ## SwiftBar Plugin
 
-`swiftbar_plugins/ai_token_usage.py` shows a token usage leaderboard for Claude Code and Codex in the macOS menu bar. Installed by `setup.sh` via symlink to `~/.swiftbar/plugins/`.
+`swiftbar_plugins/ai_token_usage.1m.py` shows a token usage leaderboard for Claude Code and Codex in the macOS menu bar. Installed by `setup.sh` via symlink to `~/.swiftbar/plugins/`.
 
 ## Shell Highlights
 
@@ -96,3 +119,5 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 - `noclobber` enabled
 - fzf backed by ripgrep (`rg --files --hidden`)
 - Git aliases: `gs` (status), `gc` (commit -am), `gacp` (add + commit + push), `gpoh` (push origin HEAD)
+- `mcl [branch]` launches Claude Code via Moat in an isolated worktree (default branch: `moat/YYYYMMDD-HHMMSS`)
+- `moat-init` copies a moat.yaml template into the current directory for quick Moat setup
