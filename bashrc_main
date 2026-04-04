@@ -21,6 +21,28 @@ mcl() {
   local branch="${1:-moat/$(date +%Y%m%d-%H%M%S)}"
   moat claude --worktree "$branch" -- --model=opus
 }
+mclpr() {
+  local pr="$1"
+  if [[ -z "$pr" ]]; then
+    echo "Usage: mclpr <pr-number>"
+    return 1
+  fi
+  local branch
+  branch=$(gh pr view "$pr" --json headRefName -q '.headRefName') || return 1
+  git fetch origin "$branch" || return 1
+  git branch -f "$branch" "origin/$branch" 2>/dev/null || git branch "$branch" "origin/$branch" 2>/dev/null || true
+  moat claude --worktree "$branch" -- --model=opus
+}
+mclb() {
+  local branch="$1"
+  if [[ -z "$branch" ]]; then
+    echo "Usage: mclb <branch>"
+    return 1
+  fi
+  git fetch origin "$branch" || return 1
+  git branch -f "$branch" "origin/$branch" 2>/dev/null || git branch "$branch" "origin/$branch" 2>/dev/null || true
+  moat claude --worktree "$branch" -- --model=opus
+}
 
 alias sd='open -a Docker'
 alias sac='container system start'
