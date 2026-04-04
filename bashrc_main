@@ -50,7 +50,7 @@ moat-init() {
     return 1
   fi
   cp ~/setup_scripts/templates/moat.yaml ./moat.yaml
-  echo "Copied moat.yaml template. Customize as needed, then run: moat claude ."
+  echo "Copied moat.yaml template. Customize as needed, then run: mcl"
 }
 # ===== END MOAT =====
 

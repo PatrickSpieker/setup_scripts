@@ -6,8 +6,10 @@ grants:
 
 hooks:
   post_build: git clone https://github.com/PatrickSpieker/setup_scripts.git /tmp/setup-scripts && mkdir -p ~/.claude && ln -sfn /tmp/setup-scripts/skills ~/.claude/skills
-  pre_run: cp /tmp/setup-scripts/hooks/pre-push /workspace/.git/hooks/pre-push && chmod +x /workspace/.git/hooks/pre-push
+  pre_run: GIT_DIR="$(git -C /workspace rev-parse --git-dir)" && mkdir -p "$GIT_DIR/hooks" && cp /tmp/setup-scripts/hooks/pre-push "$GIT_DIR/hooks/pre-push" && chmod +x "$GIT_DIR/hooks/pre-push"
 
 command:
   - claude
   - --dangerously-skip-permissions
+  - --model
+  - opus
