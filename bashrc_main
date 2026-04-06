@@ -16,32 +16,57 @@ alias c='clear'
 alias memes="echo 'this is a good meme'"
 alias h='history'
 alias cl='claude'
+# All mcl commands accept --plan to start Claude in plan mode (for /ultraplan).
+# Prerequisite for ultraplan: connect GitHub at https://claude.ai/code
 unalias mcl 2>/dev/null
 mcl() {
-  local branch="${1:-moat/$(date +%Y%m%d-%H%M%S)}"
-  moat claude --worktree "$branch" -- --model=opus
+  local plan_flag=""
+  local branch=""
+  for arg in "$@"; do
+    case "$arg" in
+      --plan) plan_flag="--permission-mode plan" ;;
+      *) branch="$arg" ;;
+    esac
+  done
+  branch="${branch:-moat/$(date +%Y%m%d-%H%M%S)}"
+  moat claude --worktree "$branch" -- --model=opus $plan_flag
 }
+mclplan() { mcl "$@" --plan; }
 mclpr() {
-  local pr="$1"
+  local plan_flag=""
+  local pr=""
+  for arg in "$@"; do
+    case "$arg" in
+      --plan) plan_flag="--permission-mode plan" ;;
+      *) pr="$arg" ;;
+    esac
+  done
   if [[ -z "$pr" ]]; then
-    echo "Usage: mclpr <pr-number>"
+    echo "Usage: mclpr <pr-number> [--plan]"
     return 1
   fi
   local branch
   branch=$(gh pr view "$pr" --json headRefName -q '.headRefName') || return 1
   git fetch origin "$branch" || return 1
   git branch -f "$branch" "origin/$branch" 2>/dev/null || git branch "$branch" "origin/$branch" 2>/dev/null || true
-  moat claude --worktree "$branch" -- --model=opus
+  moat claude --worktree "$branch" -- --model=opus $plan_flag
 }
 mclb() {
-  local branch="$1"
+  local plan_flag=""
+  local branch=""
+  for arg in "$@"; do
+    case "$arg" in
+      --plan) plan_flag="--permission-mode plan" ;;
+      *) branch="$arg" ;;
+    esac
+  done
   if [[ -z "$branch" ]]; then
-    echo "Usage: mclb <branch>"
+    echo "Usage: mclb <branch> [--plan]"
     return 1
   fi
   git fetch origin "$branch" || return 1
   git branch -f "$branch" "origin/$branch" 2>/dev/null || git branch "$branch" "origin/$branch" 2>/dev/null || true
-  moat claude --worktree "$branch" -- --model=opus
+  moat claude --worktree "$branch" -- --model=opus $plan_flag
 }
 
 alias sd='open -a Docker'
