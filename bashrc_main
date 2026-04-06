@@ -20,6 +20,8 @@ unalias mcl 2>/dev/null
 mcl() {
   local branch="${1:-moat/$(date +%Y%m%d-%H%M%S)}"
   moat claude --worktree "$branch" -- --model=opus
+  echo "Cleaning up worktree and container for branch: $branch"
+  moat wt clean "$branch" 2>/dev/null
 }
 mclpr() {
   local pr="$1"
@@ -32,6 +34,8 @@ mclpr() {
   git fetch origin "$branch" || return 1
   git branch -f "$branch" "origin/$branch" 2>/dev/null || git branch "$branch" "origin/$branch" 2>/dev/null || true
   moat claude --worktree "$branch" -- --model=opus
+  echo "Cleaning up worktree and container for branch: $branch"
+  moat wt clean "$branch" 2>/dev/null
 }
 mclb() {
   local branch="$1"
@@ -42,6 +46,8 @@ mclb() {
   git fetch origin "$branch" || return 1
   git branch -f "$branch" "origin/$branch" 2>/dev/null || git branch "$branch" "origin/$branch" 2>/dev/null || true
   moat claude --worktree "$branch" -- --model=opus
+  echo "Cleaning up worktree and container for branch: $branch"
+  moat wt clean "$branch" 2>/dev/null
 }
 
 alias sd='open -a Docker'
