@@ -32,6 +32,11 @@ mclpr() {
   local branch
   branch=$(gh pr view "$pr" --json headRefName -q '.headRefName') || return 1
   git fetch origin "$branch" || return 1
+  # If we're on the target branch, switch away so worktree can use it
+  if [[ "$(git rev-parse --abbrev-ref HEAD)" == "$branch" ]]; then
+    echo "Currently on $branch, switching to default branch..."
+    git checkout master 2>/dev/null || git checkout main 2>/dev/null || { echo "Error: could not switch away from $branch"; return 1; }
+  fi
   git branch -f "$branch" "origin/$branch" 2>/dev/null || git branch "$branch" "origin/$branch" 2>/dev/null || true
   moat claude --worktree "$branch" -- --model=opus
   echo "Cleaning up worktree and container for branch: $branch"
@@ -44,6 +49,11 @@ mclb() {
     return 1
   fi
   git fetch origin "$branch" || return 1
+  # If we're on the target branch, switch away so worktree can use it
+  if [[ "$(git rev-parse --abbrev-ref HEAD)" == "$branch" ]]; then
+    echo "Currently on $branch, switching to default branch..."
+    git checkout master 2>/dev/null || git checkout main 2>/dev/null || { echo "Error: could not switch away from $branch"; return 1; }
+  fi
   git branch -f "$branch" "origin/$branch" 2>/dev/null || git branch "$branch" "origin/$branch" 2>/dev/null || true
   moat claude --worktree "$branch" -- --model=opus
   echo "Cleaning up worktree and container for branch: $branch"
