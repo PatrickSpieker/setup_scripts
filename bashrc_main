@@ -18,6 +18,12 @@ alias h='history'
 alias cl='claude'
 unalias mcl 2>/dev/null
 mcl() {
+  # Auto-init git repo if not in one
+  if ! git rev-parse --is-inside-work-tree &>/dev/null; then
+    git init
+    echo "Initialized git repo."
+  fi
+
   # Auto-init moat.yaml if missing
   if [[ ! -f moat.yaml ]]; then
     cp ~/setup_scripts/templates/moat.yaml ./moat.yaml
@@ -26,8 +32,9 @@ mcl() {
 
   # Ensure repo has at least one commit (needed for worktree branch creation)
   if ! git rev-parse HEAD &>/dev/null; then
-    git commit --allow-empty -m "Initial commit"
-    echo "Created initial empty commit."
+    git add -A
+    git commit -m "Initial commit"
+    echo "Created initial commit."
   fi
 
   local branch="${1:-moat/$(date +%Y%m%d-%H%M%S)}"
