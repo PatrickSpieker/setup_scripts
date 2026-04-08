@@ -40,6 +40,13 @@ mcl() {
   fi
 
   if [[ "$mount" == true ]]; then
+    local branch="${args[0]:-moat/$(date +%Y%m%d-%H%M%S)}"
+    # Fail if there are uncommitted changes
+    if ! git diff --quiet || ! git diff --cached --quiet; then
+      echo "Error: uncommitted changes. Commit or stash before using -m."
+      return 1
+    fi
+    git checkout -b "$branch"
     moat claude -- --model=opus
   else
     # Ensure repo has at least one commit (needed for worktree branch creation)
