@@ -18,6 +18,15 @@ alias h='history'
 alias cl='claude'
 unalias mcl 2>/dev/null
 mcl() {
+  local mount=false
+  local args=()
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -m) mount=true; shift ;;
+      *) args+=("$1"); shift ;;
+    esac
+  done
+
   # Auto-init git repo if not in one
   if ! git rev-parse --is-inside-work-tree &>/dev/null; then
     git init
@@ -30,17 +39,28 @@ mcl() {
     echo "Created moat.yaml from template."
   fi
 
-  # Ensure repo has at least one commit (needed for worktree branch creation)
-  if ! git rev-parse HEAD &>/dev/null; then
-    git add -A
-    git commit -m "Initial commit"
-    echo "Created initial commit."
-  fi
+  if [[ "$mount" == true ]]; then
+    local branch="${args[0]:-moat/$(date +%Y%m%d-%H%M%S)}"
+    # Fail if there are uncommitted changes
+    if ! git diff --quiet || ! git diff --cached --quiet; then
+      echo "Error: uncommitted changes. Commit or stash before using -m."
+      return 1
+    fi
+    git checkout -b "$branch"
+    moat claude -- --model=opus
+  else
+    # Ensure repo has at least one commit (needed for worktree branch creation)
+    if ! git rev-parse HEAD &>/dev/null; then
+      git add -A
+      git commit -m "Initial commit"
+      echo "Created initial commit."
+    fi
 
-  local branch="${1:-moat/$(date +%Y%m%d-%H%M%S)}"
-  moat claude --worktree "$branch" -- --model=opus
-  echo "Cleaning up worktree and container for branch: $branch"
-  moat wt clean "$branch" 2>/dev/null
+    local branch="${args[0]:-moat/$(date +%Y%m%d-%H%M%S)}"
+    moat claude --worktree "$branch" -- --model=opus
+    echo "Cleaning up worktree and container for branch: $branch"
+    moat wt clean "$branch" 2>/dev/null
+  fi
 }
 mclpr() {
   local pr="$1"
