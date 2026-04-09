@@ -3,41 +3,35 @@ set -euo pipefail
 REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
 TESTS_DIR="$REPO_DIR/tests"
 LIBS_DIR="$TESTS_DIR/libs"
-BATS="$LIBS_DIR/bats-core/bin/bats"
 MODE="${1:-all}"
 
 mkdir -p "$LIBS_DIR"
 
-# Bootstrap bats-core + helpers
-for lib in bats-core bats-support bats-assert; do
-  if [[ ! -d "$LIBS_DIR/$lib" ]]; then
-    echo "Installing $lib..."
-    git clone --depth 1 "https://github.com/bats-core/$lib.git" "$LIBS_DIR/$lib" 2>&1
+# Install shellcheck via npm if not already available
+if ! command -v shellcheck &>/dev/null; then
+  if [[ ! -d "$LIBS_DIR/node_modules/shellcheck" ]]; then
+    echo "Installing shellcheck..."
+    npm install --prefix "$LIBS_DIR" shellcheck 2>&1
   fi
-done
-
-# Install shellcheck + js-yaml via npm
-if [[ ! -d "$LIBS_DIR/node_modules/shellcheck" ]] || [[ ! -d "$LIBS_DIR/node_modules/js-yaml" ]]; then
-  echo "Installing npm dependencies (shellcheck, js-yaml)..."
-  npm install --prefix "$LIBS_DIR" shellcheck js-yaml 2>&1
+  export PATH="$LIBS_DIR/node_modules/.bin:$PATH"
 fi
 
-# Make npm bin available
-export PATH="$LIBS_DIR/node_modules/.bin:$PATH"
-
-LINT_FILES=("$TESTS_DIR/shellcheck.bats" "$TESTS_DIR/config_validation.bats")
-TEST_FILES=("$TESTS_DIR/pre-push.bats" "$TESTS_DIR/bashrc_functions.bats")
+# Install pytest + pyyaml if needed
+if ! python3 -c "import pytest" 2>/dev/null; then
+  echo "Installing pytest and pyyaml..."
+  pip3 install --quiet pytest pyyaml
+fi
 
 case "$MODE" in
   lint)
     echo "Running linters..."
-    "$BATS" "${LINT_FILES[@]}" ;;
+    python3 -m pytest "$TESTS_DIR/test_lint.py" -v ;;
   test)
     echo "Running tests..."
-    "$BATS" "${TEST_FILES[@]}" ;;
+    python3 -m pytest "$TESTS_DIR/test_pre_push.py" "$TESTS_DIR/test_bashrc_functions.py" -v ;;
   all)
     echo "Running all..."
-    "$BATS" "${LINT_FILES[@]}" "${TEST_FILES[@]}" ;;
+    python3 -m pytest "$TESTS_DIR" -v ;;
   *)
     echo "Usage: $0 [lint|test|all]"
     exit 1 ;;

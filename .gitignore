@@ -26,3 +26,4 @@ node_modules
 
 # Test dependencies (bootstrapped by test_runner.sh)
 tests/libs/
+__pycache__/
