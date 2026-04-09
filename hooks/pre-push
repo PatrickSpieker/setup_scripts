@@ -7,3 +7,9 @@ if [[ "$CLAUDECODE" == "1" ]]; then
     fi
   done
 fi
+
+# Skip when running inside test harness to avoid recursion
+if [[ -z "${SKIP_HOOK_TESTS:-}" ]]; then
+  REPO_DIR="$(git rev-parse --show-toplevel)"
+  "$REPO_DIR/test_runner.sh" test
+fi

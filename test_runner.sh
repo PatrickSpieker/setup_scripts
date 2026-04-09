@@ -3,6 +3,8 @@ set -euo pipefail
 REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
 TESTS_DIR="$REPO_DIR/tests"
 LIBS_DIR="$TESTS_DIR/libs"
+BATS="$LIBS_DIR/bats-core/bin/bats"
+MODE="${1:-all}"
 
 mkdir -p "$LIBS_DIR"
 
@@ -23,7 +25,20 @@ fi
 # Make npm bin available
 export PATH="$LIBS_DIR/node_modules/.bin:$PATH"
 
-echo ""
-echo "Running tests..."
-echo ""
-"$LIBS_DIR/bats-core/bin/bats" "$TESTS_DIR"/*.bats
+LINT_FILES=("$TESTS_DIR/shellcheck.bats" "$TESTS_DIR/config_validation.bats")
+TEST_FILES=("$TESTS_DIR/pre-push.bats" "$TESTS_DIR/bashrc_functions.bats")
+
+case "$MODE" in
+  lint)
+    echo "Running linters..."
+    "$BATS" "${LINT_FILES[@]}" ;;
+  test)
+    echo "Running tests..."
+    "$BATS" "${TEST_FILES[@]}" ;;
+  all)
+    echo "Running all..."
+    "$BATS" "${LINT_FILES[@]}" "${TEST_FILES[@]}" ;;
+  *)
+    echo "Usage: $0 [lint|test|all]"
+    exit 1 ;;
+esac

@@ -5,6 +5,7 @@ setup() {
   load "$REPO_DIR/tests/libs/bats-support/load"
   load "$REPO_DIR/tests/libs/bats-assert/load"
   HOOK="$REPO_DIR/hooks/pre-push"
+  export SKIP_HOOK_TESTS=1
 }
 
 @test "allows push when CLAUDECODE is not set" {
