@@ -5,5 +5,5 @@ grants:
   - ssh:github.com
 
 hooks:
-  post_build: git clone https://github.com/PatrickSpieker/setup_scripts.git /tmp/setup-scripts && mkdir -p ~/.claude && ln -sfn /tmp/setup-scripts/skills ~/.claude/skills
+  post_build: git clone https://github.com/PatrickSpieker/setup_scripts.git /tmp/setup-scripts && mkdir -p ~/.claude && ln -sfn /tmp/setup-scripts/skills ~/.claude/skills && cp /tmp/setup-scripts/defaults/claude.json ~/.claude.json
   pre_run: GIT_DIR="$(git -C /workspace rev-parse --git-dir)" && mkdir -p "$GIT_DIR/hooks" && cp /tmp/setup-scripts/hooks/pre-push "$GIT_DIR/hooks/pre-push" && chmod +x "$GIT_DIR/hooks/pre-push"
