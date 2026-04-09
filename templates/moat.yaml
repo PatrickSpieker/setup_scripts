@@ -1,4 +1,6 @@
 runtime: apple
+dependencies:
+  - python
 grants:
   - claude
   - github
