@@ -23,3 +23,7 @@ Thumbs.db
 venv
 node_modules
 .sass-cache
+
+# Test dependencies (bootstrapped by test_runner.sh)
+tests/libs/
+__pycache__/

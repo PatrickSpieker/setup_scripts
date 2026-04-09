@@ -1,4 +1,4 @@
-
+# shellcheck shell=bash
 # ===== BASIC ALIASES =====
 # Run this alias to pick up changes to bashrc or bash_profile.
 # Uses pushd/popd to preserve your current directory across the source.
@@ -224,6 +224,7 @@ esac
 
 
 # Default working directory — open new shells in ~/code.
+# shellcheck disable=SC2164
 cd ~/code
 
 . "$HOME/.local/bin/env"

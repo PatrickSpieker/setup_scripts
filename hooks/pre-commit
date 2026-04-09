@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+REPO_DIR="$(git rev-parse --show-toplevel)"
+"$REPO_DIR/test_runner.sh" lint
