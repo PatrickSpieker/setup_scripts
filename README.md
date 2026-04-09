@@ -28,7 +28,8 @@ setup_scripts/
 ├── vscode_settings.json     # VS Code settings
 ├── obsidian_vimrc           # Obsidian vim keybindings
 ├── hooks/
-│   └── pre-push             # Blocks Claude Code from pushing to main/master
+│   ├── pre-commit           # Runs test_runner.sh lint (repo-specific)
+│   └── pre-push             # Blocks Claude Code from pushing to main/master (generic)
 ├── templates/
 │   └── moat.yaml            # Template moat config for new projects
 ├── skills/                  # AI agent skills (Claude Code + Codex CLI)
@@ -96,15 +97,18 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 
 - **Grants:** `claude`, `github`, `ssh:github.com`
 - **post_build hook:** Clones this repo and symlinks `skills/` to `~/.claude/skills/`
-- **pre_run hook:** Installs the `hooks/pre-push` hook to block Claude Code from pushing to main/master
+- **pre_run hook:** Sets `core.hooksPath` to point at `hooks/` from the cloned repo
 
-`templates/moat.yaml` is a starter config for new projects.
+The `pre_run` hook uses per-worktree git config (`extensions.worktreeConfig` + `git config --worktree`) so that each Moat container's hook configuration is isolated and doesn't write to the shared git common directory.
+
+`templates/moat.yaml` is a starter config for new projects. It uses the same `hooksPath` approach, which means all hooks in `hooks/` are active — including `pre-commit`. Repos that don't have a `test_runner.sh` will need to add one or the pre-commit hook will block commits.
 
 ## Hooks
 
-| Hook | Purpose |
-|------|---------|
-| `hooks/pre-push` | Prevents Claude Code (`$CLAUDECODE=1`) from pushing to `main` or `master` |
+| Hook | Purpose | Scope |
+|------|---------|-------|
+| `hooks/pre-push` | Prevents Claude Code (`$CLAUDECODE=1`) from pushing to `main` or `master` | Generic — safe for all repos |
+| `hooks/pre-commit` | Runs `test_runner.sh lint` on staged changes | Repo-specific — requires `test_runner.sh` at repo root |
 
 ## SwiftBar Plugin
 
