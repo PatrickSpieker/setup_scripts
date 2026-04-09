@@ -224,6 +224,7 @@ esac
 
 
 # Default working directory — open new shells in ~/code.
-cd ~/code || true
+# shellcheck disable=SC2164
+cd ~/code
 
 . "$HOME/.local/bin/env"
