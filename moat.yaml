@@ -8,4 +8,4 @@ grants:
 
 hooks:
   post_build: git clone https://github.com/PatrickSpieker/setup_scripts.git /tmp/setup-scripts && mkdir -p ~/.claude && ln -sfn /tmp/setup-scripts/skills ~/.claude/skills && cp /tmp/setup-scripts/defaults/settings.json ~/.claude/settings.json
-  pre_run: GIT_DIR="$(git -C /workspace rev-parse --git-dir)" && mkdir -p "$GIT_DIR/hooks" && cp /tmp/setup-scripts/hooks/pre-push "$GIT_DIR/hooks/pre-push" && cp /tmp/setup-scripts/hooks/pre-commit "$GIT_DIR/hooks/pre-commit" && chmod +x "$GIT_DIR/hooks/pre-push" "$GIT_DIR/hooks/pre-commit"
+  pre_run: git -C /workspace config extensions.worktreeConfig true && git -C /workspace config --worktree core.hooksPath /tmp/setup-scripts/hooks
