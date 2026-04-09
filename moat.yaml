@@ -7,5 +7,5 @@ grants:
   - ssh:github.com
 
 hooks:
-  post_build: git clone https://github.com/PatrickSpieker/setup_scripts.git /tmp/setup-scripts && mkdir -p ~/.claude && ln -sfn /tmp/setup-scripts/skills ~/.claude/skills && cp /tmp/setup-scripts/defaults/claude.json ~/.claude.json
+  post_build: git clone https://github.com/PatrickSpieker/setup_scripts.git /tmp/setup-scripts && mkdir -p ~/.claude && ln -sfn /tmp/setup-scripts/skills ~/.claude/skills && node -e "const s='/tmp/setup-scripts/defaults/settings.json',t=require('path').join(require('os').homedir(),'.claude','settings.json');const d=JSON.parse(require('fs').readFileSync(s));let e={};try{e=JSON.parse(require('fs').readFileSync(t))}catch{} Object.assign(e,d);require('fs').writeFileSync(t,JSON.stringify(e,null,2))"
   pre_run: GIT_DIR="$(git -C /workspace rev-parse --git-dir)" && mkdir -p "$GIT_DIR/hooks" && cp /tmp/setup-scripts/hooks/pre-push "$GIT_DIR/hooks/pre-push" && chmod +x "$GIT_DIR/hooks/pre-push"
