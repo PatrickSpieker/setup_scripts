@@ -19,7 +19,7 @@ fi
 # Install pytest + pyyaml if needed
 if ! python3 -c "import pytest" 2>/dev/null; then
   echo "Installing pytest and pyyaml..."
-  pip3 install --quiet pytest pyyaml
+  pip3 install --quiet --break-system-packages pytest pyyaml
 fi
 
 case "$MODE" in
