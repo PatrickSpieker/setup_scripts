@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO_DIR="$(git rev-parse --show-toplevel)"
+TESTS_DIR="$REPO_DIR/tests"
+LIBS_DIR="$TESTS_DIR/libs"
+BATS="$LIBS_DIR/bats-core/bin/bats"
+
+if [[ ! -x "$BATS" ]]; then
+  echo "Test dependencies not installed. Run ./test_runner.sh first."
+  exit 1
+fi
+
+export PATH="$LIBS_DIR/node_modules/.bin:$PATH"
+export NODE_PATH="$LIBS_DIR/node_modules"
+
+echo "Running shellcheck + config validation..."
+"$BATS" "$TESTS_DIR/shellcheck.bats" "$TESTS_DIR/config_validation.bats"
