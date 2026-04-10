@@ -7,6 +7,16 @@ description: Create a skill from conversation history or user description.
 
 Create a skill from conversation history or user description.
 
+## Setup
+
+Skills live in `~/setup_scripts/skills/` (this repo). The entire `skills/` directory is
+symlinked into each tool's config at install time:
+
+- `~/.claude/skills` → `skills/`
+- `~/.codex/skills` → `skills/`
+
+So creating a skill here makes it available to all tools automatically — no per-host install needed.
+
 ## Steps
 
 1. **Detect context**
@@ -14,51 +24,43 @@ Create a skill from conversation history or user description.
    - If no history: parse user's description
    - Use thread context clues to infer name, description, and triggers
 
-2. Determine host (Codex, Claude, Cursor) from current runtime
-   - Say: "Since I am {host}, I will install it in {host}"
-
-3. Propose the skill name, description, triggers, location, and whether scripts are needed
+2. Propose the skill name, description, triggers, and whether scripts are needed
    - Proceed unless user rejects or corrects
 
-4. Check existing skills for patterns (host-specific)
+3. Check existing skills for patterns
 ```bash
-ls ~/.codex/skills/
-ls ~/.claude/skills/
-ls ~/.cursor/skills/
-ls agents/skills/
+ls skills/
 ```
 
-5. Create skill structure:
+4. Create skill in `skills/{skill-name}/`:
 ```
-{skill-name}/
+skills/{skill-name}/
   SKILL.md
-  resources/         # references, samples, templates
-  scripts/           # if tools requested
+  resources/         # references, samples, templates (only if needed)
+  scripts/           # only if tools requested
     run.py|ts|sh
 ```
 
-6. Write SKILL.md:
+5. Write SKILL.md following existing conventions:
 ```markdown
 ---
 name: skill-name
-description: one-line
-allowed_tools: [list inferred from context]
+description: one-line description
 ---
 
 # Skill Name
 
-## When to use
-- trigger conditions
+One-line description matching the frontmatter.
 
 ## Steps
 1. ...
 2. ...
-
-## Tools created
-- scripts/run.py: what it does
 ```
 
-7. Report created files
+Add `## When to use` only if triggers aren't obvious from the description.
+Add `## Tools created` only if scripts/ are included.
+
+6. Report created files
 
 ## Flags
 
@@ -90,7 +92,7 @@ echo "ok"
 ## Rules
 
 - Default to capturing conversation if history exists
-- Default host to current runtime and install there
+- All skills go in `skills/` in this repo — never install directly into `~/.claude/skills/` etc.
 - Ask at most one question, only if ambiguity blocks execution
 - Only create scripts if requested
-- Match existing skill patterns in repo
+- Match existing skill patterns in the repo (check frontmatter, section style)
