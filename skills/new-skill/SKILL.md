@@ -7,15 +7,16 @@ description: Create a skill from conversation history or user description.
 
 Create a skill from conversation history or user description.
 
-## Setup
+## Skill locations
 
-Skills live in `~/setup_scripts/skills/` (this repo). The entire `skills/` directory is
-symlinked into each tool's config at install time:
+There are two places a skill can live:
 
-- `~/.claude/skills` → `skills/`
-- `~/.codex/skills` → `skills/`
+- **Global**: `~/.claude/skills/` (symlinked to `~/setup_scripts/skills/`, this repo).
+  Available in every project. Create here when the skill is general-purpose.
+- **Per-repo**: `<project>/.claude/skills/`. Checked into a specific project.
+  Create here when the skill is project-specific.
 
-So creating a skill here makes it available to all tools automatically — no per-host install needed.
+If both locations have a skill with the same name, the global one wins.
 
 ## Steps
 
@@ -24,15 +25,20 @@ So creating a skill here makes it available to all tools automatically — no pe
    - If no history: parse user's description
    - Use thread context clues to infer name, description, and triggers
 
-2. Propose the skill name, description, triggers, and whether scripts are needed
+2. **Determine destination**: global (default) or per-repo
+   - If the skill is project-specific, use `.claude/skills/` in the current project
+   - Otherwise, use `~/setup_scripts/skills/` (the global symlink target)
+
+3. Propose the skill name, description, triggers, and whether scripts are needed
    - Proceed unless user rejects or corrects
 
-3. Check existing skills for patterns
+4. Check existing skills for patterns
 ```bash
-ls skills/
+ls ~/.claude/skills/        # global
+ls .claude/skills/ 2>/dev/null  # per-repo
 ```
 
-4. Create skill in `skills/{skill-name}/`:
+5. Create skill in the chosen location:
 ```
 skills/{skill-name}/
   SKILL.md
@@ -41,7 +47,7 @@ skills/{skill-name}/
     run.py|ts|sh
 ```
 
-5. Write SKILL.md following existing conventions:
+6. Write SKILL.md following existing conventions:
 ```markdown
 ---
 name: skill-name
@@ -60,7 +66,7 @@ One-line description matching the frontmatter.
 Add `## When to use` only if triggers aren't obvious from the description.
 Add `## Tools created` only if scripts/ are included.
 
-6. Report created files
+7. Report created files
 
 ## Flags
 
@@ -92,7 +98,7 @@ echo "ok"
 ## Rules
 
 - Default to capturing conversation if history exists
-- All skills go in `skills/` in this repo — never install directly into `~/.claude/skills/` etc.
+- Global skills go in `~/setup_scripts/skills/`; per-repo skills go in `<project>/.claude/skills/`
 - Ask at most one question, only if ambiguity blocks execution
 - Only create scripts if requested
 - Match existing skill patterns in the repo (check frontmatter, section style)
