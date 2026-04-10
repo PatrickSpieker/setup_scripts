@@ -39,7 +39,7 @@ def mock_bin(tmp_path):
     class MockBin:
         path = bin_dir
         log = log_file
-        create = create_mock
+        create = staticmethod(create_mock)
 
         def calls(self) -> str:
             return log_file.read_text() if log_file.exists() else ""

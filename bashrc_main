@@ -16,6 +16,37 @@ alias c='clear'
 alias memes="echo 'this is a good meme'"
 alias h='history'
 alias cl='claude'
+_mcl_ensure_default_branch_fresh() {
+  # Skip if no remote
+  if ! git remote get-url origin &>/dev/null; then
+    return 0
+  fi
+
+  local default_branch
+  default_branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@')
+  if [[ -z "$default_branch" ]]; then
+    if git rev-parse --verify origin/main &>/dev/null; then
+      default_branch="main"
+    elif git rev-parse --verify origin/master &>/dev/null; then
+      default_branch="master"
+    else
+      echo "Warning: could not determine default branch, skipping freshness check."
+      return 0
+    fi
+  fi
+
+  echo "Fetching latest $default_branch from origin..."
+  git fetch origin "$default_branch" || { echo "Error: failed to fetch origin/$default_branch"; return 1; }
+
+  local current_branch
+  current_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+  if [[ "$current_branch" == "$default_branch" ]]; then
+    git merge --ff-only "origin/$default_branch" || { echo "Error: $default_branch has diverged from origin. Please resolve manually."; return 1; }
+  else
+    git branch -f "$default_branch" "origin/$default_branch" 2>/dev/null || true
+  fi
+}
+
 unalias mcl 2>/dev/null
 mcl() {
   local mount=false
@@ -38,6 +69,8 @@ mcl() {
     cp ~/setup_scripts/templates/moat.yaml ./moat.yaml
     echo "Created moat.yaml from template."
   fi
+
+  _mcl_ensure_default_branch_fresh || return 1
 
   if [[ "$mount" == true ]]; then
     local branch="${args[0]:-moat/$(date +%Y%m%d-%H%M%S)}"
@@ -68,6 +101,8 @@ mclpr() {
     echo "Usage: mclpr <pr-number>"
     return 1
   fi
+  _mcl_ensure_default_branch_fresh || return 1
+
   local branch
   branch=$(gh pr view "$pr" --json headRefName -q '.headRefName') || return 1
   git fetch origin "$branch" || return 1
