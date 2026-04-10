@@ -153,6 +153,34 @@ def test_mcl_mount_creates_branch_and_runs_moat(repo_dir, mock_bin, fake_home, g
     assert result.stdout.strip() == "my-branch"
 
 
+def test_mcl_debug_worktree_mode(repo_dir, mock_bin, fake_home, git_repo):
+    """mcl --debug should pass --verbose to moat in worktree mode."""
+    _setup_sourcing_mocks(mock_bin)
+    mock_bin.create("moat", script=textwrap.dedent(f"""\
+        #!/usr/bin/env bash
+        echo "moat $*" >> "{mock_bin.log}"
+        exit 0
+    """))
+
+    r = run_bash_function("mcl --debug my-branch", repo_dir=repo_dir, mock_bin=mock_bin, fake_home=fake_home, cwd=str(git_repo))
+    assert r.returncode == 0
+    mock_bin.assert_called_with("moat claude --verbose --worktree my-branch -- --model=opus")
+
+
+def test_mcl_debug_mount_mode(repo_dir, mock_bin, fake_home, git_repo):
+    """mcl -m --debug should pass --verbose to moat in mount mode."""
+    _setup_sourcing_mocks(mock_bin)
+    mock_bin.create("moat", script=textwrap.dedent(f"""\
+        #!/usr/bin/env bash
+        echo "moat $*" >> "{mock_bin.log}"
+        exit 0
+    """))
+
+    r = run_bash_function("mcl -m --debug my-branch", repo_dir=repo_dir, mock_bin=mock_bin, fake_home=fake_home, cwd=str(git_repo))
+    assert r.returncode == 0
+    mock_bin.assert_called_with("moat claude --verbose -- --model=opus")
+
+
 # ===========================================================================
 # mcl — freshness check (_mcl_ensure_default_branch_fresh)
 # ===========================================================================
@@ -362,6 +390,34 @@ def test_mclpr_runs_freshness_check(repo_dir, mock_bin, fake_home, git_repo_with
     assert "Fetching latest main from origin" in r.stdout
 
 
+def test_mclpr_debug_passes_verbose(repo_dir, mock_bin, fake_home, git_repo_with_remote):
+    """mclpr --debug should pass --verbose to moat."""
+    _setup_sourcing_mocks(mock_bin)
+
+    # Create a feature branch on origin for the PR.
+    _run_git("git checkout -b feat/debug-pr", git_repo_with_remote, fake_home)
+    (git_repo_with_remote / "debug.txt").write_text("debug content\n")
+    _run_git("git add -A && git commit -m 'debug commit'", git_repo_with_remote, fake_home)
+    _run_git("git push origin feat/debug-pr", git_repo_with_remote, fake_home)
+    _run_git("git checkout main", git_repo_with_remote, fake_home)
+
+    mock_bin.create("gh", script=textwrap.dedent(f"""\
+        #!/usr/bin/env bash
+        echo "gh $*" >> "{mock_bin.log}"
+        echo "feat/debug-pr"
+        exit 0
+    """))
+    mock_bin.create("moat", script=textwrap.dedent(f"""\
+        #!/usr/bin/env bash
+        echo "moat $*" >> "{mock_bin.log}"
+        exit 0
+    """))
+
+    r = run_bash_function("mclpr --debug 42", repo_dir=repo_dir, mock_bin=mock_bin, fake_home=fake_home, cwd=str(git_repo_with_remote))
+    assert r.returncode == 0
+    mock_bin.assert_called_with("moat claude --verbose --worktree feat/debug-pr -- --model=opus")
+
+
 # ===========================================================================
 # mclb
 # ===========================================================================
@@ -397,3 +453,25 @@ def test_mclb_fetches_branch_and_runs_moat(repo_dir, mock_bin, fake_home, git_re
     assert r.returncode == 0
     mock_bin.assert_called_with("moat claude --worktree feat/my-branch -- --model=opus")
     assert "Cleaning up worktree" in r.stdout
+
+
+def test_mclb_debug_passes_verbose(repo_dir, mock_bin, fake_home, git_repo_with_remote):
+    """mclb --debug should pass --verbose to moat."""
+    _setup_sourcing_mocks(mock_bin)
+
+    # Create a branch on origin so there's something to fetch.
+    _run_git("git checkout -b feat/debug-branch", git_repo_with_remote, fake_home)
+    (git_repo_with_remote / "debug.txt").write_text("debug content\n")
+    _run_git("git add -A && git commit -m 'debug commit'", git_repo_with_remote, fake_home)
+    _run_git("git push origin feat/debug-branch", git_repo_with_remote, fake_home)
+    _run_git("git checkout main", git_repo_with_remote, fake_home)
+
+    mock_bin.create("moat", script=textwrap.dedent(f"""\
+        #!/usr/bin/env bash
+        echo "moat $*" >> "{mock_bin.log}"
+        exit 0
+    """))
+
+    r = run_bash_function("mclb --debug feat/debug-branch", repo_dir=repo_dir, mock_bin=mock_bin, fake_home=fake_home, cwd=str(git_repo_with_remote))
+    assert r.returncode == 0
+    mock_bin.assert_called_with("moat claude --verbose --worktree feat/debug-branch -- --model=opus")
