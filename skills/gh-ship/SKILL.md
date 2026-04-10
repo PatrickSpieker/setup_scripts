@@ -35,11 +35,15 @@ git commit -m "type(scope): short description"
 git push -u origin $(git branch --show-current)
 ```
 
-5. Create PR if needed
+5. Create or update PR
 ```bash
-gh pr view --json number 2>/dev/null
+gh pr view --json number,body 2>/dev/null
 ```
 - If no PR: `gh pr create --title "type(scope): desc" --body "## Summary\n- changes"`
-- If PR exists: report URL
+- If PR exists:
+  1. Read the existing PR description from the `body` field above
+  2. Update the description to account for the changes just pushed (add new bullet points, revise summary, etc.) while preserving any content that is still accurate
+  3. `gh pr edit --body "updated body"` to apply the updated description
+  4. Report the PR URL
 
 Read if present: `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`.
