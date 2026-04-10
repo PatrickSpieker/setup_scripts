@@ -102,17 +102,9 @@ curl https://cursor.com/install -fsS | bash
 
 
 # ===== CLAUDE (Claude Code) =====
-# Sets up skills — the preferred way to extend Claude Code behavior.
-# Note: ln -sfn on a directory requires the full absolute path.
-mkdir -p ~/.claude
-ln -sfn "$REPO_DIR/skills" ~/.claude/skills
-
-
-
-# ===== CODEX =====
-# reminder: codex skills are invoked with $skill_name, not /skill_name
-mkdir -p ~/.codex
-ln -sfn "$REPO_DIR/skills" ~/.codex/skills
+# ===== AGENT HOMES =====
+# Provision shared Claude/Codex skills and repo-managed config defaults.
+bash "$REPO_DIR/scripts/bootstrap_agent_homes.sh" "$REPO_DIR"
 
 
 

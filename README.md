@@ -21,7 +21,7 @@ setup_scripts/
 ├── setup.sh                 # Main install script (Homebrew, bash, vim, skills, SwiftBar)
 ├── Brewfile                 # Homebrew packages (git, gh, neovim, ripgrep, fzf, claude-code, codex, etc.)
 ├── AGENTS.md                # Agent-facing instructions (symlinked to .claude/claude.md)
-├── moat.yaml                # Moat runtime config (grants, hooks for skills + pre-push)
+├── moat.yaml                # Shared Moat runtime config for Claude + Codex
 ├── bashrc_main              # Bash config (aliases, git shortcuts, PATH, oh-my-bash, fzf)
 ├── bash_profile_main        # Bash profile (sources bashrc)
 ├── vimrc_main               # Neovim config (vim-plug, keymaps, plugins)
@@ -76,10 +76,12 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 | `pdf-viewing` | OCR PDFs with page tracking and rasterize to images |
 | `slidev-presentation-kit` | Create or edit Slidev presentations |
 
-### How skills are installed
+### How agent homes are installed
 
-- **Claude Code:** `setup.sh` symlinks `skills/` to `~/.claude/skills/`
-- **Codex CLI:** `sync-skills` in `bashrc_main` symlinks each skill to `~/.codex/skills/` on every shell startup
+- `setup.sh` and Moat bootstrap both use `scripts/bootstrap_agent_homes.sh`
+- The bootstrap script creates per-skill symlinks for both `~/.claude/skills/` and `~/.codex/skills/`
+- Claude settings are provisioned to `~/.claude/settings.json`
+- Codex config is provisioned to `~/.codex/config.toml`
 
 ## Dotfiles
 
@@ -93,10 +95,10 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 
 ## Moat
 
-`moat.yaml` configures the [Moat](https://majorcontext.com/moat/llms.txt) sandbox runtime:
+`moat.yaml` configures the [Moat](https://majorcontext.com/moat/llms.txt) sandbox runtime for both Claude and Codex:
 
-- **Grants:** `claude`, `github`, `ssh:github.com`
-- **post_build hook:** Clones this repo and symlinks `skills/` to `~/.claude/skills/`
+- **Grants:** `claude`, `openai`, `github`, `ssh:github.com`
+- **post_build hook:** Clones this repo and bootstraps both `~/.claude` and `~/.codex`
 - **pre_run hook:** Sets `core.hooksPath` to point at `hooks/` from the cloned repo
 
 The `pre_run` hook uses per-worktree git config (`extensions.worktreeConfig` + `git config --worktree`) so that each Moat container's hook configuration is isolated and doesn't write to the shared git common directory.
@@ -107,7 +109,7 @@ The `pre_run` hook uses per-worktree git config (`extensions.worktreeConfig` + `
 
 | Hook | Purpose | Scope |
 |------|---------|-------|
-| `hooks/pre-push` | Prevents Claude Code (`$CLAUDECODE=1`) from pushing to `main` or `master` | Generic — safe for all repos |
+| `hooks/pre-push` | Prevents Claude/Codex agent sessions from pushing to `main` or `master` | Generic — safe for all repos |
 | `hooks/pre-commit` | Runs `test_runner.sh lint` on staged changes | Repo-specific — requires `test_runner.sh` at repo root |
 
 ## SwiftBar Plugin
@@ -122,4 +124,5 @@ The `pre_run` hook uses per-worktree git config (`extensions.worktreeConfig` + `
 - fzf backed by ripgrep (`rg --files --hidden`)
 - Git aliases: `gs` (status), `gc` (commit -am), `gacp` (add + commit + push), `gpoh` (push origin HEAD)
 - Moat + Claude: `mcl` (new worktree session), `mclpr <pr>` (resume PR branch), `mclb <branch>` (resume any remote branch)
+- Moat + Codex: `mco` (new worktree session), `mcopr <pr>` (resume PR branch), `mcob <branch>` (resume any remote branch)
 - Docker: `sd` (open Docker), `sac` (start container system)

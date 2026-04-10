@@ -79,12 +79,15 @@ def test_moat_init_refuses_when_exists(tmp_path, repo_dir, mock_bin, fake_home):
 # ===========================================================================
 
 def test_sync_skills_creates_symlinks(repo_dir, mock_bin, fake_home):
-    """sync-skills should symlink each skill dir into ~/.codex/skills/."""
+    """sync-skills should symlink each skill dir into both agent homes."""
     _setup_sourcing_mocks(mock_bin)
 
     r = run_bash_function("sync-skills", repo_dir=repo_dir, mock_bin=mock_bin, fake_home=fake_home)
     assert r.returncode == 0
     assert (fake_home / ".codex/skills/skill-a").is_symlink()
+    assert (fake_home / ".claude/skills/skill-a").is_symlink()
+    assert (fake_home / ".codex/config.toml").is_symlink()
+    assert (fake_home / ".claude/settings.json").is_symlink()
 
 
 # ===========================================================================
@@ -132,7 +135,7 @@ def test_mcl_worktree_mode(repo_dir, mock_bin, fake_home, git_repo):
 
     r = run_bash_function("mcl my-branch", repo_dir=repo_dir, mock_bin=mock_bin, fake_home=fake_home, cwd=str(git_repo))
     assert r.returncode == 0
-    mock_bin.assert_called_with("moat claude --worktree my-branch -- --model=opus")
+    mock_bin.assert_called_with("moat claude -e AI_AGENT=claude --worktree my-branch -- --model=opus")
     assert "Cleaning up worktree" in r.stdout
 
 
@@ -147,7 +150,7 @@ def test_mcl_mount_creates_branch_and_runs_moat(repo_dir, mock_bin, fake_home, g
 
     r = run_bash_function("mcl -m my-branch", repo_dir=repo_dir, mock_bin=mock_bin, fake_home=fake_home, cwd=str(git_repo))
     assert r.returncode == 0
-    mock_bin.assert_called_with("moat claude -- --model=opus")
+    mock_bin.assert_called_with("moat claude -e AI_AGENT=claude -- --model=opus")
     # Verify git actually created the branch
     result = _run_git("git branch --show-current", git_repo, fake_home)
     assert result.stdout.strip() == "my-branch"
@@ -179,7 +182,7 @@ def test_mcl_fetches_and_pulls_default_branch(repo_dir, mock_bin, fake_home, git
     assert "Fetching latest main from origin" in r.stdout
     # After the freshness check, we should be on main (the default branch)
     # and moat should have been invoked.
-    mock_bin.assert_called_with("moat claude --worktree my-branch -- --model=opus")
+    mock_bin.assert_called_with("moat claude -e AI_AGENT=claude --worktree my-branch -- --model=opus")
 
 
 def test_mcl_pulls_new_commits_from_origin(tmp_path, repo_dir, mock_bin, fake_home, git_repo_with_remote):
@@ -220,7 +223,7 @@ def test_mcl_skips_freshness_without_remote(repo_dir, mock_bin, fake_home, git_r
     r = run_bash_function("mcl my-branch", repo_dir=repo_dir, mock_bin=mock_bin, fake_home=fake_home, cwd=str(git_repo))
     assert r.returncode == 0
     assert "Fetching latest" not in r.stdout
-    mock_bin.assert_called_with("moat claude --worktree my-branch -- --model=opus")
+    mock_bin.assert_called_with("moat claude -e AI_AGENT=claude --worktree my-branch -- --model=opus")
 
 
 def test_mcl_fails_with_dirty_tree(repo_dir, mock_bin, fake_home, git_repo_with_remote):
@@ -330,7 +333,7 @@ def test_mclpr_fetches_pr_branch_and_runs_moat(repo_dir, mock_bin, fake_home, gi
     assert r.returncode == 0
     # Verify it looked up the PR, then started moat on the right branch.
     mock_bin.assert_called_with("gh pr view 42")
-    mock_bin.assert_called_with("moat claude --worktree feat/cool-feature -- --model=opus")
+    mock_bin.assert_called_with("moat claude -e AI_AGENT=claude --worktree feat/cool-feature -- --model=opus")
 
 
 def test_mclpr_runs_freshness_check(repo_dir, mock_bin, fake_home, git_repo_with_remote):
@@ -395,5 +398,120 @@ def test_mclb_fetches_branch_and_runs_moat(repo_dir, mock_bin, fake_home, git_re
 
     r = run_bash_function("mclb feat/my-branch", repo_dir=repo_dir, mock_bin=mock_bin, fake_home=fake_home, cwd=str(git_repo_with_remote))
     assert r.returncode == 0
-    mock_bin.assert_called_with("moat claude --worktree feat/my-branch -- --model=opus")
+    mock_bin.assert_called_with("moat claude -e AI_AGENT=claude --worktree feat/my-branch -- --model=opus")
     assert "Cleaning up worktree" in r.stdout
+
+
+# ===========================================================================
+# mco / mcopr / mcob
+# ===========================================================================
+
+def test_mco_worktree_mode(repo_dir, mock_bin, fake_home, git_repo):
+    """mco (default, no -m) should invoke moat codex with --worktree."""
+    _setup_sourcing_mocks(mock_bin)
+    mock_bin.create("moat", script=textwrap.dedent(f"""\
+        #!/usr/bin/env bash
+        echo "moat $*" >> "{mock_bin.log}"
+        exit 0
+    """))
+
+    r = run_bash_function("mco my-branch", repo_dir=repo_dir, mock_bin=mock_bin, fake_home=fake_home, cwd=str(git_repo))
+    assert r.returncode == 0
+    mock_bin.assert_called_with("moat codex -e AI_AGENT=codex --worktree my-branch -- --model gpt-5-codex")
+    assert "Cleaning up worktree" in r.stdout
+
+
+def test_mco_mount_creates_branch_and_runs_moat(repo_dir, mock_bin, fake_home, git_repo):
+    """mco -m should create a new branch and invoke moat codex without --worktree."""
+    _setup_sourcing_mocks(mock_bin)
+    mock_bin.create("moat", script=textwrap.dedent(f"""\
+        #!/usr/bin/env bash
+        echo "moat $*" >> "{mock_bin.log}"
+        exit 0
+    """))
+
+    r = run_bash_function("mco -m my-branch", repo_dir=repo_dir, mock_bin=mock_bin, fake_home=fake_home, cwd=str(git_repo))
+    assert r.returncode == 0
+    mock_bin.assert_called_with("moat codex -e AI_AGENT=codex -- --model gpt-5-codex")
+    result = _run_git("git branch --show-current", git_repo, fake_home)
+    assert result.stdout.strip() == "my-branch"
+
+
+def test_mco_fetches_and_pulls_default_branch(repo_dir, mock_bin, fake_home, git_repo_with_remote):
+    """mco should checkout and pull the default branch before starting."""
+    _setup_sourcing_mocks(mock_bin)
+    mock_bin.create("moat", script=textwrap.dedent(f"""\
+        #!/usr/bin/env bash
+        echo "moat $*" >> "{mock_bin.log}"
+        exit 0
+    """))
+
+    r = run_bash_function("mco my-branch", repo_dir=repo_dir, mock_bin=mock_bin, fake_home=fake_home, cwd=str(git_repo_with_remote))
+    assert r.returncode == 0
+    assert "Fetching latest main from origin" in r.stdout
+    mock_bin.assert_called_with("moat codex -e AI_AGENT=codex --worktree my-branch -- --model gpt-5-codex")
+
+
+def test_mcopr_fails_without_argument(repo_dir, mock_bin, fake_home):
+    """mcopr with no args should print usage and exit non-zero."""
+    _setup_sourcing_mocks(mock_bin)
+
+    r = run_bash_function("mcopr", repo_dir=repo_dir, mock_bin=mock_bin, fake_home=fake_home)
+    assert r.returncode != 0
+    assert "Usage: mcopr" in r.stdout
+
+
+def test_mcopr_fetches_pr_branch_and_runs_moat(repo_dir, mock_bin, fake_home, git_repo_with_remote):
+    """mcopr should look up the PR branch, fetch it, and start moat codex."""
+    _setup_sourcing_mocks(mock_bin)
+    _run_git("git checkout -b feat/codex-pr", git_repo_with_remote, fake_home)
+    (git_repo_with_remote / "feature.txt").write_text("new feature\n")
+    _run_git("git add -A && git commit -m 'add feature'", git_repo_with_remote, fake_home)
+    _run_git("git push origin feat/codex-pr", git_repo_with_remote, fake_home)
+    _run_git("git checkout main", git_repo_with_remote, fake_home)
+
+    mock_bin.create("gh", script=textwrap.dedent(f"""\
+        #!/usr/bin/env bash
+        echo "gh $*" >> "{mock_bin.log}"
+        echo "feat/codex-pr"
+        exit 0
+    """))
+    mock_bin.create("moat", script=textwrap.dedent(f"""\
+        #!/usr/bin/env bash
+        echo "moat $*" >> "{mock_bin.log}"
+        exit 0
+    """))
+
+    r = run_bash_function("mcopr 42", repo_dir=repo_dir, mock_bin=mock_bin, fake_home=fake_home, cwd=str(git_repo_with_remote))
+    assert r.returncode == 0
+    mock_bin.assert_called_with("gh pr view 42")
+    mock_bin.assert_called_with("moat codex -e AI_AGENT=codex --worktree feat/codex-pr -- --model gpt-5-codex")
+
+
+def test_mcob_fails_without_argument(repo_dir, mock_bin, fake_home):
+    """mcob with no args should print usage and exit non-zero."""
+    _setup_sourcing_mocks(mock_bin)
+
+    r = run_bash_function("mcob", repo_dir=repo_dir, mock_bin=mock_bin, fake_home=fake_home)
+    assert r.returncode != 0
+    assert "Usage: mcob" in r.stdout
+
+
+def test_mcob_fetches_branch_and_runs_moat(repo_dir, mock_bin, fake_home, git_repo_with_remote):
+    """mcob should fetch the named branch from origin and start moat codex."""
+    _setup_sourcing_mocks(mock_bin)
+    _run_git("git checkout -b feat/codex-branch", git_repo_with_remote, fake_home)
+    (git_repo_with_remote / "branch.txt").write_text("branch content\n")
+    _run_git("git add -A && git commit -m 'branch commit'", git_repo_with_remote, fake_home)
+    _run_git("git push origin feat/codex-branch", git_repo_with_remote, fake_home)
+    _run_git("git checkout main", git_repo_with_remote, fake_home)
+
+    mock_bin.create("moat", script=textwrap.dedent(f"""\
+        #!/usr/bin/env bash
+        echo "moat $*" >> "{mock_bin.log}"
+        exit 0
+    """))
+
+    r = run_bash_function("mcob feat/codex-branch", repo_dir=repo_dir, mock_bin=mock_bin, fake_home=fake_home, cwd=str(git_repo_with_remote))
+    assert r.returncode == 0
+    mock_bin.assert_called_with("moat codex -e AI_AGENT=codex --worktree feat/codex-branch -- --model gpt-5-codex")
