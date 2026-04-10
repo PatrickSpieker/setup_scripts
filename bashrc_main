@@ -16,6 +16,37 @@ alias c='clear'
 alias memes="echo 'this is a good meme'"
 alias h='history'
 alias cl='claude'
+_mcl_ensure_default_branch_fresh() {
+  # Skip if no remote
+  if ! git remote get-url origin &>/dev/null; then
+    return 0
+  fi
+
+  # Fail on uncommitted changes
+  if ! git diff --quiet || ! git diff --cached --quiet; then
+    echo "Error: uncommitted changes. Commit or stash first."
+    return 1
+  fi
+
+  local default_branch
+  default_branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@')
+  if [[ -z "$default_branch" ]]; then
+    if git rev-parse --verify origin/main &>/dev/null; then
+      default_branch="main"
+    elif git rev-parse --verify origin/master &>/dev/null; then
+      default_branch="master"
+    else
+      echo "Warning: could not determine default branch, skipping freshness check."
+      return 0
+    fi
+  fi
+
+  echo "Fetching latest $default_branch from origin..."
+  git fetch origin "$default_branch" || { echo "Error: failed to fetch origin/$default_branch"; return 1; }
+  git checkout "$default_branch" || { echo "Error: failed to checkout $default_branch"; return 1; }
+  git pull --ff-only || { echo "Error: $default_branch has diverged from origin. Please resolve manually."; return 1; }
+}
+
 unalias mcl 2>/dev/null
 mcl() {
   local mount=false
@@ -39,13 +70,10 @@ mcl() {
     echo "Created moat.yaml from template."
   fi
 
+  _mcl_ensure_default_branch_fresh || return 1
+
   if [[ "$mount" == true ]]; then
     local branch="${args[0]:-moat/$(date +%Y%m%d-%H%M%S)}"
-    # Fail if there are uncommitted changes
-    if ! git diff --quiet || ! git diff --cached --quiet; then
-      echo "Error: uncommitted changes. Commit or stash before using -m."
-      return 1
-    fi
     git checkout -b "$branch"
     moat claude -- --model=opus
   else
@@ -68,6 +96,8 @@ mclpr() {
     echo "Usage: mclpr <pr-number>"
     return 1
   fi
+  _mcl_ensure_default_branch_fresh || return 1
+
   local branch
   branch=$(gh pr view "$pr" --json headRefName -q '.headRefName') || return 1
   git fetch origin "$branch" || return 1
