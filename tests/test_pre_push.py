@@ -8,12 +8,16 @@ from conftest import REPO_DIR
 HOOK = str(REPO_DIR / "hooks/pre-push")
 
 
-def run_hook(stdin: str, claudecode: bool = False):
+def run_hook(stdin: str, claudecode: bool = False, ai_agent: str | None = None):
     env = os.environ.copy()
     if claudecode:
         env["CLAUDECODE"] = "1"
     else:
         env.pop("CLAUDECODE", None)
+    if ai_agent is None:
+        env.pop("AI_AGENT", None)
+    else:
+        env["AI_AGENT"] = ai_agent
     return subprocess.run(
         ["bash", HOOK],
         input=stdin,
@@ -47,4 +51,19 @@ def test_allows_claude_push_to_feature_branch():
 
 def test_allows_claude_push_when_no_main_refs():
     r = run_hook("refs/heads/foo abc123 refs/heads/dev def456", claudecode=True)
+    assert r.returncode == 0
+
+
+def test_blocks_ai_agent_claude_push_to_main():
+    r = run_hook("refs/heads/foo abc123 refs/heads/main def456", ai_agent="claude")
+    assert r.returncode == 1
+
+
+def test_blocks_ai_agent_codex_push_to_master():
+    r = run_hook("refs/heads/foo abc123 refs/heads/master def456", ai_agent="codex")
+    assert r.returncode == 1
+
+
+def test_allows_ai_agent_codex_push_to_feature_branch():
+    r = run_hook("refs/heads/foo abc123 refs/heads/feature/bar def456", ai_agent="codex")
     assert r.returncode == 0

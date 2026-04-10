@@ -3,9 +3,10 @@ dependencies:
   - python
 grants:
   - claude
+  - openai
   - github
   - ssh:github.com
 
 hooks:
-  post_build: git clone https://github.com/PatrickSpieker/setup_scripts.git /tmp/setup-scripts && mkdir -p ~/.claude && ln -sfn /tmp/setup-scripts/skills ~/.claude/skills && cp /tmp/setup-scripts/defaults/settings.json ~/.claude/settings.json
+  post_build: git clone https://github.com/PatrickSpieker/setup_scripts.git /tmp/setup-scripts && bash /tmp/setup-scripts/scripts/bootstrap_agent_homes.sh /tmp/setup-scripts
   pre_run: git -C /workspace config extensions.worktreeConfig true && git -C /workspace config --worktree core.hooksPath /tmp/setup-scripts/hooks
