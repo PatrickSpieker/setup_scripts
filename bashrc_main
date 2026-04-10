@@ -22,6 +22,12 @@ _mcl_ensure_default_branch_fresh() {
     return 0
   fi
 
+  # Fail on uncommitted changes
+  if ! git diff --quiet || ! git diff --cached --quiet; then
+    echo "Error: uncommitted changes. Commit or stash first."
+    return 1
+  fi
+
   local default_branch
   default_branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@')
   if [[ -z "$default_branch" ]]; then
@@ -37,14 +43,8 @@ _mcl_ensure_default_branch_fresh() {
 
   echo "Fetching latest $default_branch from origin..."
   git fetch origin "$default_branch" || { echo "Error: failed to fetch origin/$default_branch"; return 1; }
-
-  local current_branch
-  current_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
-  if [[ "$current_branch" == "$default_branch" ]]; then
-    git merge --ff-only "origin/$default_branch" || { echo "Error: $default_branch has diverged from origin. Please resolve manually."; return 1; }
-  else
-    git branch -f "$default_branch" "origin/$default_branch" 2>/dev/null || true
-  fi
+  git checkout "$default_branch" || { echo "Error: failed to checkout $default_branch"; return 1; }
+  git pull --ff-only || { echo "Error: $default_branch has diverged from origin. Please resolve manually."; return 1; }
 }
 
 unalias mcl 2>/dev/null
@@ -74,11 +74,6 @@ mcl() {
 
   if [[ "$mount" == true ]]; then
     local branch="${args[0]:-moat/$(date +%Y%m%d-%H%M%S)}"
-    # Fail if there are uncommitted changes
-    if ! git diff --quiet || ! git diff --cached --quiet; then
-      echo "Error: uncommitted changes. Commit or stash before using -m."
-      return 1
-    fi
     git checkout -b "$branch"
     moat claude -- --model=opus
   else

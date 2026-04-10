@@ -83,14 +83,15 @@ def test_mcl_auto_creates_moat_yaml(tmp_path, repo_dir, mock_bin, fake_home):
     assert "Created moat.yaml from template" in r.stdout
 
 
-def test_mcl_mount_fails_with_dirty_tree(tmp_path, repo_dir, mock_bin, fake_home):
+def test_mcl_fails_with_dirty_tree(tmp_path, repo_dir, mock_bin, fake_home):
+    """mcl should fail with uncommitted changes regardless of mode."""
     mock_bin.create("gem", stdout="/fake/gem/dir")
     mock_bin.create("bind")
     mock_bin.create("moat")
     mock_bin.create("git", script=textwrap.dedent("""\
         #!/usr/bin/env bash
         if [[ "$1" == "rev-parse" && "$2" == "--is-inside-work-tree" ]]; then exit 0; fi
-        if [[ "$1" == "remote" ]]; then exit 1; fi
+        if [[ "$1" == "remote" ]]; then echo "https://github.com/example/repo"; exit 0; fi
         if [[ "$1" == "diff" && "$2" == "--quiet" ]]; then exit 1; fi
         exit 0
     """))
@@ -98,7 +99,7 @@ def test_mcl_mount_fails_with_dirty_tree(tmp_path, repo_dir, mock_bin, fake_home
     workdir.mkdir()
     (workdir / "moat.yaml").touch()
 
-    r = run_bash_function("mcl -m test-branch", repo_dir=repo_dir, mock_bin=mock_bin, fake_home=fake_home, cwd=str(workdir))
+    r = run_bash_function("mcl test-branch", repo_dir=repo_dir, mock_bin=mock_bin, fake_home=fake_home, cwd=str(workdir))
     assert r.returncode != 0
     assert "uncommitted changes" in r.stdout
 
@@ -158,7 +159,7 @@ def test_mcl_worktree_mode(tmp_path, repo_dir, mock_bin, fake_home):
 # ===== mcl freshness check =====
 
 def test_mcl_fetches_default_branch_before_running(tmp_path, repo_dir, mock_bin, fake_home):
-    """mcl should fetch and fast-forward the default branch when origin exists."""
+    """mcl should fetch, checkout, and pull the default branch when origin exists."""
     mock_bin.create("gem", stdout="/fake/gem/dir")
     mock_bin.create("bind")
     mock_bin.create("git", script=textwrap.dedent(f"""\
@@ -166,11 +167,12 @@ def test_mcl_fetches_default_branch_before_running(tmp_path, repo_dir, mock_bin,
         echo "git $*" >> "{mock_bin.log}"
         if [[ "$1" == "rev-parse" && "$2" == "--is-inside-work-tree" ]]; then exit 0; fi
         if [[ "$1" == "remote" ]]; then echo "https://github.com/example/repo"; exit 0; fi
+        if [[ "$1" == "diff" ]]; then exit 0; fi
         if [[ "$1" == "symbolic-ref" ]]; then exit 1; fi
         if [[ "$1" == "rev-parse" && "$2" == "--verify" && "$3" == "origin/main" ]]; then exit 0; fi
         if [[ "$1" == "fetch" ]]; then exit 0; fi
-        if [[ "$1" == "rev-parse" && "$2" == "--abbrev-ref" ]]; then echo "main"; exit 0; fi
-        if [[ "$1" == "merge" && "$2" == "--ff-only" ]]; then exit 0; fi
+        if [[ "$1" == "checkout" ]]; then exit 0; fi
+        if [[ "$1" == "pull" ]]; then exit 0; fi
         if [[ "$1" == "rev-parse" && "$2" == "HEAD" ]]; then exit 0; fi
         exit 0
     """))
@@ -187,37 +189,8 @@ def test_mcl_fetches_default_branch_before_running(tmp_path, repo_dir, mock_bin,
     assert r.returncode == 0
     assert "Fetching latest main from origin" in r.stdout
     mock_bin.assert_called_with("git fetch origin main")
-    mock_bin.assert_called_with("git merge --ff-only origin/main")
-
-
-def test_mcl_updates_local_ref_when_not_on_default_branch(tmp_path, repo_dir, mock_bin, fake_home):
-    """When on a feature branch, mcl should update the local main ref instead of merging."""
-    mock_bin.create("gem", stdout="/fake/gem/dir")
-    mock_bin.create("bind")
-    mock_bin.create("git", script=textwrap.dedent(f"""\
-        #!/usr/bin/env bash
-        echo "git $*" >> "{mock_bin.log}"
-        if [[ "$1" == "rev-parse" && "$2" == "--is-inside-work-tree" ]]; then exit 0; fi
-        if [[ "$1" == "remote" ]]; then echo "https://github.com/example/repo"; exit 0; fi
-        if [[ "$1" == "symbolic-ref" ]]; then exit 1; fi
-        if [[ "$1" == "rev-parse" && "$2" == "--verify" && "$3" == "origin/main" ]]; then exit 0; fi
-        if [[ "$1" == "fetch" ]]; then exit 0; fi
-        if [[ "$1" == "rev-parse" && "$2" == "--abbrev-ref" ]]; then echo "feat/other"; exit 0; fi
-        if [[ "$1" == "rev-parse" && "$2" == "HEAD" ]]; then exit 0; fi
-        exit 0
-    """))
-    mock_bin.create("moat", script=textwrap.dedent(f"""\
-        #!/usr/bin/env bash
-        echo "moat $*" >> "{mock_bin.log}"
-        exit 0
-    """))
-    workdir = tmp_path / "project"
-    workdir.mkdir()
-    (workdir / "moat.yaml").touch()
-
-    r = run_bash_function("mcl my-branch", repo_dir=repo_dir, mock_bin=mock_bin, fake_home=fake_home, cwd=str(workdir))
-    assert r.returncode == 0
-    mock_bin.assert_called_with("git branch -f main origin/main")
+    mock_bin.assert_called_with("git checkout main")
+    mock_bin.assert_called_with("git pull --ff-only")
 
 
 def test_mcl_skips_freshness_without_remote(tmp_path, repo_dir, mock_bin, fake_home):
@@ -255,6 +228,7 @@ def test_mcl_fails_when_fetch_fails(tmp_path, repo_dir, mock_bin, fake_home):
         echo "git $*" >> "{mock_bin.log}"
         if [[ "$1" == "rev-parse" && "$2" == "--is-inside-work-tree" ]]; then exit 0; fi
         if [[ "$1" == "remote" ]]; then echo "https://github.com/example/repo"; exit 0; fi
+        if [[ "$1" == "diff" ]]; then exit 0; fi
         if [[ "$1" == "symbolic-ref" ]]; then exit 1; fi
         if [[ "$1" == "rev-parse" && "$2" == "--verify" && "$3" == "origin/main" ]]; then exit 0; fi
         if [[ "$1" == "fetch" ]]; then exit 1; fi
@@ -283,12 +257,13 @@ def test_mcl_detects_master_as_default(tmp_path, repo_dir, mock_bin, fake_home):
         echo "git $*" >> "{mock_bin.log}"
         if [[ "$1" == "rev-parse" && "$2" == "--is-inside-work-tree" ]]; then exit 0; fi
         if [[ "$1" == "remote" ]]; then echo "https://github.com/example/repo"; exit 0; fi
+        if [[ "$1" == "diff" ]]; then exit 0; fi
         if [[ "$1" == "symbolic-ref" ]]; then exit 1; fi
         if [[ "$1" == "rev-parse" && "$2" == "--verify" && "$3" == "origin/main" ]]; then exit 1; fi
         if [[ "$1" == "rev-parse" && "$2" == "--verify" && "$3" == "origin/master" ]]; then exit 0; fi
         if [[ "$1" == "fetch" ]]; then exit 0; fi
-        if [[ "$1" == "rev-parse" && "$2" == "--abbrev-ref" ]]; then echo "master"; exit 0; fi
-        if [[ "$1" == "merge" && "$2" == "--ff-only" ]]; then exit 0; fi
+        if [[ "$1" == "checkout" ]]; then exit 0; fi
+        if [[ "$1" == "pull" ]]; then exit 0; fi
         if [[ "$1" == "rev-parse" && "$2" == "HEAD" ]]; then exit 0; fi
         exit 0
     """))
@@ -310,7 +285,7 @@ def test_mcl_detects_master_as_default(tmp_path, repo_dir, mock_bin, fake_home):
 # ===== mclpr freshness check =====
 
 def test_mclpr_fetches_default_branch_before_pr(repo_dir, mock_bin, fake_home):
-    """mclpr should fetch the default branch before fetching the PR branch."""
+    """mclpr should checkout and pull the default branch before fetching the PR branch."""
     mock_bin.create("gem", stdout="/fake/gem/dir")
     mock_bin.create("bind")
     mock_bin.create("gh", script=textwrap.dedent(f"""\
@@ -323,11 +298,13 @@ def test_mclpr_fetches_default_branch_before_pr(repo_dir, mock_bin, fake_home):
         #!/usr/bin/env bash
         echo "git $*" >> "{mock_bin.log}"
         if [[ "$1" == "remote" ]]; then echo "https://github.com/example/repo"; exit 0; fi
+        if [[ "$1" == "diff" ]]; then exit 0; fi
         if [[ "$1" == "symbolic-ref" ]]; then exit 1; fi
         if [[ "$1" == "rev-parse" && "$2" == "--verify" && "$3" == "origin/main" ]]; then exit 0; fi
         if [[ "$1" == "fetch" ]]; then exit 0; fi
+        if [[ "$1" == "checkout" ]]; then exit 0; fi
+        if [[ "$1" == "pull" ]]; then exit 0; fi
         if [[ "$1" == "rev-parse" && "$2" == "--abbrev-ref" ]]; then echo "main"; exit 0; fi
-        if [[ "$1" == "merge" && "$2" == "--ff-only" ]]; then exit 0; fi
         exit 0
     """))
     mock_bin.create("moat", script=textwrap.dedent(f"""\
@@ -340,6 +317,8 @@ def test_mclpr_fetches_default_branch_before_pr(repo_dir, mock_bin, fake_home):
     assert r.returncode == 0
     assert "Fetching latest main from origin" in r.stdout
     mock_bin.assert_called_with("git fetch origin main")
+    mock_bin.assert_called_with("git checkout main")
+    mock_bin.assert_called_with("git pull --ff-only")
     mock_bin.assert_called_with("git fetch origin feat/cool-feature")
 
 
