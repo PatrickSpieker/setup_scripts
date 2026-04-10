@@ -50,13 +50,20 @@ _mcl_ensure_default_branch_fresh() {
 unalias mcl 2>/dev/null
 mcl() {
   local mount=false
+  local debug=false
   local args=()
   while [[ $# -gt 0 ]]; do
     case "$1" in
       -m) mount=true; shift ;;
+      --debug) debug=true; shift ;;
       *) args+=("$1"); shift ;;
     esac
   done
+
+  local moat_flags=()
+  if [[ "$debug" == true ]]; then
+    moat_flags+=(--verbose)
+  fi
 
   # Auto-init git repo if not in one
   if ! git rev-parse --is-inside-work-tree &>/dev/null; then
@@ -75,7 +82,7 @@ mcl() {
   if [[ "$mount" == true ]]; then
     local branch="${args[0]:-moat/$(date +%Y%m%d-%H%M%S)}"
     git checkout -b "$branch"
-    moat claude -- --model=opus
+    moat claude "${moat_flags[@]}" -- --model=opus
   else
     # Ensure repo has at least one commit (needed for worktree branch creation)
     if ! git rev-parse HEAD &>/dev/null; then
@@ -85,17 +92,32 @@ mcl() {
     fi
 
     local branch="${args[0]:-moat/$(date +%Y%m%d-%H%M%S)}"
-    moat claude --worktree "$branch" -- --model=opus
+    moat claude "${moat_flags[@]}" --worktree "$branch" -- --model=opus
     echo "Cleaning up worktree and container for branch: $branch"
     moat wt clean "$branch" 2>/dev/null
   fi
 }
 mclpr() {
-  local pr="$1"
+  local debug=false
+  local args=()
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --debug) debug=true; shift ;;
+      *) args+=("$1"); shift ;;
+    esac
+  done
+
+  local pr="${args[0]}"
   if [[ -z "$pr" ]]; then
     echo "Usage: mclpr <pr-number>"
     return 1
   fi
+
+  local moat_flags=()
+  if [[ "$debug" == true ]]; then
+    moat_flags+=(--verbose)
+  fi
+
   _mcl_ensure_default_branch_fresh || return 1
 
   local branch
@@ -107,16 +129,31 @@ mclpr() {
     git checkout master 2>/dev/null || git checkout main 2>/dev/null || { echo "Error: could not switch away from $branch"; return 1; }
   fi
   git branch -f "$branch" "origin/$branch" 2>/dev/null || git branch "$branch" "origin/$branch" 2>/dev/null || true
-  moat claude --worktree "$branch" -- --model=opus
+  moat claude "${moat_flags[@]}" --worktree "$branch" -- --model=opus
   echo "Cleaning up worktree and container for branch: $branch"
   moat wt clean "$branch" 2>/dev/null
 }
 mclb() {
-  local branch="$1"
+  local debug=false
+  local args=()
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --debug) debug=true; shift ;;
+      *) args+=("$1"); shift ;;
+    esac
+  done
+
+  local branch="${args[0]}"
   if [[ -z "$branch" ]]; then
     echo "Usage: mclb <branch>"
     return 1
   fi
+
+  local moat_flags=()
+  if [[ "$debug" == true ]]; then
+    moat_flags+=(--verbose)
+  fi
+
   git fetch origin "$branch" || return 1
   # If we're on the target branch, switch away so worktree can use it
   if [[ "$(git rev-parse --abbrev-ref HEAD)" == "$branch" ]]; then
@@ -124,7 +161,7 @@ mclb() {
     git checkout master 2>/dev/null || git checkout main 2>/dev/null || { echo "Error: could not switch away from $branch"; return 1; }
   fi
   git branch -f "$branch" "origin/$branch" 2>/dev/null || git branch "$branch" "origin/$branch" 2>/dev/null || true
-  moat claude --worktree "$branch" -- --model=opus
+  moat claude "${moat_flags[@]}" --worktree "$branch" -- --model=opus
   echo "Cleaning up worktree and container for branch: $branch"
   moat wt clean "$branch" 2>/dev/null
 }
