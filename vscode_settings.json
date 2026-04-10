@@ -41,4 +41,5 @@
   "[go]": {
     "editor.defaultFormatter": "golang.go",
   },
+  "update.showReleaseNotes": false,
 }
