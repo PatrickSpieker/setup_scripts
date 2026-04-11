@@ -16,7 +16,7 @@ alias c='clear'
 alias memes="echo 'this is a good meme'"
 alias h='history'
 alias cl='claude'
-_moat_ensure_default_branch_fresh() {
+_mcl_ensure_default_branch_fresh() {
   # Skip if no remote
   if ! git remote get-url origin &>/dev/null; then
     return 0
@@ -47,42 +47,8 @@ _moat_ensure_default_branch_fresh() {
   git pull --ff-only || { echo "Error: $default_branch has diverged from origin. Please resolve manually."; return 1; }
 }
 
-_moat_agent_command() {
-  local agent="$1"
-  case "$agent" in
-    claude)
-      echo "moat claude -e AI_AGENT=claude"
-      ;;
-    codex)
-      echo "moat codex -e AI_AGENT=codex"
-      ;;
-    *)
-      echo "Unknown agent: $agent" >&2
-      return 1
-      ;;
-  esac
-}
-
-_moat_agent_passthrough_args() {
-  local agent="$1"
-  case "$agent" in
-    claude)
-      printf '%s\n' "-- --model=opus"
-      ;;
-    codex)
-      printf '%s\n' "-- --model=gpt-5-codex"
-      ;;
-    *)
-      echo "Unknown agent: $agent" >&2
-      return 1
-      ;;
-  esac
-}
-
-_moat_launch() {
-  local agent="$1"
-  shift
-
+unalias mcl 2>/dev/null
+mcl() {
   local mount=false
   local args=()
   while [[ $# -gt 0 ]]; do
@@ -92,28 +58,26 @@ _moat_launch() {
     esac
   done
 
+  # Auto-init git repo if not in one
   if ! git rev-parse --is-inside-work-tree &>/dev/null; then
     git init
     echo "Initialized git repo."
   fi
 
+  # Auto-init moat.yaml if missing
   if [[ ! -f moat.yaml ]]; then
     cp ~/setup_scripts/templates/moat.yaml ./moat.yaml
     echo "Created moat.yaml from template."
   fi
 
-  _moat_ensure_default_branch_fresh || return 1
-
-  local moat_cmd
-  moat_cmd=$(_moat_agent_command "$agent") || return 1
-  local passthrough
-  passthrough=$(_moat_agent_passthrough_args "$agent") || return 1
+  _mcl_ensure_default_branch_fresh || return 1
 
   if [[ "$mount" == true ]]; then
     local branch="${args[0]:-moat/$(date +%Y%m%d-%H%M%S)}"
     git checkout -b "$branch"
-    eval "$moat_cmd $passthrough"
+    moat claude -- --model=opus
   else
+    # Ensure repo has at least one commit (needed for worktree branch creation)
     if ! git rev-parse HEAD &>/dev/null; then
       git add -A
       git commit -m "Initial commit"
@@ -121,52 +85,10 @@ _moat_launch() {
     fi
 
     local branch="${args[0]:-moat/$(date +%Y%m%d-%H%M%S)}"
-    eval "$moat_cmd --worktree \"$branch\" $passthrough"
+    moat claude --worktree "$branch" -- --model=opus
     echo "Cleaning up worktree and container for branch: $branch"
     moat wt clean "$branch" 2>/dev/null
   fi
-}
-
-_moat_resume_pr() {
-  local agent="$1"
-  local pr="$2"
-  if [[ -z "$pr" ]]; then
-    echo "Usage: m${agent:0:1}o?pr <pr-number>"
-    return 1
-  fi
-  _moat_ensure_default_branch_fresh || return 1
-
-  local branch
-  branch=$(gh pr view "$pr" --json headRefName -q '.headRefName') || return 1
-  _moat_resume_branch "$agent" "$branch"
-}
-
-_moat_resume_branch() {
-  local agent="$1"
-  local branch="$2"
-  if [[ -z "$branch" ]]; then
-    echo "Missing branch name"
-    return 1
-  fi
-  git fetch origin "$branch" || return 1
-  if [[ "$(git rev-parse --abbrev-ref HEAD)" == "$branch" ]]; then
-    echo "Currently on $branch, switching to default branch..."
-    git checkout master 2>/dev/null || git checkout main 2>/dev/null || { echo "Error: could not switch away from $branch"; return 1; }
-  fi
-  git branch -f "$branch" "origin/$branch" 2>/dev/null || git branch "$branch" "origin/$branch" 2>/dev/null || true
-
-  local moat_cmd
-  moat_cmd=$(_moat_agent_command "$agent") || return 1
-  local passthrough
-  passthrough=$(_moat_agent_passthrough_args "$agent") || return 1
-  eval "$moat_cmd --worktree \"$branch\" $passthrough"
-  echo "Cleaning up worktree and container for branch: $branch"
-  moat wt clean "$branch" 2>/dev/null
-}
-
-unalias mcl 2>/dev/null
-mcl() {
-  _moat_launch claude "$@"
 }
 mclpr() {
   local pr="$1"
@@ -174,7 +96,20 @@ mclpr() {
     echo "Usage: mclpr <pr-number>"
     return 1
   fi
-  _moat_resume_pr claude "$pr"
+  _mcl_ensure_default_branch_fresh || return 1
+
+  local branch
+  branch=$(gh pr view "$pr" --json headRefName -q '.headRefName') || return 1
+  git fetch origin "$branch" || return 1
+  # If we're on the target branch, switch away so worktree can use it
+  if [[ "$(git rev-parse --abbrev-ref HEAD)" == "$branch" ]]; then
+    echo "Currently on $branch, switching to default branch..."
+    git checkout master 2>/dev/null || git checkout main 2>/dev/null || { echo "Error: could not switch away from $branch"; return 1; }
+  fi
+  git branch -f "$branch" "origin/$branch" 2>/dev/null || git branch "$branch" "origin/$branch" 2>/dev/null || true
+  moat claude --worktree "$branch" -- --model=opus
+  echo "Cleaning up worktree and container for branch: $branch"
+  moat wt clean "$branch" 2>/dev/null
 }
 mclb() {
   local branch="$1"
@@ -182,28 +117,16 @@ mclb() {
     echo "Usage: mclb <branch>"
     return 1
   fi
-  _moat_resume_branch claude "$branch"
-}
-
-unalias mco 2>/dev/null
-mco() {
-  _moat_launch codex "$@"
-}
-mcopr() {
-  local pr="$1"
-  if [[ -z "$pr" ]]; then
-    echo "Usage: mcopr <pr-number>"
-    return 1
+  git fetch origin "$branch" || return 1
+  # If we're on the target branch, switch away so worktree can use it
+  if [[ "$(git rev-parse --abbrev-ref HEAD)" == "$branch" ]]; then
+    echo "Currently on $branch, switching to default branch..."
+    git checkout master 2>/dev/null || git checkout main 2>/dev/null || { echo "Error: could not switch away from $branch"; return 1; }
   fi
-  _moat_resume_pr codex "$pr"
-}
-mcob() {
-  local branch="$1"
-  if [[ -z "$branch" ]]; then
-    echo "Usage: mcob <branch>"
-    return 1
-  fi
-  _moat_resume_branch codex "$branch"
+  git branch -f "$branch" "origin/$branch" 2>/dev/null || git branch "$branch" "origin/$branch" 2>/dev/null || true
+  moat claude --worktree "$branch" -- --model=opus
+  echo "Cleaning up worktree and container for branch: $branch"
+  moat wt clean "$branch" 2>/dev/null
 }
 
 alias sd='open -a Docker'
@@ -216,9 +139,12 @@ alias vim="nvim"
 
 
 # ===== CODEX SKILLS =====
-# Sync shared Claude/Codex homes from this repo on every shell start.
+# Sync skills from this repo into ~/.codex/skills on every shell start.
+# ln -sfn is idempotent, so this is safe to run repeatedly.
 sync-skills() {
-  bash ~/setup_scripts/scripts/bootstrap_agent_homes.sh ~/setup_scripts > /dev/null
+  for skill in ~/setup_scripts/skills/*/; do
+    ln -sfn "$skill" ~/.codex/skills/"$(basename "$skill")" > /dev/null
+  done
 }
 sync-skills
 # ===== END CODEX SKILLS =====

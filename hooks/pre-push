@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
-# Generic pre-push hook: blocks agent-driven pushes to main/master.
-# Safe for all repos — only activates for known agent environment markers.
-if [[ "$CLAUDECODE" == "1" || "$AI_AGENT" == "claude" || "$AI_AGENT" == "codex" ]]; then
-  remote_ref=""
-  while read -r _ _ remote_ref _ || [[ -n "$remote_ref" ]]; do
+# Generic pre-push hook: blocks Claude Code from pushing to main/master.
+# Safe for all repos — only activates when CLAUDECODE=1.
+if [[ "$CLAUDECODE" == "1" ]]; then
+  while read -r _ _ remote_ref _; do
     if [[ "$remote_ref" =~ refs/heads/(main|master)$ ]]; then
-      echo "ERROR: Pushing to main/master is blocked for agent sessions."
+      echo "ERROR: Pushing to main/master is blocked for Claude Code."
       exit 1
     fi
   done
