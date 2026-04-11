@@ -129,6 +129,50 @@ mclb() {
   moat wt clean "$branch" 2>/dev/null
 }
 
+unalias mco 2>/dev/null
+mco() {
+  local mount=false
+  local args=()
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -m) mount=true; shift ;;
+      *) args+=("$1"); shift ;;
+    esac
+  done
+
+  # Auto-init git repo if not in one
+  if ! git rev-parse --is-inside-work-tree &>/dev/null; then
+    git init
+    echo "Initialized git repo."
+  fi
+
+  # Auto-init moat-codex.yaml if no moat.yaml present
+  if [[ ! -f moat.yaml ]]; then
+    cp ~/setup_scripts/templates/moat-codex.yaml ./moat.yaml
+    echo "Created moat.yaml from Codex template."
+  fi
+
+  _mcl_ensure_default_branch_fresh || return 1
+
+  if [[ "$mount" == true ]]; then
+    local branch="${args[0]:-moat/$(date +%Y%m%d-%H%M%S)}"
+    git checkout -b "$branch"
+    moat codex
+  else
+    # Ensure repo has at least one commit (needed for worktree branch creation)
+    if ! git rev-parse HEAD &>/dev/null; then
+      git add -A
+      git commit -m "Initial commit"
+      echo "Created initial commit."
+    fi
+
+    local branch="${args[0]:-moat/$(date +%Y%m%d-%H%M%S)}"
+    moat codex --worktree "$branch"
+    echo "Cleaning up worktree and container for branch: $branch"
+    moat wt clean "$branch" 2>/dev/null
+  fi
+}
+
 alias sd='open -a Docker'
 alias sac='container system start'
 

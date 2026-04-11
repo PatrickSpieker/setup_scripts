@@ -1,0 +1,11 @@
+runtime: apple
+dependencies:
+  - python
+grants:
+  - openai
+  - github
+  - ssh:github.com
+
+hooks:
+  post_build: git clone https://github.com/PatrickSpieker/setup_scripts.git /tmp/setup-scripts && mkdir -p ~/.codex && ln -sfn /tmp/setup-scripts/skills ~/.codex/skills
+  pre_run: git -C /workspace config extensions.worktreeConfig true && git -C /workspace config --worktree core.hooksPath /tmp/setup-scripts/hooks
