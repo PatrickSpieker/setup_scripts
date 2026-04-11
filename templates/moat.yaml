@@ -3,6 +3,7 @@ dependencies:
   - python
 grants:
   - claude
+  - openai
   - github
   - ssh:github.com
 
