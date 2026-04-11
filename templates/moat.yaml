@@ -11,7 +11,7 @@ hooks:
   post_build: >-
     git clone https://github.com/PatrickSpieker/setup_scripts.git /tmp/setup-scripts
     && bash /tmp/setup-scripts/scripts/bootstrap_agent_homes.sh /tmp/setup-scripts
-    && chmod -R a+rX /tmp/setup-scripts "$HOME/.codex" "$HOME/.claude"
   pre_run: >-
     git -C /workspace config extensions.worktreeConfig true
     && git -C /workspace config --worktree core.hooksPath /tmp/setup-scripts/hooks
+    && cat /tmp/setup-scripts/defaults/codex-config.toml >> ~/.codex/config.toml
