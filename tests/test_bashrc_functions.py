@@ -417,7 +417,7 @@ def test_mco_worktree_mode(repo_dir, mock_bin, fake_home, git_repo):
 
     r = run_bash_function("mco my-branch", repo_dir=repo_dir, mock_bin=mock_bin, fake_home=fake_home, cwd=str(git_repo))
     assert r.returncode == 0
-    mock_bin.assert_called_with("moat codex -e AI_AGENT=codex --worktree my-branch -- --model gpt-5-codex")
+    mock_bin.assert_called_with("moat codex -e AI_AGENT=codex --worktree my-branch -- --model=gpt-5-codex")
     assert "Cleaning up worktree" in r.stdout
 
 
@@ -432,7 +432,7 @@ def test_mco_mount_creates_branch_and_runs_moat(repo_dir, mock_bin, fake_home, g
 
     r = run_bash_function("mco -m my-branch", repo_dir=repo_dir, mock_bin=mock_bin, fake_home=fake_home, cwd=str(git_repo))
     assert r.returncode == 0
-    mock_bin.assert_called_with("moat codex -e AI_AGENT=codex -- --model gpt-5-codex")
+    mock_bin.assert_called_with("moat codex -e AI_AGENT=codex -- --model=gpt-5-codex")
     result = _run_git("git branch --show-current", git_repo, fake_home)
     assert result.stdout.strip() == "my-branch"
 
@@ -449,7 +449,7 @@ def test_mco_fetches_and_pulls_default_branch(repo_dir, mock_bin, fake_home, git
     r = run_bash_function("mco my-branch", repo_dir=repo_dir, mock_bin=mock_bin, fake_home=fake_home, cwd=str(git_repo_with_remote))
     assert r.returncode == 0
     assert "Fetching latest main from origin" in r.stdout
-    mock_bin.assert_called_with("moat codex -e AI_AGENT=codex --worktree my-branch -- --model gpt-5-codex")
+    mock_bin.assert_called_with("moat codex -e AI_AGENT=codex --worktree my-branch -- --model=gpt-5-codex")
 
 
 def test_mcopr_fails_without_argument(repo_dir, mock_bin, fake_home):
@@ -485,7 +485,7 @@ def test_mcopr_fetches_pr_branch_and_runs_moat(repo_dir, mock_bin, fake_home, gi
     r = run_bash_function("mcopr 42", repo_dir=repo_dir, mock_bin=mock_bin, fake_home=fake_home, cwd=str(git_repo_with_remote))
     assert r.returncode == 0
     mock_bin.assert_called_with("gh pr view 42")
-    mock_bin.assert_called_with("moat codex -e AI_AGENT=codex --worktree feat/codex-pr -- --model gpt-5-codex")
+    mock_bin.assert_called_with("moat codex -e AI_AGENT=codex --worktree feat/codex-pr -- --model=gpt-5-codex")
 
 
 def test_mcob_fails_without_argument(repo_dir, mock_bin, fake_home):
@@ -514,4 +514,4 @@ def test_mcob_fetches_branch_and_runs_moat(repo_dir, mock_bin, fake_home, git_re
 
     r = run_bash_function("mcob feat/codex-branch", repo_dir=repo_dir, mock_bin=mock_bin, fake_home=fake_home, cwd=str(git_repo_with_remote))
     assert r.returncode == 0
-    mock_bin.assert_called_with("moat codex -e AI_AGENT=codex --worktree feat/codex-branch -- --model gpt-5-codex")
+    mock_bin.assert_called_with("moat codex -e AI_AGENT=codex --worktree feat/codex-branch -- --model=gpt-5-codex")
