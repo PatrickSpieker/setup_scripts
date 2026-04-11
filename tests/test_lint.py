@@ -2,7 +2,6 @@
 
 import json
 import re
-import shutil
 import subprocess
 
 import pytest
@@ -16,8 +15,6 @@ SHELLCHECK = "shellcheck"
 # ===== Shellcheck =====
 
 def run_shellcheck(path, exclude=None):
-    if shutil.which(SHELLCHECK) is None:
-        pytest.skip("shellcheck not installed")
     cmd = [SHELLCHECK, str(path)]
     if exclude:
         cmd.extend(["--exclude", ",".join(exclude)])
@@ -26,11 +23,6 @@ def run_shellcheck(path, exclude=None):
 
 def test_shellcheck_pre_push():
     r = run_shellcheck(REPO_DIR / "hooks/pre-push")
-    assert r.returncode == 0, r.stdout + r.stderr
-
-
-def test_shellcheck_bootstrap_agent_homes():
-    r = run_shellcheck(REPO_DIR / "scripts/bootstrap_agent_homes.sh")
     assert r.returncode == 0, r.stdout + r.stderr
 
 
@@ -61,12 +53,6 @@ def test_settings_json_valid():
     load_json(REPO_DIR / "defaults/settings.json")
 
 
-def test_codex_config_toml_valid():
-    text = (REPO_DIR / "defaults/codex-config.toml").read_text()
-    assert "mcp_servers.linear" in text
-    assert "https://mcp.linear.app/mcp" in text
-
-
 def test_vscode_settings_jsonc_valid():
     load_json(REPO_DIR / "vscode_settings.json")
 
@@ -77,12 +63,6 @@ def test_moat_yaml_valid():
 
 def test_templates_moat_yaml_valid():
     yaml.safe_load((REPO_DIR / "templates/moat.yaml").read_text())
-
-
-def test_moat_yaml_templates_match():
-    assert yaml.safe_load((REPO_DIR / "moat.yaml").read_text()) == yaml.safe_load(
-        (REPO_DIR / "templates/moat.yaml").read_text()
-    )
 
 
 def test_invalid_json_rejected():

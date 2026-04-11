@@ -85,7 +85,6 @@ def fake_home(tmp_path, repo_dir):
 
     bashrc_main sources several files and references paths relative to HOME:
       - ~/setup_scripts/templates/moat.yaml  (template for moat-init)
-      - ~/setup_scripts/scripts/bootstrap_agent_homes.sh
       - ~/setup_scripts/skills/              (symlinked by sync-skills)
       - ~/.cargo/env                         (sourced at load time)
       - ~/.local/bin/env                     (sourced at load time)
@@ -101,9 +100,7 @@ def fake_home(tmp_path, repo_dir):
     # Directories bashrc_main expects under HOME
     (home / "setup_scripts/skills/skill-a").mkdir(parents=True)
     (home / "setup_scripts/templates").mkdir(parents=True)
-    (home / "setup_scripts/scripts").mkdir(parents=True)
     shutil.copy(repo_dir / "templates/moat.yaml", home / "setup_scripts/templates/moat.yaml")
-    shutil.copy(repo_dir / "scripts/bootstrap_agent_homes.sh", home / "setup_scripts/scripts/bootstrap_agent_homes.sh")
     (home / ".codex/skills").mkdir(parents=True)
     (home / ".claude/skills").mkdir(parents=True)
     (home / "code").mkdir(parents=True)
@@ -235,11 +232,7 @@ def run_bash_function(func_call: str, *, repo_dir: Path, mock_bin, fake_home: Pa
     # but real git from /usr/bin is still reachable.
     env["PATH"] = f"{mock_bin.path}:/usr/bin:/bin:/usr/local/bin"
 
-    cmd = (
-        f'source "{repo_dir}/bashrc_main" 2>/dev/null; '
-        f'export PATH="{mock_bin.path}:/usr/bin:/bin:/usr/local/bin"; '
-        f'{func_call}'
-    )
+    cmd = f'source "{repo_dir}/bashrc_main" 2>/dev/null; {func_call}'
     return subprocess.run(
         ["bash", "-c", cmd],
         capture_output=True,
