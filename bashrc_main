@@ -70,7 +70,7 @@ _moat_agent_passthrough_args() {
       printf '%s\n' "-- --model=opus"
       ;;
     codex)
-      printf '%s\n' "-- --model gpt-5-codex"
+      printf '%s\n' "-- --model=gpt-5-codex"
       ;;
     *)
       echo "Unknown agent: $agent" >&2
