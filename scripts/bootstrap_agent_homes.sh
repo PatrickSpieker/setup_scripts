@@ -19,3 +19,6 @@ link_skills "$HOME/.codex"
 
 ln -sfn "$REPO_DIR/defaults/settings.json" "$HOME/.claude/settings.json"
 ln -sfn "$REPO_DIR/defaults/codex-config.toml" "$HOME/.codex/config.toml"
+
+# Ensure everything is readable by moatuser at runtime (post_build runs as root)
+chmod -R a+rX "$REPO_DIR" "$HOME/.claude" "$HOME/.codex"
