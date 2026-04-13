@@ -245,11 +245,11 @@ export PATH="$GOPATH/bin:$PATH"
 
 
 # ===== GHOSTTY =====
-# Report CWD via OSC 7 so Ghostty can open new tabs in the same directory.
+# Defined here; hooked into PROMPT_COMMAND after oh-my-bash loads (below)
+# to avoid oh-my-bash overwriting the hook.
 __ghostty_osc7() {
   printf '\e]7;file://%s%s\a' "$HOSTNAME" "$PWD"
 }
-PROMPT_COMMAND="__ghostty_osc7${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
 # ===== END GHOSTTY =====
 
 
@@ -294,6 +294,10 @@ plugins=(
 )
 
 source "$OSH"/oh-my-bash.sh
+
+# Hook OSC 7 after oh-my-bash so it appends to (rather than gets clobbered by)
+# oh-my-bash's own PROMPT_COMMAND setup.
+PROMPT_COMMAND="__ghostty_osc7${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
 # ===== END OH-MY-BASH =====
 
 
@@ -306,8 +310,9 @@ esac
 # ===== END PNPM =====
 
 
-# Default working directory — open new shells in ~/code.
+# Default working directory — only cd to ~/code if the shell started in $HOME
+# (i.e., no directory was inherited via Ghostty's OSC 7 CWD handoff).
 # shellcheck disable=SC2164
-cd ~/code
+[[ "$PWD" == "$HOME" ]] && cd ~/code
 
 . "$HOME/.local/bin/env"
