@@ -6,4 +6,5 @@ grants:
   - github
 
 hooks:
-  pre_run: gh repo clone PatrickSpieker/setup_scripts /tmp/setup-scripts && mkdir -p ~/.claude && ln -sfn /tmp/setup-scripts/skills ~/.claude/skills && cp /tmp/setup-scripts/defaults/settings.json ~/.claude/settings.json && git -C /workspace config extensions.worktreeConfig true && git -C /workspace config --worktree core.hooksPath /tmp/setup-scripts/hooks
+  post_build: gh repo clone PatrickSpieker/setup_scripts /tmp/setup-scripts && mkdir -p ~/.claude && ln -sfn /tmp/setup-scripts/skills ~/.claude/skills && cp /tmp/setup-scripts/defaults/settings.json ~/.claude/settings.json
+  pre_run: git -C /workspace config extensions.worktreeConfig true && git -C /workspace config --worktree core.hooksPath /tmp/setup-scripts/hooks
