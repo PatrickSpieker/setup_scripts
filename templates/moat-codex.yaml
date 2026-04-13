@@ -6,5 +6,4 @@ grants:
   - github
 
 hooks:
-  post_build: gh repo clone PatrickSpieker/setup_scripts /tmp/setup-scripts && mkdir -p ~/.codex && ln -sfn /tmp/setup-scripts/skills ~/.codex/skills
-  pre_run: git -C /workspace config extensions.worktreeConfig true && git -C /workspace config --worktree core.hooksPath /tmp/setup-scripts/hooks
+  pre_run: gh repo clone PatrickSpieker/setup_scripts /tmp/setup-scripts && mkdir -p ~/.codex && ln -sfn /tmp/setup-scripts/skills ~/.codex/skills && git -C /workspace config extensions.worktreeConfig true && git -C /workspace config --worktree core.hooksPath /tmp/setup-scripts/hooks
