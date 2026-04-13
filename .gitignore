@@ -27,3 +27,9 @@ node_modules
 # Test dependencies (bootstrapped by test_runner.sh)
 tests/libs/
 __pycache__/
+
+# iOS build bridge (transient files in worktrees)
+.moat-build-req
+.moat-build-res
+.moat-build-lock
+.moat-simulator-udid

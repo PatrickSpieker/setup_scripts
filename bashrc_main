@@ -203,6 +203,129 @@ moat-init() {
   cp ~/setup_scripts/templates/moat.yaml ./moat.yaml
   echo "Copied moat.yaml template. Customize as needed, then run: mcl"
 }
+
+moat-init-ios() {
+  if [[ -f moat.yaml ]]; then
+    echo "moat.yaml already exists in this directory."
+    return 1
+  fi
+  cp ~/setup_scripts/templates/moat-ios.yaml ./moat.yaml
+  echo "Copied iOS moat.yaml template. Customize as needed, then run: mcl-ios-parallel"
+}
+
+# Launch N Moat agents in parallel, each on its own branch with its own
+# iOS Simulator.  A host-side build bridge translates xcodebuild calls
+# from inside the containers into real Xcode invocations.
+#
+# Usage:
+#   mcl-ios-parallel <project.xcodeproj> <scheme> <branch1> [branch2 ...]
+#
+# Example:
+#   mcl-ios-parallel MyApp.xcodeproj MyApp feature/auth feature/ui feature/api
+#
+# Requires: moat, tmux, xcrun, xcodebuild
+mcl-ios-parallel() {
+  local project="${1:?Usage: mcl-ios-parallel <project> <scheme> <branch1> [branch2 ...]}"
+  local scheme="${2:?Usage: mcl-ios-parallel <project> <scheme> <branch1> [branch2 ...]}"
+  shift 2
+  local branches=("$@")
+  local n=${#branches[@]}
+
+  if [[ "$n" -eq 0 ]]; then
+    echo "Error: at least one branch name is required."
+    echo "Usage: mcl-ios-parallel <project> <scheme> <branch1> [branch2 ...]"
+    return 1
+  fi
+
+  for cmd in moat tmux xcrun xcodebuild; do
+    if ! command -v "$cmd" &>/dev/null; then
+      echo "Error: $cmd not found. Please install it first."
+      return 1
+    fi
+  done
+
+  _mcl_ensure_default_branch_fresh || return 1
+
+  # Ensure at least one commit exists (needed for worktree creation)
+  if ! git rev-parse HEAD &>/dev/null; then
+    git add -A && git commit -m "Initial commit"
+    echo "Created initial commit."
+  fi
+
+  echo "Launching $n parallel iOS agents..."
+  echo "Project: $project  Scheme: $scheme"
+  echo ""
+
+  # ── Create simulators ──
+  local sim_udids=()
+  for i in $(seq 0 $((n - 1))); do
+    local name="moat-ios-agent-$i"
+    local udid
+    udid=$(xcrun simctl create "$name" "iPhone 16" "iOS-18-0")
+    xcrun simctl boot "$udid" 2>/dev/null || true
+    sim_udids+=("$udid")
+    echo "Simulator $i ($name): $udid"
+  done
+
+  # ── Write simulator UDID into each worktree ──
+  # The worktrees don't exist yet (moat creates them), so we pre-create
+  # the branches and write a marker file that the bridge auto-discovers.
+  local bridge_args=()
+  for i in $(seq 0 $((n - 1))); do
+    local branch="${branches[$i]}"
+
+    # Create the worktree so we can drop the UDID file before moat starts
+    local wt_path
+    wt_path=$(git worktree list --porcelain | grep -A0 "worktree.*" | head -1 | awk '{print $2}')
+    wt_path="${wt_path%/*}/.worktrees/${branch//\//-}"
+
+    # If moat manages worktrees itself, the UDID file goes into the
+    # worktree root.  We write it via a pre_run approach: mcl-ios-parallel
+    # sets MOAT_SIM_UDID env var, and the moat pre_run hook writes it to
+    # /workspace/.moat-simulator-udid.
+    bridge_args+=("${sim_udids[$i]}")
+  done
+  echo ""
+
+  # ── Start tmux session ──
+  local session="moat-ios-$(date +%s)"
+  tmux new-session -d -s "$session"
+
+  # First pane: build bridge (auto-discovery mode)
+  tmux send-keys -t "$session" \
+    "cd $(pwd) && ~/setup_scripts/scripts/ios-build-bridge.sh '$project' '$scheme' --auto" Enter
+
+  # Agent panes
+  for i in $(seq 0 $((n - 1))); do
+    local branch="${branches[$i]}"
+    tmux split-window -t "$session"
+    tmux select-layout -t "$session" tiled
+
+    # Pass MOAT_SIM_UDID so the pre_run hook can write .moat-simulator-udid
+    tmux send-keys -t "$session" \
+      "cd $(pwd) && MOAT_SIM_UDID=${sim_udids[$i]} moat claude --worktree '$branch' -- --model=opus" Enter
+  done
+
+  tmux select-layout -t "$session" tiled
+  echo "tmux session: $session"
+  echo "Attach with: tmux attach -t $session"
+  echo ""
+  echo "Press Enter to attach (or Ctrl-C to run in background)..."
+  read -r
+
+  tmux attach -t "$session"
+
+  # ── Cleanup after tmux detach/exit ──
+  echo ""
+  echo "Cleaning up..."
+  for i in $(seq 0 $((n - 1))); do
+    xcrun simctl shutdown "${sim_udids[$i]}" 2>/dev/null || true
+    xcrun simctl delete "${sim_udids[$i]}" 2>/dev/null || true
+    echo "Deleted simulator ${sim_udids[$i]}"
+    moat wt clean "${branches[$i]}" 2>/dev/null || true
+  done
+  echo "Done."
+}
 # ===== END MOAT =====
 
 
