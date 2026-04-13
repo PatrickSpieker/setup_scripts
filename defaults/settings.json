@@ -1,9 +1,0 @@
-{
-  "mcpServers": {
-    "linear": {
-      "transport": "http",
-      "url": "https://mcp.linear.app/mcp"
-    }
-  },
-  "effortLevel": "low"
-}

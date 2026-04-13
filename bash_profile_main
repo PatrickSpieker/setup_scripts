@@ -1,6 +1,0 @@
-source ~/.bashrc
-source /opt/homebrew/opt/chruby/share/chruby/chruby.sh
-source /opt/homebrew/opt/chruby/share/chruby/auto.sh
-export PATH="/opt/homebrew/sbin:$PATH"
-
-. "$HOME/.local/bin/env"

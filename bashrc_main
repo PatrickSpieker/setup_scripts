@@ -203,6 +203,13 @@ moat-init() {
   cp ~/setup_scripts/templates/moat.yaml ./moat.yaml
   echo "Copied moat.yaml template. Customize as needed, then run: mcl"
 }
+xproxy() {
+  case "${1:-start}" in
+    start) XCODE_PROXY_REPO="$(pwd)" ~/setup_scripts/xcode-proxy/start.sh ;;
+    stop)  ~/setup_scripts/xcode-proxy/stop.sh ;;
+    *) echo "Usage: xproxy [start|stop]" ;;
+  esac
+}
 # ===== END MOAT =====
 
 

@@ -116,6 +116,11 @@ ln -sfn "$REPO_DIR/skills" ~/.codex/skills
 
 
 
+# ===== XCODE PROXY =====
+pip3 install -r "$REPO_DIR/xcode-proxy/requirements.txt"
+
+
+
 # ===== SWIFTBAR =====
 # SwiftBar reads plugins from ~/.swiftbar/plugins.
 mkdir -p ~/.swiftbar
