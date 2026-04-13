@@ -107,6 +107,11 @@ curl https://cursor.com/install -fsS | bash
 mkdir -p ~/.claude
 ln -sfn "$REPO_DIR/skills" ~/.claude/skills
 
+# Copy base settings and add local-only MCP servers (e.g., Playwright).
+# defaults/settings.json stays Moat-safe; local gets Playwright layered on.
+jq '.mcpServers.playwright = {"command": "npx", "args": ["@playwright/mcp@latest"]}' \
+  "$REPO_DIR/defaults/settings.json" > ~/.claude/settings.json
+
 
 
 # ===== CODEX =====
