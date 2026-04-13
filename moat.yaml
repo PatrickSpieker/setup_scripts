@@ -6,5 +6,5 @@ grants:
   - github
 
 hooks:
-  post_build: gh repo clone PatrickSpieker/setup_scripts /tmp/setup-scripts && mkdir -p ~/.claude && ln -sfn /tmp/setup-scripts/skills ~/.claude/skills && cp /tmp/setup-scripts/defaults/settings.json ~/.claude/settings.json
+  post_build: git clone https://github.com/PatrickSpieker/setup_scripts.git /tmp/setup-scripts && mkdir -p ~/.claude && ln -sfn /tmp/setup-scripts/skills ~/.claude/skills && ln -sfn /tmp/setup-scripts/AGENTS.md ~/.claude/CLAUDE.md && cp /tmp/setup-scripts/defaults/settings.json ~/.claude/settings.json
   pre_run: git -C /workspace config extensions.worktreeConfig true && git -C /workspace config --worktree core.hooksPath /tmp/setup-scripts/hooks
