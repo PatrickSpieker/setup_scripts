@@ -244,6 +244,15 @@ export PATH="$GOPATH/bin:$PATH"
 # ===== END PATH =====
 
 
+# ===== GHOSTTY =====
+# Report CWD via OSC 7 so Ghostty can open new tabs in the same directory.
+__ghostty_osc7() {
+  printf '\e]7;file://%s%s\a' "$HOSTNAME" "$PWD"
+}
+PROMPT_COMMAND="__ghostty_osc7${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
+# ===== END GHOSTTY =====
+
+
 # ===== MISC =====
 # Prompt definition — currently overridden by oh-my-bash below.
 # PS1='> '
