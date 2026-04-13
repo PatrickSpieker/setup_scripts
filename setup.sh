@@ -116,6 +116,15 @@ ln -sfn "$REPO_DIR/skills" ~/.codex/skills
 
 
 
+# ===== XCODE BRIDGE MCP SERVER =====
+if [ -d "$REPO_DIR/mcp-servers/xcode-bridge" ]; then
+  pushd "$REPO_DIR/mcp-servers/xcode-bridge" || exit
+  npm install && npx tsc
+  popd || exit
+fi
+
+
+
 # ===== SWIFTBAR =====
 # SwiftBar reads plugins from ~/.swiftbar/plugins.
 mkdir -p ~/.swiftbar

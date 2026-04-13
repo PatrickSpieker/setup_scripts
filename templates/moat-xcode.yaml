@@ -5,6 +5,10 @@ grants:
   - claude
   - github
 
+mcp:
+  - name: xcode
+    url: http://localhost:3100/mcp
+
 hooks:
   post_build: git clone https://github.com/PatrickSpieker/setup_scripts.git /tmp/setup-scripts && mkdir -p ~/.claude && ln -sfn /tmp/setup-scripts/skills ~/.claude/skills && ln -sfn /tmp/setup-scripts/AGENTS.md ~/.claude/CLAUDE.md && cp /tmp/setup-scripts/defaults/settings.json ~/.claude/settings.json
   pre_run: git -C /workspace config extensions.worktreeConfig true && git -C /workspace config --worktree core.hooksPath /tmp/setup-scripts/hooks

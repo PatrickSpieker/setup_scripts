@@ -206,6 +206,162 @@ moat-init() {
 # ===== END MOAT =====
 
 
+# ===== XCODE AGENTS =====
+# Derive repo-id from git remote, matching Moat's host/owner/repo convention.
+_moat_repo_id() {
+  local remote
+  remote=$(git remote get-url origin 2>/dev/null || true)
+
+  if [[ -z "$remote" ]]; then
+    echo "_local/$(basename "$(git rev-parse --show-toplevel)")"
+    return
+  fi
+
+  # git@github.com:owner/repo.git → github.com/owner/repo
+  # https://github.com/owner/repo.git → github.com/owner/repo
+  echo "$remote" \
+    | sed -E 's#^(ssh://)?git@##; s#^https?://##; s#:#/#; s#\.git$##'
+}
+
+moat-xcode-init() {
+  if ! git rev-parse --is-inside-work-tree &>/dev/null; then
+    echo "Error: not inside a git repo."
+    return 1
+  fi
+
+  local count="${1:-5}"
+
+  # Copy moat-xcode template
+  if [[ -f moat.yaml ]]; then
+    echo "moat.yaml already exists (keeping it). Ensure it has the xcode MCP block."
+  else
+    cp ~/setup_scripts/templates/moat-xcode.yaml ./moat.yaml
+    echo "Created moat.yaml from Xcode template."
+  fi
+
+  # Create simulators
+  ~/setup_scripts/scripts/setup-xcode-agents.sh "$count"
+}
+
+mcl-xcode() {
+  local count=5
+  local prompt=""
+
+  # Parse args: mcl-xcode [-n COUNT] [PROMPT]
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -n) count="$2"; shift 2 ;;
+      *)  prompt="$1"; shift ;;
+    esac
+  done
+
+  if ! git rev-parse --is-inside-work-tree &>/dev/null; then
+    echo "Error: not inside a git repo."
+    return 1
+  fi
+
+  local repo_id
+  repo_id=$(_moat_repo_id)
+  local config="$HOME/.moat/xcode-bridge/${repo_id}.json"
+
+  if [[ ! -f "$config" ]]; then
+    echo "No xcode-bridge config found for this repo."
+    echo "Run: moat-xcode-init"
+    return 1
+  fi
+
+  # Start MCP server if not running
+  local pid_file="$HOME/.moat/xcode-bridge/${repo_id}.pid"
+  if [[ -f "$pid_file" ]] && kill -0 "$(cat "$pid_file")" 2>/dev/null; then
+    echo "xcode-bridge already running (PID $(cat "$pid_file"))"
+  else
+    echo "Starting xcode-bridge MCP server..."
+    npx tsx ~/setup_scripts/mcp-servers/xcode-bridge/src/index.ts \
+      --repo-id "$repo_id" &
+    local server_pid=$!
+    echo "$server_pid" > "$pid_file"
+    sleep 2
+    if ! kill -0 "$server_pid" 2>/dev/null; then
+      echo "Error: MCP server failed to start."
+      return 1
+    fi
+    echo "MCP server running (PID $server_pid)"
+  fi
+
+  _mcl_ensure_default_branch_fresh || return 1
+
+  # Ensure at least one commit
+  if ! git rev-parse HEAD &>/dev/null; then
+    git add -A
+    git commit -m "Initial commit"
+    echo "Created initial commit."
+  fi
+
+  # Launch N agents in parallel
+  for i in $(seq 1 "$count"); do
+    local branch="moat/agent-${i}"
+    local agent_prompt="${prompt:-Use the xcode-agent workflow. Build and test the app.}"
+    agent_prompt="$agent_prompt
+
+Your branch is: $branch. Pass this to every xcode MCP tool call."
+    echo "Launching agent $i on branch $branch..."
+    (
+      moat claude --worktree "$branch" -- --model=opus -p "$agent_prompt"
+      moat wt clean "$branch" 2>/dev/null
+    ) &
+  done
+
+  echo ""
+  echo "$count agents launched. Use 'jobs' to monitor."
+  wait
+  echo "All agents finished."
+}
+
+moat-xcode-teardown() {
+  if ! git rev-parse --is-inside-work-tree &>/dev/null; then
+    echo "Error: not inside a git repo."
+    return 1
+  fi
+
+  local repo_id
+  repo_id=$(_moat_repo_id)
+  local config="$HOME/.moat/xcode-bridge/${repo_id}.json"
+  local pid_file="$HOME/.moat/xcode-bridge/${repo_id}.pid"
+
+  # Kill MCP server
+  if [[ -f "$pid_file" ]]; then
+    local pid
+    pid=$(cat "$pid_file")
+    if kill -0 "$pid" 2>/dev/null; then
+      echo "Stopping MCP server (PID $pid)..."
+      kill "$pid"
+    fi
+    rm -f "$pid_file"
+  fi
+
+  # Delete simulators
+  if [[ -f "$config" ]]; then
+    local udids
+    udids=$(jq -r '.slots[]' "$config")
+    if [[ -n "$udids" ]]; then
+      echo "Deleting simulators..."
+      echo "$udids" | while read -r udid; do
+        xcrun simctl shutdown "$udid" 2>/dev/null || true
+        xcrun simctl delete "$udid" 2>/dev/null || true
+        echo "  Deleted $udid"
+      done
+    fi
+    rm -f "$config"
+    echo "Config removed: $config"
+  else
+    echo "No config found for $repo_id"
+  fi
+
+  echo "Teardown complete."
+}
+# ===== END XCODE AGENTS =====
+
+
 # ===== GIT =====
 alias gs="git status -uno"
 alias gc="git commit -am"
