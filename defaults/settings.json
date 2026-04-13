@@ -5,13 +5,5 @@
       "url": "https://mcp.linear.app/mcp"
     }
   },
-  "permissions": {
-    "allow": [
-      "Bash(xcodebuild *)",
-      "Bash(xcrun *)",
-      "Bash(xcode-select *)",
-      "Bash(swift *)",
-      "Bash(swiftc *)"
-    ]
-  }
+  "effortLevel": "low"
 }
