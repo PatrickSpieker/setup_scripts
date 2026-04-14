@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Repo-specific pre-commit hook: runs the lint suite via test_runner.sh.
-# Repos using the shared hooksPath that don't have a test_runner.sh will
-# fail on commit — add one or replace this hook with a no-op.
+# Shared pre-commit hook: runs the lint suite via test_runner.sh if present.
+# Repos without a test_runner.sh are silently skipped.
 set -euo pipefail
 REPO_DIR="$(git rev-parse --show-toplevel)"
-"$REPO_DIR/test_runner.sh" lint
+if [[ -x "$REPO_DIR/test_runner.sh" ]]; then
+  "$REPO_DIR/test_runner.sh" lint
+fi
