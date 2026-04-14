@@ -1,5 +1,18 @@
 {
   "effortLevel": "max",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/tmp/setup-scripts/hooks/copy-plan.sh"
+          }
+        ]
+      }
+    ]
+  },
   "mcpServers": {
     "linear": {
       "transport": "http",
