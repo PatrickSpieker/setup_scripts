@@ -4,6 +4,10 @@
     "linear": {
       "transport": "http",
       "url": "https://mcp.linear.app/mcp"
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp"]
     }
   },
   "model": "opus"
