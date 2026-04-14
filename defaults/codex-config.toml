@@ -1,9 +1,0 @@
-[mcp_servers.linear]
-url = "https://mcp.linear.app/mcp"
-
-[projects."/Users/patrickspieker/setup_scripts"]
-trust_level = "trusted"
-
-[projects."/workspace"]
-trust_level = "trusted"
-

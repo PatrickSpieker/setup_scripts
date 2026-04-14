@@ -1,0 +1,10 @@
+services:
+  claude:
+    build: .
+    shm_size: 2g
+    ports:
+      - "3000:3000"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
