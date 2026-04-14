@@ -7,4 +7,4 @@ grants:
 
 hooks:
   post_build: git clone https://github.com/PatrickSpieker/setup_scripts.git /tmp/setup-scripts && mkdir -p ~/.codex && ln -sfn /tmp/setup-scripts/skills ~/.codex/skills
-  pre_run: git -C /workspace config extensions.worktreeConfig true && git -C /workspace config --worktree core.hooksPath /tmp/setup-scripts/hooks
+  pre_run: git -C /workspace config extensions.worktreeConfig true && git -C /workspace config --worktree core.hooksPath /tmp/setup-scripts/hooks; { REPO=$(gh repo view --json nameWithOwner -q '.nameWithOwner') && BRANCH=$(git -C /workspace branch --show-current) && SHA=$(git -C /workspace rev-parse HEAD) && [ "$BRANCH" != "main" ] && [ "$BRANCH" != "master" ] && gh api "repos/$REPO/git/refs" -f ref="refs/heads/$BRANCH" -f sha="$SHA" >/dev/null; } 2>/dev/null || true

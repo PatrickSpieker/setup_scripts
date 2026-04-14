@@ -32,8 +32,10 @@ git commit -m "type(scope): short description"
 
 4. Push
 ```bash
-git push -u origin $(git branch --show-current)
+/tmp/setup-scripts/scripts/gh-push
 ```
+- Uses the GitHub API to push commits (required in Moat containers where `git push` is blocked)
+- If the script is not available, fall back to `git push -u origin $(git branch --show-current)`
 
 5. Create or update PR
 ```bash
