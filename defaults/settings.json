@@ -1,9 +1,14 @@
 {
+  "effortLevel": "max",
   "mcpServers": {
     "linear": {
       "transport": "http",
       "url": "https://mcp.linear.app/mcp"
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp"]
     }
   },
-  "effortLevel": "low"
+  "model": "opus"
 }

@@ -1,0 +1,110 @@
+#!/usr/bin/env bash
+# gh-push: Push local commits to GitHub via the REST API.
+# Works in Moat containers where git push is blocked by the network proxy.
+# No external dependencies beyond gh and git.
+#
+# Usage: gh-push [branch]
+#
+# Pushes all commits between the default branch merge-base and local HEAD.
+# Each commit is replayed individually to preserve history.
+# Note: remote commits get new SHAs (created via API), so this always
+# compares tree content rather than commit SHAs for up-to-date checks.
+
+set -euo pipefail
+
+REPO=$(gh repo view --json nameWithOwner -q '.nameWithOwner')
+BRANCH=${1:-$(git branch --show-current)}
+LOCAL_SHA=$(git rev-parse HEAD)
+LOCAL_TREE=$(git rev-parse HEAD^{tree})
+
+# Check if branch exists on remote
+REMOTE_SHA=$(gh api "repos/$REPO/git/refs/heads/$BRANCH" -q '.object.sha' 2>/dev/null) || REMOTE_SHA=""
+
+# Compare trees to check if already up to date (commit SHAs differ when
+# pushed via API, but tree SHAs match if content is identical)
+if [ -n "$REMOTE_SHA" ]; then
+  REMOTE_TREE=$(gh api "repos/$REPO/git/commits/$REMOTE_SHA" -q '.tree.sha' 2>/dev/null) || REMOTE_TREE=""
+  if [ "$REMOTE_TREE" = "$LOCAL_TREE" ]; then
+    echo "Already up to date."
+    exit 0
+  fi
+fi
+
+# Find the merge base with the default branch
+DEFAULT_BRANCH=$(gh api "repos/$REPO" -q '.default_branch')
+if git cat-file -e "origin/$DEFAULT_BRANCH" 2>/dev/null; then
+  BASE_SHA=$(git merge-base "origin/$DEFAULT_BRANCH" HEAD)
+else
+  BASE_SHA=$(gh api "repos/$REPO/git/refs/heads/$DEFAULT_BRANCH" -q '.object.sha')
+fi
+
+# List commits to push (oldest first)
+mapfile -t COMMITS < <(git rev-list --reverse "$BASE_SHA..HEAD")
+
+if [ ${#COMMITS[@]} -eq 0 ]; then
+  if [ -z "$REMOTE_SHA" ]; then
+    gh api "repos/$REPO/git/refs" \
+      -f ref="refs/heads/$BRANCH" -f sha="$LOCAL_SHA" >/dev/null
+    echo "Branch $BRANCH created on remote."
+  else
+    echo "Already up to date."
+  fi
+  exit 0
+fi
+
+echo "Pushing ${#COMMITS[@]} commit(s) to $BRANCH..."
+
+# Use the remote default branch HEAD as the initial parent on the remote side
+PARENT=$(gh api "repos/$REPO/git/refs/heads/$DEFAULT_BRANCH" -q '.object.sha')
+
+for COMMIT in "${COMMITS[@]}"; do
+  SHORT=$(git log --format='%h %s' -n1 "$COMMIT")
+  echo "  $SHORT"
+
+  # Create blobs and build tree entries JSON
+  TREE_ENTRIES=""
+  while IFS=$'\t' read -r meta path; do
+    mode=${meta%% *}
+    sha=${meta##* }
+
+    # Create blob on remote
+    CONTENT=$(git cat-file blob "$sha" | base64 -w0)
+    BLOB_SHA=$(gh api "repos/$REPO/git/blobs" \
+      -f content="$CONTENT" \
+      -f encoding=base64 \
+      -q '.sha')
+
+    # Escape path for JSON
+    escaped_path=$(printf '%s' "$path" | sed 's/\\/\\\\/g; s/"/\\"/g')
+
+    ENTRY='{"path":"'"$escaped_path"'","mode":"'"$mode"'","type":"blob","sha":"'"$BLOB_SHA"'"}'
+    TREE_ENTRIES="${TREE_ENTRIES:+$TREE_ENTRIES,}$ENTRY"
+  done < <(git ls-tree -r "$COMMIT")
+
+  # Create tree on remote
+  TREE_SHA=$(printf '{"tree":[%s]}' "$TREE_ENTRIES" | \
+    gh api "repos/$REPO/git/trees" --input - -q '.sha')
+
+  # Get commit message
+  MSG=$(git log --format='%B' -n1 "$COMMIT")
+
+  # Create commit on remote
+  NEW_SHA=$(gh api "repos/$REPO/git/commits" \
+    -f message="$MSG" \
+    -f tree="$TREE_SHA" \
+    -f "parents[]=$PARENT" \
+    -q '.sha')
+
+  PARENT="$NEW_SHA"
+done
+
+# Create or update branch ref
+if [ -n "$REMOTE_SHA" ]; then
+  gh api "repos/$REPO/git/refs/heads/$BRANCH" -X PATCH \
+    -f sha="$PARENT" -F force=true >/dev/null
+else
+  gh api "repos/$REPO/git/refs" \
+    -f ref="refs/heads/$BRANCH" -f sha="$PARENT" >/dev/null
+fi
+
+echo "Done. $BRANCH -> ${PARENT:0:7}"
