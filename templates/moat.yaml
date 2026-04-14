@@ -4,11 +4,12 @@ dependencies:
 grants:
   - claude
   - github
+  - ssh:github.com
 
 env:
   GIT_CONFIG_GLOBAL: "/tmp/.gitconfig-isolated"
   GIT_CONFIG_SYSTEM: "/tmp/.gitsystem-isolated"
 
 hooks:
-  post_build: touch /tmp/.gitconfig-isolated /tmp/.gitsystem-isolated && git clone https://github.com/PatrickSpieker/setup_scripts.git /tmp/setup-scripts && mkdir -p ~/.claude && ln -sfn /tmp/setup-scripts/skills ~/.claude/skills && ln -sfn /tmp/setup-scripts/AGENTS.md ~/.claude/CLAUDE.md && cp /tmp/setup-scripts/defaults/settings.json ~/.claude/settings.json
+  post_build: touch /tmp/.gitconfig-isolated /tmp/.gitsystem-isolated && git config --global http.proxyAuthMethod basic && git clone https://github.com/PatrickSpieker/setup_scripts.git /tmp/setup-scripts && mkdir -p ~/.claude && ln -sfn /tmp/setup-scripts/skills ~/.claude/skills && ln -sfn /tmp/setup-scripts/AGENTS.md ~/.claude/CLAUDE.md && cp /tmp/setup-scripts/defaults/settings.json ~/.claude/settings.json
   pre_run: git -C /workspace config extensions.worktreeConfig true && git -C /workspace config --worktree core.hooksPath /tmp/setup-scripts/hooks

@@ -32,6 +32,7 @@ git commit -m "type(scope): short description"
 
 4. Push
 ```bash
+# SSH transport is auto-configured in Moat; credential helper covers non-Moat
 gh auth setup-git 2>/dev/null || true
 git push -u origin $(git branch --show-current)
 ```
@@ -51,7 +52,8 @@ Read if present: `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`.
 
 ## Moat
 
-When running inside Moat, `gh auth setup-git` configures git to use the
-`gh` credential helper — this makes `git push` work via the `github` grant.
-Always prefer `gh` over raw git for remote operations (`push`, `fetch`,
-`clone`).
+The `ssh:github.com` grant auto-configures SSH transport for `git push`/`pull`
+(URL rewriting is handled at the git config level). The `gh auth setup-git`
+fallback covers non-Moat environments where HTTPS with a credential helper is
+the standard path. All `gh` subcommands (`pr create`, `pr view`, etc.) use the
+`github` grant's API access.

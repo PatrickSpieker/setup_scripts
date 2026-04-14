@@ -43,12 +43,13 @@ git diff --stat
 
 7. Commit + push fixes (use `/gh-commit` then push, or `/gh-ship`)
 ```bash
+# SSH transport is auto-configured in Moat; credential helper covers non-Moat
 gh auth setup-git 2>/dev/null || true
 git push
 ```
 
 ## Moat
 
-All remote operations use `gh` (`gh pr view`, `gh api`, `gh pr checkout`).
-For pushing, `gh auth setup-git` ensures git uses the `github` grant's
-credential helper.
+The `ssh:github.com` grant auto-configures SSH transport for `git push`.
+`gh` subcommands (`pr view`, `api`, `pr checkout`) use the `github` grant's
+API access.

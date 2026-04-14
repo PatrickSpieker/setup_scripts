@@ -28,11 +28,12 @@ gh run list --limit 10 2>/dev/null || true
 
 5. Push the fix (use `/gh-ship` or push directly)
 ```bash
+# SSH transport is auto-configured in Moat; credential helper covers non-Moat
 gh auth setup-git 2>/dev/null || true
 git push
 ```
 
 ## Moat
 
-All remote operations use `gh`. For pushing fixes, `gh auth setup-git`
-ensures git uses the `github` grant's credential helper.
+The `ssh:github.com` grant auto-configures SSH transport for `git push`.
+`gh` subcommands (`pr checks`, `run list`) use the `github` grant's API access.
