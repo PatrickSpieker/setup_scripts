@@ -5,6 +5,13 @@ grants:
   - claude
   - github
 
+claude:
+  mcp:
+    playwright:
+      command: npx
+      args: ["-y", "@playwright/mcp@latest"]
+
 hooks:
-  post_build: git clone https://github.com/PatrickSpieker/setup_scripts.git /tmp/setup-scripts && mkdir -p ~/.claude && ln -sfn /tmp/setup-scripts/skills ~/.claude/skills && ln -sfn /tmp/setup-scripts/AGENTS.md ~/.claude/CLAUDE.md && cp /tmp/setup-scripts/defaults/settings.json ~/.claude/settings.json
+  post_build_root: apt-get update -qq && apt-get install -y -qq --no-install-recommends libasound2 libatk-bridge2.0-0 libatk1.0-0 libatspi2.0-0 libcairo2 libcups2 libdbus-1-3 libdrm2 libgbm1 libglib2.0-0 libnspr4 libnss3 libpango-1.0-0 libx11-6 libxcb1 libxcomposite1 libxdamage1 libxext6 libxfixes3 libxkbcommon0 libxrandr2 xvfb fonts-noto-color-emoji fonts-unifont libfontconfig1 libfreetype6 xfonts-scalable fonts-liberation fonts-ipafont-gothic fonts-wqy-zenhei fonts-tlwg-loma-otf fonts-freefont-ttf && rm -rf /var/lib/apt/lists/*
+  post_build: git clone https://github.com/PatrickSpieker/setup_scripts.git /tmp/setup-scripts && mkdir -p ~/.claude && ln -sfn /tmp/setup-scripts/skills ~/.claude/skills && ln -sfn /tmp/setup-scripts/AGENTS.md ~/.claude/CLAUDE.md && cp /tmp/setup-scripts/defaults/settings.json ~/.claude/settings.json && npx -y playwright install chromium
   pre_run: git -C /workspace config extensions.worktreeConfig true && git -C /workspace config --worktree core.hooksPath /tmp/setup-scripts/hooks
