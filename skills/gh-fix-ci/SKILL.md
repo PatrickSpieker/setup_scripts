@@ -25,3 +25,14 @@ gh run list --limit 10 2>/dev/null || true
 - what failed
 - what changed
 - how to re-run
+
+5. Push the fix (use `/gh-ship` or push directly)
+```bash
+gh auth setup-git 2>/dev/null || true
+git push
+```
+
+## Moat
+
+All remote operations use `gh`. For pushing fixes, `gh auth setup-git`
+ensures git uses the `github` grant's credential helper.

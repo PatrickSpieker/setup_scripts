@@ -40,3 +40,15 @@ gh api repos/{OWNER}/{REPO}/issues/{PR_NUMBER}/comments
 git status --short
 git diff --stat
 ```
+
+7. Commit + push fixes (use `/gh-commit` then push, or `/gh-ship`)
+```bash
+gh auth setup-git 2>/dev/null || true
+git push
+```
+
+## Moat
+
+All remote operations use `gh` (`gh pr view`, `gh api`, `gh pr checkout`).
+For pushing, `gh auth setup-git` ensures git uses the `github` grant's
+credential helper.
