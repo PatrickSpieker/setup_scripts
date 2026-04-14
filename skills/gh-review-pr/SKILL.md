@@ -34,3 +34,7 @@ git diff "$BASE"...HEAD
 - Must-fix items
 - Should-fix items
 - Any questions / follow-ups
+
+## Moat
+
+All remote operations already use `gh`. No special setup needed.

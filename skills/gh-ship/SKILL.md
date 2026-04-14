@@ -32,6 +32,7 @@ git commit -m "type(scope): short description"
 
 4. Push
 ```bash
+gh auth setup-git 2>/dev/null || true
 git push -u origin $(git branch --show-current)
 ```
 
@@ -47,3 +48,10 @@ gh pr view --json number,body 2>/dev/null
   4. Report the PR URL
 
 Read if present: `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`.
+
+## Moat
+
+When running inside Moat, `gh auth setup-git` configures git to use the
+`gh` credential helper — this makes `git push` work via the `github` grant.
+Always prefer `gh` over raw git for remote operations (`push`, `fetch`,
+`clone`).

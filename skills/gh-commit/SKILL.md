@@ -35,7 +35,13 @@ git commit -m "type(scope): short description"
 5. Summary
 ```bash
 git log --oneline -10
-git diff --stat origin/$(git remote show origin | awk '/HEAD branch/ {print $NF}')...HEAD
+DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name)
+git diff --stat origin/${DEFAULT_BRANCH}...HEAD
 ```
 
 Read if present: `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`, `.gitmessage`.
+
+## Moat
+
+When running inside Moat, use `gh` for all remote operations. Local git
+commands (`status`, `diff`, `add`, `commit`, `log`, `branch`) are fine.
