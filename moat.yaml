@@ -6,6 +6,9 @@ grants:
   - github
   - ssh:github.com
 
+ports:
+  browser: 9222
+
 env:
   GIT_CONFIG_GLOBAL: "/tmp/.gitconfig-isolated"
   GIT_CONFIG_SYSTEM: "/tmp/.gitsystem-isolated"
