@@ -5,6 +5,9 @@ grants:
   - claude
   - github
 
+ports:
+  browser: 9222
+
 env:
   GIT_CONFIG_GLOBAL: "/dev/null"
   GIT_CONFIG_SYSTEM: "/dev/null"
