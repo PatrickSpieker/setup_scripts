@@ -47,6 +47,7 @@ setup_scripts/
 │   ├── new-cmd/             #   Create a new command
 │   ├── delegate-cursor-background-task/ # Hand off work to Cursor agent
 │   ├── youtube-extractor/   #   Extract YouTube transcripts + metadata
+│   ├── plan-viewer/         #   Localhost plan viewer with notes + live updates
 │   ├── pdf-viewing/         #   OCR and rasterize PDFs
 │   └── slidev-presentation-kit/ # Create/edit Slidev presentations
 └── swiftbar_plugins/
@@ -74,6 +75,7 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 | `delegate-cursor-background-task` | Create a GitHub/Linear ticket for Cursor's background agent |
 | `youtube-extractor` | Extract transcripts, titles, and thumbnails from YouTube videos |
 | `pdf-viewing` | OCR PDFs with page tracking and rasterize to images |
+| `plan-viewer` | Localhost web viewer for Claude Code plans with notes and live updates |
 | `slidev-presentation-kit` | Create or edit Slidev presentations |
 
 ### How skills are installed
