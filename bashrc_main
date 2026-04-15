@@ -47,6 +47,68 @@ _mcl_ensure_default_branch_fresh() {
   git pull --ff-only || { echo "Error: $default_branch has diverged from origin. Please resolve manually."; return 1; }
 }
 
+_mcl_warn_orphaned_containers() {
+  # Skip if moat isn't available
+  command -v moat &>/dev/null || return 0
+
+  local stale_hours=2
+  local orphans
+  orphans=$(moat list --json 2>/dev/null | python3 -c "
+import json, sys
+from datetime import datetime, timezone
+try:
+    data = json.load(sys.stdin)
+except (json.JSONDecodeError, ValueError):
+    sys.exit(0)
+now = datetime.now(timezone.utc)
+threshold = ${stale_hours} * 3600
+for r in data:
+    if r.get('State') != 'running':
+        continue
+    try:
+        created = datetime.fromisoformat(r['CreatedAt'])
+        age_s = (now - created).total_seconds()
+    except (ValueError, KeyError):
+        continue
+    if age_s > threshold:
+        hours = int(age_s // 3600)
+        mins = int((age_s % 3600) // 60)
+        workspace = r.get('Workspace', '').rsplit('/', 1)[-1]
+        print(f\"  {r['Name']}  ({hours}h {mins}m)  {workspace}\")
+" 2>/dev/null) || return 0
+
+  if [[ -n "$orphans" ]]; then
+    echo "Warning: stale Moat containers still running (>${stale_hours}h):"
+    echo "$orphans"
+    echo ""
+    read -r -p "Stop them before continuing? [y/N] " answer
+    if [[ "$answer" =~ ^[Yy] ]]; then
+      moat list --json 2>/dev/null | python3 -c "
+import json, sys
+from datetime import datetime, timezone
+try:
+    data = json.load(sys.stdin)
+except (json.JSONDecodeError, ValueError):
+    sys.exit(0)
+now = datetime.now(timezone.utc)
+threshold = ${stale_hours} * 3600
+for r in data:
+    if r.get('State') != 'running':
+        continue
+    try:
+        created = datetime.fromisoformat(r['CreatedAt'])
+        if (now - created).total_seconds() > threshold:
+            print(r['Name'])
+    except (ValueError, KeyError):
+        pass
+" 2>/dev/null | while read -r name; do
+        echo "Stopping $name..."
+        moat stop "$name"
+      done
+    fi
+  fi
+}
+
 unalias mcl 2>/dev/null
 mcl() {
   local mount=false
@@ -57,6 +119,8 @@ mcl() {
       *) args+=("$1"); shift ;;
     esac
   done
+
+  _mcl_warn_orphaned_containers
 
   # Auto-init git repo if not in one
   if ! git rev-parse --is-inside-work-tree &>/dev/null; then
@@ -96,6 +160,7 @@ mclpr() {
     echo "Usage: mclpr <pr-number>"
     return 1
   fi
+  _mcl_warn_orphaned_containers
   _mcl_ensure_default_branch_fresh || return 1
 
   local branch
@@ -117,6 +182,7 @@ mclb() {
     echo "Usage: mclb <branch>"
     return 1
   fi
+  _mcl_warn_orphaned_containers
   git fetch origin "$branch" || return 1
   # If we're on the target branch, switch away so worktree can use it
   if [[ "$(git rev-parse --abbrev-ref HEAD)" == "$branch" ]]; then
@@ -139,6 +205,8 @@ mco() {
       *) args+=("$1"); shift ;;
     esac
   done
+
+  _mcl_warn_orphaned_containers
 
   # Auto-init git repo if not in one
   if ! git rev-parse --is-inside-work-tree &>/dev/null; then

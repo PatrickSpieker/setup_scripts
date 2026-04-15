@@ -11,9 +11,11 @@ script to understand what git state the test assumes, you can see the
 actual repo setup (git init, git add, git commit, etc.) directly.
 """
 
+import json
 import os
 import subprocess
 import textwrap
+from datetime import datetime, timezone, timedelta
 
 from conftest import REPO_DIR, run_bash_function
 
@@ -397,3 +399,99 @@ def test_mclb_fetches_branch_and_runs_moat(repo_dir, mock_bin, fake_home, git_re
     assert r.returncode == 0
     mock_bin.assert_called_with("moat claude --worktree feat/my-branch -- --model=opus")
     assert "Cleaning up worktree" in r.stdout
+
+
+# ===========================================================================
+# _mcl_warn_orphaned_containers
+# ===========================================================================
+# The orphan warning runs before every mcl/mco/mclpr/mclb invocation. It:
+#   1. Skips silently if moat isn't on PATH
+#   2. Calls moat list --json, pipes through python3 to find stale containers
+#   3. Prints a warning if any running containers are older than 2 hours
+#   4. Prompts to stop them (defaults to "N" when no TTY — safe in tests)
+
+def _make_moat_list_json(runs):
+    """Build a moat list --json mock script that outputs the given run dicts."""
+    return json.dumps(runs)
+
+
+def test_mcl_warns_about_orphaned_containers(repo_dir, mock_bin, fake_home, git_repo):
+    """mcl should warn when stale Moat containers are still running."""
+    _setup_sourcing_mocks(mock_bin)
+
+    # Build a moat mock that returns JSON with a stale running container
+    stale_time = (datetime.now(timezone.utc) - timedelta(hours=3)).isoformat()
+    runs = [
+        {
+            "Name": "moat/stale-test",
+            "State": "running",
+            "CreatedAt": stale_time,
+            "Workspace": "/Users/test/project/stale-workspace",
+            "Agent": "claude",
+        },
+    ]
+    moat_json = _make_moat_list_json(runs)
+    mock_bin.create("moat", script=textwrap.dedent(f"""\
+        #!/usr/bin/env bash
+        echo "$0 $*" >> "{mock_bin.log}"
+        if [[ "$1" == "list" && "$2" == "--json" ]]; then
+            echo '{moat_json}'
+            exit 0
+        fi
+        exit 0
+    """))
+
+    r = run_bash_function(
+        "_mcl_warn_orphaned_containers",
+        repo_dir=repo_dir, mock_bin=mock_bin, fake_home=fake_home, cwd=str(git_repo),
+    )
+    assert r.returncode == 0
+    assert "stale Moat containers" in r.stdout
+    assert "moat/stale-test" in r.stdout
+
+
+def test_mcl_no_warning_when_no_orphans(repo_dir, mock_bin, fake_home, git_repo):
+    """mcl should not warn when all containers are stopped."""
+    _setup_sourcing_mocks(mock_bin)
+
+    recent_time = (datetime.now(timezone.utc) - timedelta(minutes=30)).isoformat()
+    runs = [
+        {
+            "Name": "moat/recent-ok",
+            "State": "stopped",
+            "CreatedAt": recent_time,
+            "Workspace": "/Users/test/project",
+            "Agent": "claude",
+        },
+    ]
+    moat_json = _make_moat_list_json(runs)
+    mock_bin.create("moat", script=textwrap.dedent(f"""\
+        #!/usr/bin/env bash
+        echo "$0 $*" >> "{mock_bin.log}"
+        if [[ "$1" == "list" && "$2" == "--json" ]]; then
+            echo '{moat_json}'
+            exit 0
+        fi
+        exit 0
+    """))
+
+    r = run_bash_function(
+        "_mcl_warn_orphaned_containers",
+        repo_dir=repo_dir, mock_bin=mock_bin, fake_home=fake_home, cwd=str(git_repo),
+    )
+    assert r.returncode == 0
+    assert "stale Moat containers" not in r.stdout
+
+
+def test_mcl_no_warning_when_moat_list_errors(repo_dir, mock_bin, fake_home, git_repo):
+    """Function should proceed silently when moat list fails."""
+    _setup_sourcing_mocks(mock_bin)
+    # moat exists but list always errors — simulates broken or old moat.
+    mock_bin.create("moat", exit_code=1)
+
+    r = run_bash_function(
+        "_mcl_warn_orphaned_containers",
+        repo_dir=repo_dir, mock_bin=mock_bin, fake_home=fake_home, cwd=str(git_repo),
+    )
+    assert r.returncode == 0
+    assert r.stdout.strip() == ""

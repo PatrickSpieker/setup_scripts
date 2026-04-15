@@ -232,7 +232,9 @@ def run_bash_function(func_call: str, *, repo_dir: Path, mock_bin, fake_home: Pa
     # but real git from /usr/bin is still reachable.
     env["PATH"] = f"{mock_bin.path}:/usr/bin:/bin:/usr/local/bin"
 
-    cmd = f'source "{repo_dir}/bashrc_main" 2>/dev/null; {func_call}'
+    # Re-prepend mock_bin AFTER sourcing so mocks aren't shadowed by
+    # directories bashrc_main adds (e.g. /opt/homebrew/bin has real moat).
+    cmd = f'source "{repo_dir}/bashrc_main" 2>/dev/null; export PATH="{mock_bin.path}:$PATH"; {func_call}'
     return subprocess.run(
         ["bash", "-c", cmd],
         capture_output=True,
