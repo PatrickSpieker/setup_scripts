@@ -19,6 +19,18 @@ NPX = os.environ.get("VAR_NPX_PATH", "/usr/local/bin/npx")
 # Fallback paths to try if the configured one doesn't exist
 NPX_CANDIDATES = [NPX, "/opt/homebrew/bin/npx", "/usr/local/bin/npx", "/usr/bin/npx"]
 
+# Per-token USD pricing used when ccusage/LiteLLM returns cost=0 for a known
+# model. Anthropic's public cache multipliers: cache-write = 1.25x input,
+# cache-read = 0.1x input.
+BACKFILL_PRICING = {
+    "claude-opus-4-7": {
+        "input":        5.00 / 1_000_000,
+        "output":      25.00 / 1_000_000,
+        "cache_create": 6.25 / 1_000_000,
+        "cache_read":   0.50 / 1_000_000,
+    },
+}
+
 # Colors
 COLOR_CLAUDE = "#D97757"   # Anthropic orange
 COLOR_CODEX  = "#10A37F"   # OpenAI green
@@ -126,9 +138,38 @@ def fetch_codex_daily():
     return fetch_daily(["@ccusage/codex@latest"])
 
 
+def _parse_cost(c):
+    if isinstance(c, str):
+        return float(c.replace("$", "").replace(",", "").strip() or "0")
+    return float(c or 0)
+
+
+def _breakdown_cost(mb):
+    """Breakdown cost, backfilled from BACKFILL_PRICING when ccusage reports 0."""
+    cost = _parse_cost(mb.get("cost", 0))
+    if cost > 0:
+        return cost
+    rates = BACKFILL_PRICING.get(mb.get("modelName", ""))
+    if not rates:
+        return cost
+    return (
+        int(mb.get("inputTokens", 0) or 0) * rates["input"]
+        + int(mb.get("outputTokens", 0) or 0) * rates["output"]
+        + int(mb.get("cacheCreationTokens", 0) or 0) * rates["cache_create"]
+        + int(mb.get("cacheReadTokens", 0) or 0) * rates["cache_read"]
+    )
+
+
+def _record_cost(r):
+    breakdowns = r.get("modelBreakdowns") or []
+    if breakdowns:
+        return sum(_breakdown_cost(mb) for mb in breakdowns)
+    return _parse_cost(r.get("totalCost", r.get("costUSD", r.get("cost", 0))))
+
+
 def extract_totals(records, date_filter=None):
     """Sum up tokens and cost from a list of daily records.
-    
+
     Actual ccusage JSON fields (camelCase):
       date, inputTokens, outputTokens, cacheCreationTokens,
       cacheReadTokens, totalTokens, totalCost
@@ -151,11 +192,7 @@ def extract_totals(records, date_filter=None):
         cache_create += int(r.get("cacheCreationTokens", 0) or 0)
         cache_read += int(r.get("cacheReadTokens", 0) or 0)
 
-        # Claude uses "totalCost", Codex uses "costUSD"
-        c = r.get("totalCost", r.get("costUSD", r.get("cost", 0))) or 0
-        if isinstance(c, str):
-            c = float(c.replace("$", "").replace(",", "").strip() or "0")
-        total_cost += float(c)
+        total_cost += _record_cost(r)
 
     return {
         "total": total_tokens,
