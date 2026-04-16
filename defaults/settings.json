@@ -1,6 +1,6 @@
 {
+  "effortLevel": "high",
   "skipDangerousModePermissionPrompt": true,
-  "effortLevel": "max",
   "mcpServers": {
     "linear": {
       "transport": "http",
@@ -8,8 +8,9 @@
     },
     "playwright": {
       "command": "npx",
-      "args": ["@playwright/mcp"]
+      "args": [
+        "@playwright/mcp"
+      ]
     }
-  },
-  "model": "opus"
+  }
 }

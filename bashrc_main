@@ -125,13 +125,17 @@ for r in data:
 unalias mcl 2>/dev/null
 mcl() {
   local mount=false
+  local rebuild=false
   local args=()
   while [[ $# -gt 0 ]]; do
     case "$1" in
       -m) mount=true; shift ;;
+      -r|--rebuild) rebuild=true; shift ;;
       *) args+=("$1"); shift ;;
     esac
   done
+  local rebuild_args=()
+  [[ "$rebuild" == true ]] && rebuild_args=(--rebuild)
 
   _mcl_warn_orphaned_containers
   _mcl_ensure_ssh_key || return 1
@@ -153,7 +157,7 @@ mcl() {
   if [[ "$mount" == true ]]; then
     local branch="${args[0]:-moat/$(date +%Y%m%d-%H%M%S)}"
     git checkout -b "$branch"
-    moat claude -- --model=opus
+    moat claude "${rebuild_args[@]}" -- --model=opus
   else
     # Ensure repo has at least one commit (needed for worktree branch creation)
     if ! git rev-parse HEAD &>/dev/null; then
@@ -163,15 +167,26 @@ mcl() {
     fi
 
     local branch="${args[0]:-moat/$(date +%Y%m%d-%H%M%S)}"
-    moat claude --worktree "$branch" -- --model=opus
+    moat claude --worktree "$branch" "${rebuild_args[@]}" -- --model=opus
     echo "Cleaning up worktree and container for branch: $branch"
     moat wt clean "$branch" 2>/dev/null
   fi
 }
 mclpr() {
-  local pr="$1"
+  local rebuild=false
+  local args=()
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -r|--rebuild) rebuild=true; shift ;;
+      *) args+=("$1"); shift ;;
+    esac
+  done
+  local rebuild_args=()
+  [[ "$rebuild" == true ]] && rebuild_args=(--rebuild)
+
+  local pr="${args[0]}"
   if [[ -z "$pr" ]]; then
-    echo "Usage: mclpr <pr-number>"
+    echo "Usage: mclpr [-r|--rebuild] <pr-number>"
     return 1
   fi
   _mcl_warn_orphaned_containers
@@ -187,14 +202,25 @@ mclpr() {
     git checkout master 2>/dev/null || git checkout main 2>/dev/null || { echo "Error: could not switch away from $branch"; return 1; }
   fi
   git branch -f "$branch" "origin/$branch" 2>/dev/null || git branch "$branch" "origin/$branch" 2>/dev/null || true
-  moat claude --worktree "$branch" -- --model=opus
+  moat claude --worktree "$branch" "${rebuild_args[@]}" -- --model=opus
   echo "Cleaning up worktree and container for branch: $branch"
   moat wt clean "$branch" 2>/dev/null
 }
 mclb() {
-  local branch="$1"
+  local rebuild=false
+  local args=()
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -r|--rebuild) rebuild=true; shift ;;
+      *) args+=("$1"); shift ;;
+    esac
+  done
+  local rebuild_args=()
+  [[ "$rebuild" == true ]] && rebuild_args=(--rebuild)
+
+  local branch="${args[0]}"
   if [[ -z "$branch" ]]; then
-    echo "Usage: mclb <branch>"
+    echo "Usage: mclb [-r|--rebuild] <branch>"
     return 1
   fi
   _mcl_warn_orphaned_containers
@@ -206,7 +232,7 @@ mclb() {
     git checkout master 2>/dev/null || git checkout main 2>/dev/null || { echo "Error: could not switch away from $branch"; return 1; }
   fi
   git branch -f "$branch" "origin/$branch" 2>/dev/null || git branch "$branch" "origin/$branch" 2>/dev/null || true
-  moat claude --worktree "$branch" -- --model=opus
+  moat claude --worktree "$branch" "${rebuild_args[@]}" -- --model=opus
   echo "Cleaning up worktree and container for branch: $branch"
   moat wt clean "$branch" 2>/dev/null
 }
@@ -214,13 +240,17 @@ mclb() {
 unalias mco 2>/dev/null
 mco() {
   local mount=false
+  local rebuild=false
   local args=()
   while [[ $# -gt 0 ]]; do
     case "$1" in
       -m) mount=true; shift ;;
+      -r|--rebuild) rebuild=true; shift ;;
       *) args+=("$1"); shift ;;
     esac
   done
+  local rebuild_args=()
+  [[ "$rebuild" == true ]] && rebuild_args=(--rebuild)
 
   _mcl_warn_orphaned_containers
   _mcl_ensure_ssh_key || return 1
@@ -242,7 +272,7 @@ mco() {
   if [[ "$mount" == true ]]; then
     local branch="${args[0]:-moat/$(date +%Y%m%d-%H%M%S)}"
     git checkout -b "$branch"
-    moat codex
+    moat codex "${rebuild_args[@]}"
   else
     # Ensure repo has at least one commit (needed for worktree branch creation)
     if ! git rev-parse HEAD &>/dev/null; then
@@ -252,7 +282,7 @@ mco() {
     fi
 
     local branch="${args[0]:-moat/$(date +%Y%m%d-%H%M%S)}"
-    moat codex --worktree "$branch"
+    moat codex --worktree "$branch" "${rebuild_args[@]}"
     echo "Cleaning up worktree and container for branch: $branch"
     moat wt clean "$branch" 2>/dev/null
   fi

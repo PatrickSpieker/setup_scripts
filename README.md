@@ -19,7 +19,7 @@ brew bundle --file Brewfile
 ```
 setup_scripts/
 ├── setup.sh                 # Main install script (Homebrew, bash, vim, skills, SwiftBar)
-├── Brewfile                 # Homebrew packages (git, gh, neovim, ripgrep, fzf, claude-code, codex, etc.)
+├── Brewfile                 # Homebrew packages (git, gh, neovim, ripgrep, fzf, codex, etc.; claude-code uses native installer)
 ├── AGENTS.md                # Agent-facing instructions (symlinked to .claude/claude.md)
 ├── moat.yaml                # Moat runtime config (grants, hooks for skills + pre-push)
 ├── bashrc_main              # Bash config (aliases, git shortcuts, PATH, oh-my-bash, fzf)
@@ -123,5 +123,5 @@ The `pre_run` hook uses per-worktree git config (`extensions.worktreeConfig` + `
 - `noclobber` enabled
 - fzf backed by ripgrep (`rg --files --hidden`)
 - Git aliases: `gs` (status), `gc` (commit -am), `gacp` (add + commit + push), `gpoh` (push origin HEAD)
-- Moat + Claude: `mcl` (new worktree session), `mclpr <pr>` (resume PR branch), `mclb <branch>` (resume any remote branch)
+- Moat + Claude: `mcl` (new worktree session), `mclpr <pr>` (resume PR branch), `mclb <branch>` (resume any remote branch). Pass `-r`/`--rebuild` to any of these (and `mco`) to force rebuild of the container image.
 - Docker: `sd` (open Docker), `sac` (start container system)
