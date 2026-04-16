@@ -105,6 +105,10 @@ def fake_home(tmp_path, repo_dir):
     (home / ".claude/skills").mkdir(parents=True)
     (home / "code").mkdir(parents=True)
 
+    # Dummy SSH key so _mcl_ensure_ssh_key finds it
+    (home / ".ssh").mkdir(parents=True)
+    (home / ".ssh/id_ed25519_moat").write_text("dummy-key-for-tests\n")
+
     # No-op files that bashrc_main sources on load
     (home / ".cargo").mkdir(parents=True)
     (home / ".cargo/env").write_text("")

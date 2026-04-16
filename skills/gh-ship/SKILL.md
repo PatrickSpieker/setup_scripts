@@ -31,8 +31,25 @@ git commit -m "type(scope): short description"
 - One commit unless changes are clearly separate concerns
 
 4. Push
+
+**Pre-flight** (Moat only): verify SSH is working before attempting push.
 ```bash
-# SSH transport is auto-configured in Moat; credential helper covers non-Moat
+ssh -T git@github.com 2>&1
+```
+- If you see `Hi <user>!` → SSH works, proceed with push.
+- If you see `Permission denied (publickey)` → SSH agent has no keys.
+  **Stop and tell the user:**
+  > `git push` failed — the `ssh:github.com` grant's SSH agent has no keys loaded.
+  > This usually means your host SSH agent didn't have GitHub keys when Moat started.
+  > Fix: on your host machine, run `ssh-add` (load your key), then restart the Moat run.
+
+  **Do not** attempt to switch remotes to HTTPS, unset insteadOf rules, reconfigure
+  credentials, or push via the GitHub API. These workarounds will not work because
+  the system-level git config rewrites HTTPS→SSH and the network proxy blocks direct
+  HTTPS to github.com.
+
+**Push:**
+```bash
 gh auth setup-git 2>/dev/null || true
 git push -u origin $(git branch --show-current)
 ```
@@ -52,8 +69,17 @@ Read if present: `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`.
 
 ## Moat
 
-The `ssh:github.com` grant auto-configures SSH transport for `git push`/`pull`
-(URL rewriting is handled at the git config level). The `gh auth setup-git`
-fallback covers non-Moat environments where HTTPS with a credential helper is
-the standard path. All `gh` subcommands (`pr create`, `pr view`, etc.) use the
-`github` grant's API access.
+The `ssh:github.com` grant proxies your host machine's SSH agent into the
+container — private keys never enter the container. A system-level git config
+(`/tmp/.gitsystem-isolated`) rewrites all HTTPS GitHub URLs to SSH, so all git
+transport goes through SSH.
+
+**If SSH auth fails**: the SSH agent proxy has no keys. This means the host's
+SSH agent wasn't running or didn't have GitHub keys loaded when Moat started.
+There is no HTTPS fallback — the URL rewrite and network proxy make it
+impossible. The only fix is to load keys on the host and restart the Moat run.
+Do not attempt workarounds (switching remotes, unsetting config, API push).
+
+The `gh auth setup-git` fallback covers non-Moat environments where HTTPS with
+a credential helper is the standard path. All `gh` subcommands (`pr create`,
+`pr view`, etc.) use the `github` grant's API access.

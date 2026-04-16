@@ -30,9 +30,20 @@ def _setup_sourcing_mocks(mock_bin):
     bashrc_main runs `gem environment gemdir` (for PATH setup) and
     `bind 'set bell-style none'` on load. These aren't part of our tests,
     but they'll fail if the commands don't exist on PATH.
+
+    Also mocks ssh-add so _mcl_ensure_ssh_key succeeds (reports the
+    Moat SSH key as already loaded).
     """
     mock_bin.create("gem", stdout="/fake/gem/dir")
     mock_bin.create("bind")
+    mock_bin.create("ssh-add", script=textwrap.dedent(f"""\
+        #!/usr/bin/env bash
+        echo "$0 $*" >> "{mock_bin.log}"
+        if [[ "$1" == "-l" ]]; then
+            echo "256 SHA256:xxxx id_ed25519_moat (ED25519)"
+        fi
+        exit 0
+    """))
 
 
 def _run_git(cmd, cwd, fake_home):

@@ -47,6 +47,19 @@ _mcl_ensure_default_branch_fresh() {
   git pull --ff-only || { echo "Error: $default_branch has diverged from origin. Please resolve manually."; return 1; }
 }
 
+_mcl_ensure_ssh_key() {
+  local key="$HOME/.ssh/id_ed25519_moat"
+  if ! [[ -f "$key" ]]; then
+    echo "Error: SSH key not found: $key"
+    return 1
+  fi
+  if ssh-add -l 2>/dev/null | grep -q id_ed25519_moat; then
+    return 0
+  fi
+  echo "Loading SSH key for Moat: $key"
+  ssh-add "$key" || { echo "Error: failed to load SSH key"; return 1; }
+}
+
 _mcl_warn_orphaned_containers() {
   # Skip if moat isn't available
   command -v moat &>/dev/null || return 0
@@ -121,6 +134,7 @@ mcl() {
   done
 
   _mcl_warn_orphaned_containers
+  _mcl_ensure_ssh_key || return 1
 
   # Auto-init git repo if not in one
   if ! git rev-parse --is-inside-work-tree &>/dev/null; then
@@ -161,6 +175,7 @@ mclpr() {
     return 1
   fi
   _mcl_warn_orphaned_containers
+  _mcl_ensure_ssh_key || return 1
   _mcl_ensure_default_branch_fresh || return 1
 
   local branch
@@ -183,6 +198,7 @@ mclb() {
     return 1
   fi
   _mcl_warn_orphaned_containers
+  _mcl_ensure_ssh_key || return 1
   git fetch origin "$branch" || return 1
   # If we're on the target branch, switch away so worktree can use it
   if [[ "$(git rev-parse --abbrev-ref HEAD)" == "$branch" ]]; then
@@ -207,6 +223,7 @@ mco() {
   done
 
   _mcl_warn_orphaned_containers
+  _mcl_ensure_ssh_key || return 1
 
   # Auto-init git repo if not in one
   if ! git rev-parse --is-inside-work-tree &>/dev/null; then
