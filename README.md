@@ -41,6 +41,7 @@ setup_scripts/
 │   ├── make-tests/          #   Generate tests for current changes
 │   ├── design-doc/          #   Structured design documents
 │   ├── de-slop/             #   Remove AI artifacts before PR
+│   ├── explore-repo/        #   Structured codebase exploration
 │   ├── work-forever/        #   Autonomous long-running mode
 │   ├── subagent/            #   Delegate to Codex exec subagent
 │   ├── new-skill/           #   Create a new skill
@@ -67,6 +68,7 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 | `make-tests` | Add tests for the change you're working on |
 | `design-doc` | Format implementation plans as structured design documents |
 | `de-slop` | Remove AI artifacts and cleanup noise before a PR |
+| `explore-repo` | Structured codebase exploration before planning or building |
 | `work-forever` | Run in highly autonomous mode for long-running tasks |
 | `subagent` | Delegate exploration to a non-interactive Codex exec run |
 | `new-skill` | Create a new skill from conversation history |
