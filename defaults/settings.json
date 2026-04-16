@@ -1,4 +1,5 @@
 {
+  "skipDangerousModePermissionPrompt": true,
   "effortLevel": "max",
   "mcpServers": {
     "linear": {
