@@ -84,10 +84,8 @@ def fmt_cost(c):
     """Format cost in USD."""
     if c is None or c == 0:
         return "$0.00"
-    if c >= 100:
-        return f"${c:,.0f}"
     if c >= 1:
-        return f"${c:.2f}"
+        return f"${c:,.2f}"
     return f"${c:.3f}"
 
 
