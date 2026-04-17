@@ -1,5 +1,5 @@
 {
-  "effortLevel": "high",
+  "effortLevel": "xhigh",
   "skipDangerousModePermissionPrompt": true,
   "mcpServers": {
     "linear": {
@@ -12,5 +12,9 @@
         "@playwright/mcp"
       ]
     }
+  },
+  "skipAutoPermissionPrompt": true,
+  "permissions": {
+    "defaultMode": "auto"
   }
 }
