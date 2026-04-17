@@ -38,6 +38,7 @@ setup_scripts/
 │   ├── gh-review-pr/        #   Thorough PR review
 │   ├── gh-fix-ci/           #   Fix first failing CI check
 │   ├── gh-address-pr-comments/ # Resolve PR review comments
+│   ├── pr-screenshots/      #   Capture Playwright screenshots for PR walkthrough
 │   ├── make-tests/          #   Generate tests for current changes
 │   ├── design-doc/          #   Structured design documents
 │   ├── de-slop/             #   Remove AI artifacts before PR
@@ -65,6 +66,7 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 | `gh-review-pr` | Review a GitHub PR focusing on correctness, tests, and risk |
 | `gh-fix-ci` | Find the first failing CI check and fix it |
 | `gh-address-pr-comments` | Resolve actionable PR review comments one-by-one |
+| `pr-screenshots` | Capture Playwright screenshots for each user journey and embed them in the PR description |
 | `make-tests` | Add tests for the change you're working on |
 | `design-doc` | Format implementation plans as structured design documents |
 | `de-slop` | Remove AI artifacts and cleanup noise before a PR |
