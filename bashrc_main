@@ -155,7 +155,7 @@ mcl() {
   _mcl_ensure_default_branch_fresh || return 1
 
   if [[ "$mount" == true ]]; then
-    local branch="${args[0]:-moat/$(date +%Y%m%d-%H%M%S)}"
+    local branch="${args[0]:-moat-$(date +%Y%m%d-%H%M%S)}"
     git checkout -b "$branch"
     moat claude "${rebuild_args[@]}" -- --model=opus
   else
@@ -166,7 +166,7 @@ mcl() {
       echo "Created initial commit."
     fi
 
-    local branch="${args[0]:-moat/$(date +%Y%m%d-%H%M%S)}"
+    local branch="${args[0]:-moat-$(date +%Y%m%d-%H%M%S)}"
     moat claude --worktree "$branch" "${rebuild_args[@]}" -- --model=opus
     echo "Cleaning up worktree and container for branch: $branch"
     moat wt clean "$branch" 2>/dev/null
@@ -270,7 +270,7 @@ mco() {
   _mcl_ensure_default_branch_fresh || return 1
 
   if [[ "$mount" == true ]]; then
-    local branch="${args[0]:-moat/$(date +%Y%m%d-%H%M%S)}"
+    local branch="${args[0]:-moat-$(date +%Y%m%d-%H%M%S)}"
     git checkout -b "$branch"
     moat codex "${rebuild_args[@]}"
   else
@@ -281,7 +281,7 @@ mco() {
       echo "Created initial commit."
     fi
 
-    local branch="${args[0]:-moat/$(date +%Y%m%d-%H%M%S)}"
+    local branch="${args[0]:-moat-$(date +%Y%m%d-%H%M%S)}"
     moat codex --worktree "$branch" "${rebuild_args[@]}"
     echo "Cleaning up worktree and container for branch: $branch"
     moat wt clean "$branch" 2>/dev/null

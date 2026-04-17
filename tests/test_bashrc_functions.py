@@ -434,7 +434,7 @@ def test_mcl_warns_about_orphaned_containers(repo_dir, mock_bin, fake_home, git_
     stale_time = (datetime.now(timezone.utc) - timedelta(hours=3)).isoformat()
     runs = [
         {
-            "Name": "moat/stale-test",
+            "Name": "moat-stale-test",
             "State": "running",
             "CreatedAt": stale_time,
             "Workspace": "/Users/test/project/stale-workspace",
@@ -458,7 +458,7 @@ def test_mcl_warns_about_orphaned_containers(repo_dir, mock_bin, fake_home, git_
     )
     assert r.returncode == 0
     assert "stale Moat containers" in r.stdout
-    assert "moat/stale-test" in r.stdout
+    assert "moat-stale-test" in r.stdout
 
 
 def test_mcl_no_warning_when_no_orphans(repo_dir, mock_bin, fake_home, git_repo):
@@ -468,7 +468,7 @@ def test_mcl_no_warning_when_no_orphans(repo_dir, mock_bin, fake_home, git_repo)
     recent_time = (datetime.now(timezone.utc) - timedelta(minutes=30)).isoformat()
     runs = [
         {
-            "Name": "moat/recent-ok",
+            "Name": "moat-recent-ok",
             "State": "stopped",
             "CreatedAt": recent_time,
             "Workspace": "/Users/test/project",
