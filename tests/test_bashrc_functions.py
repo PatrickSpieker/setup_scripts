@@ -170,8 +170,8 @@ def test_mcl_mount_creates_branch_and_runs_moat(repo_dir, mock_bin, fake_home, g
 # mco
 # ===========================================================================
 
-def test_mco_worktree_mode_uses_nonprompting_codex_flags(repo_dir, mock_bin, fake_home, git_repo):
-    """mco should start Codex in Moat without Codex's first-run prompts."""
+def test_mco_worktree_mode_uses_moat_codex_config(repo_dir, mock_bin, fake_home, git_repo):
+    """mco should let the Moat-installed Codex config handle prompt suppression."""
     _setup_sourcing_mocks(mock_bin)
     mock_bin.create("moat", script=textwrap.dedent(f"""\
         #!/usr/bin/env bash
@@ -181,15 +181,12 @@ def test_mco_worktree_mode_uses_nonprompting_codex_flags(repo_dir, mock_bin, fak
 
     r = run_bash_function("mco my-branch", repo_dir=repo_dir, mock_bin=mock_bin, fake_home=fake_home, cwd=str(git_repo))
     assert r.returncode == 0
-    mock_bin.assert_called_with(
-        "moat codex --worktree my-branch --full-auto=false -- "
-        "--dangerously-bypass-approvals-and-sandbox -m gpt-5.4 -C /workspace"
-    )
+    mock_bin.assert_called_with("moat codex --worktree my-branch --full-auto=false")
     assert "Cleaning up worktree" in r.stdout
 
 
-def test_mco_mount_mode_uses_nonprompting_codex_flags(repo_dir, mock_bin, fake_home, git_repo):
-    """mco -m should pass the same non-prompting Codex flags."""
+def test_mco_mount_mode_uses_moat_codex_config(repo_dir, mock_bin, fake_home, git_repo):
+    """mco -m should not pass Codex CLI flags through Moat's prompt argument."""
     _setup_sourcing_mocks(mock_bin)
     mock_bin.create("moat", script=textwrap.dedent(f"""\
         #!/usr/bin/env bash
@@ -199,10 +196,7 @@ def test_mco_mount_mode_uses_nonprompting_codex_flags(repo_dir, mock_bin, fake_h
 
     r = run_bash_function("mco -m my-branch", repo_dir=repo_dir, mock_bin=mock_bin, fake_home=fake_home, cwd=str(git_repo))
     assert r.returncode == 0
-    mock_bin.assert_called_with(
-        "moat codex --full-auto=false -- "
-        "--dangerously-bypass-approvals-and-sandbox -m gpt-5.4 -C /workspace"
-    )
+    mock_bin.assert_called_with("moat codex --full-auto=false")
     result = _run_git("git branch --show-current", git_repo, fake_home)
     assert result.stdout.strip() == "my-branch"
 

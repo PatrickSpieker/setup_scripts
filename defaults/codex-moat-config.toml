@@ -1,5 +1,7 @@
 model = "gpt-5.4"
 model_reasoning_effort = "xhigh"
+approval_policy = "never"
+sandbox_mode = "danger-full-access"
 
 [projects."/workspace"]
 trust_level = "trusted"
