@@ -7,5 +7,5 @@ grants:
   - ssh:github.com
 
 hooks:
-  post_build: git config --global http.proxyAuthMethod basic && git clone https://github.com/PatrickSpieker/setup_scripts.git /tmp/setup-scripts && mkdir -p ~/.codex && ln -sfn /tmp/setup-scripts/skills ~/.codex/skills
+  post_build: git config --global http.proxyAuthMethod basic && git clone https://github.com/PatrickSpieker/setup_scripts.git /tmp/setup-scripts && mkdir -p ~/.codex && ln -sfn /tmp/setup-scripts/skills ~/.codex/skills && cp /tmp/setup-scripts/defaults/codex-moat-config.toml ~/.codex/config.toml
   pre_run: git -C /workspace config extensions.worktreeConfig true && git -C /workspace config --worktree core.hooksPath /tmp/setup-scripts/hooks
