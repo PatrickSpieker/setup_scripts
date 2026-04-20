@@ -3,6 +3,7 @@
 import json
 import re
 import subprocess
+import tomllib
 
 import pytest
 import yaml
@@ -63,6 +64,14 @@ def test_moat_yaml_valid():
 
 def test_templates_moat_yaml_valid():
     yaml.safe_load((REPO_DIR / "templates/moat.yaml").read_text())
+
+
+def test_templates_moat_codex_yaml_valid():
+    yaml.safe_load((REPO_DIR / "templates/moat-codex.yaml").read_text())
+
+
+def test_codex_moat_config_toml_valid():
+    tomllib.loads((REPO_DIR / "defaults/codex-moat-config.toml").read_text())
 
 
 def test_invalid_json_rejected():

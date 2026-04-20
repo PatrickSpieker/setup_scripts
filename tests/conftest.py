@@ -101,6 +101,7 @@ def fake_home(tmp_path, repo_dir):
     (home / "setup_scripts/skills/skill-a").mkdir(parents=True)
     (home / "setup_scripts/templates").mkdir(parents=True)
     shutil.copy(repo_dir / "templates/moat.yaml", home / "setup_scripts/templates/moat.yaml")
+    shutil.copy(repo_dir / "templates/moat-codex.yaml", home / "setup_scripts/templates/moat-codex.yaml")
     (home / ".codex/skills").mkdir(parents=True)
     (home / ".claude/skills").mkdir(parents=True)
     (home / "code").mkdir(parents=True)
