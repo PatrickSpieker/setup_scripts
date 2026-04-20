@@ -50,7 +50,12 @@ setup_scripts/
 │   ├── delegate-cursor-background-task/ # Hand off work to Cursor agent
 │   ├── youtube-extractor/   #   Extract YouTube transcripts + metadata
 │   ├── pdf-viewing/         #   OCR and rasterize PDFs
-│   └── slidev-presentation-kit/ # Create/edit Slidev presentations
+│   ├── slidev-presentation-kit/ # Create/edit Slidev presentations
+│   ├── cc-llms/             #   Claude Developer Platform context (bundled llms.txt)
+│   ├── codex-llms-full/     #   OpenAI Codex context (bundled llms.txt)
+│   ├── linear-llms/         #   Linear context (bundled llms.txt index)
+│   ├── moat-llms-full/      #   Moat context (bundled llms.txt)
+│   └── render-llms-full/    #   Render context (bundled llms.txt)
 └── swiftbar_plugins/
     └── ai_token_usage.1m.py # Menu bar token usage tracker (Claude + Codex, 1-min refresh)
 ```
@@ -79,6 +84,11 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 | `youtube-extractor` | Extract transcripts, titles, and thumbnails from YouTube videos |
 | `pdf-viewing` | OCR PDFs with page tracking and rasterize to images |
 | `slidev-presentation-kit` | Create or edit Slidev presentations |
+| `cc-llms` | Load context on the Claude Developer Platform from a bundled llms.txt reference |
+| `codex-llms-full` | Load context on OpenAI Codex (CLI, IDE, cloud, SDK) from a bundled llms.txt reference |
+| `linear-llms` | Load context on Linear (issues, GraphQL API, SDK) from a bundled llms.txt index |
+| `moat-llms-full` | Load context on Moat (container runtime for AI agents) from a bundled llms.txt reference |
+| `render-llms-full` | Load context on Render (cloud platform) from a bundled llms.txt reference |
 
 ### How skills are installed
 
