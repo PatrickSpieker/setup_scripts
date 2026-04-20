@@ -26,7 +26,7 @@ Load the Codex abstractions relevant to the current task. The reference is ~707K
 2. **Grep by keyword.** Search `references/codex-llms-full.txt` for the exact feature/flag (e.g., `approval_policy`, `sandbox_mode`, `--full-auto`, `codex exec resume`, `trust_level`, `mcp_servers`).
 3. **Locate the page.** Match against the H1 list — pages like `# Codex CLI`, `# Codex App Server`, `# Authentication`, `# Worktrees`, `# Agent approvals & security`, `# Local environments`.
 4. **Extract abstractions.** Pull config keys, default values, flag semantics, and example TOML/JSON blocks into context. Skip marketing prose.
-5. **Cross-check against the repo.** `defaults/codex-config.toml` and `defaults/codex-moat-config.toml` in this repo are live examples; reconcile any divergence with docs before editing.
+5. **Cross-check against the repo.** `defaults/codex-moat-config.toml` in this repo is a live example; reconcile any divergence with docs before editing.
 6. **Summarize what you loaded** before acting.
 
 ## Common grep anchors

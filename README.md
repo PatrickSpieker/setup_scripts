@@ -20,18 +20,24 @@ brew bundle --file Brewfile
 setup_scripts/
 ├── setup.sh                 # Main install script (Homebrew, bash, vim, skills, SwiftBar)
 ├── Brewfile                 # Homebrew packages (git, gh, neovim, ripgrep, fzf, codex, etc.; claude-code uses native installer)
-├── AGENTS.md                # Agent-facing instructions (symlinked to .claude/claude.md)
+├── AGENTS.md                # Agent-facing instructions (in-repo symlink: .claude/claude.md; bootstrap also links to ~/.claude/CLAUDE.md)
 ├── moat.yaml                # Moat runtime config (grants, hooks for skills + pre-push)
 ├── bashrc_main              # Bash config (aliases, git shortcuts, PATH, oh-my-bash, fzf)
 ├── bash_profile_main        # Bash profile (sources bashrc)
 ├── vimrc_main               # Neovim config (vim-plug, keymaps, plugins)
 ├── vscode_settings.json     # VS Code settings
 ├── obsidian_vimrc           # Obsidian vim keybindings
+├── defaults/
+│   ├── settings.json        # Claude Code defaults (symlinked to ~/.claude/settings.json)
+│   └── codex-moat-config.toml # Codex defaults inside Moat (copied to ~/.codex/config.toml)
 ├── hooks/
 │   ├── pre-commit           # Runs test_runner.sh lint (repo-specific)
 │   └── pre-push             # Blocks Claude Code from pushing to main/master (generic)
+├── scripts/
+│   └── bootstrap_agent_homes.sh # Links skills/, settings.json, AGENTS.md into ~/.claude and ~/.codex (used by moat.yaml pre_run)
 ├── templates/
-│   └── moat.yaml            # Template moat config for new projects
+│   ├── moat.yaml            # Template moat config for Claude Code projects (used by `mcl`)
+│   └── moat-codex.yaml      # Template moat config for Codex projects (used by `mco`)
 ├── skills/                  # AI agent skills (Claude Code + Codex CLI)
 │   ├── gh-commit/           #   Conventional commits
 │   ├── gh-ship/             #   Commit + push + create PR
@@ -50,14 +56,14 @@ setup_scripts/
 │   ├── delegate-cursor-background-task/ # Hand off work to Cursor agent
 │   ├── youtube-extractor/   #   Extract YouTube transcripts + metadata
 │   ├── pdf-viewing/         #   OCR and rasterize PDFs
-│   ├── slidev-presentation-kit/ # Create/edit Slidev presentations
 │   ├── cc-llms/             #   Claude Developer Platform context (bundled llms.txt)
 │   ├── codex-llms-full/     #   OpenAI Codex context (bundled llms.txt)
 │   ├── linear-llms/         #   Linear context (bundled llms.txt index)
 │   ├── moat-llms-full/      #   Moat context (bundled llms.txt)
 │   └── render-llms-full/    #   Render context (bundled llms.txt)
 └── swiftbar_plugins/
-    └── ai_token_usage.1m.py # Menu bar token usage tracker (Claude + Codex, 1-min refresh)
+    ├── ai_token_usage.1m.py # Menu bar token usage tracker (Claude + Codex, 1-min refresh)
+    └── moat_orphans.5m.py   # Menu bar warning for stale Moat containers (5-min refresh)
 ```
 
 ## Skills
@@ -83,7 +89,6 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 | `delegate-cursor-background-task` | Create a GitHub/Linear ticket for Cursor's background agent |
 | `youtube-extractor` | Extract transcripts, titles, and thumbnails from YouTube videos |
 | `pdf-viewing` | OCR PDFs with page tracking and rasterize to images |
-| `slidev-presentation-kit` | Create or edit Slidev presentations |
 | `cc-llms` | Load context on the Claude Developer Platform from a bundled llms.txt reference |
 | `codex-llms-full` | Load context on OpenAI Codex (CLI, IDE, cloud, SDK) from a bundled llms.txt reference |
 | `linear-llms` | Load context on Linear (issues, GraphQL API, SDK) from a bundled llms.txt index |
@@ -115,7 +120,7 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 
 The `pre_run` hook uses per-worktree git config (`extensions.worktreeConfig` + `git config --worktree`) so that each Moat container's hook configuration is isolated and doesn't write to the shared git common directory.
 
-`templates/moat.yaml` is a starter config for new projects. It uses the same `hooksPath` approach, which means all hooks in `hooks/` are active — including `pre-commit`. Repos that don't have a `test_runner.sh` will need to add one or the pre-commit hook will block commits.
+`templates/moat.yaml` is a starter config for Claude Code projects (used by `mcl`); `templates/moat-codex.yaml` is the equivalent for Codex projects (used by `mco`). Both use the same `hooksPath` approach, which means all hooks in `hooks/` are active — including `pre-commit`. Repos that don't have a `test_runner.sh` will need to add one or the pre-commit hook will block commits.
 
 ## Hooks
 
@@ -124,9 +129,12 @@ The `pre_run` hook uses per-worktree git config (`extensions.worktreeConfig` + `
 | `hooks/pre-push` | Prevents Claude Code (`$CLAUDECODE=1`) from pushing to `main` or `master` | Generic — safe for all repos |
 | `hooks/pre-commit` | Runs `test_runner.sh lint` on staged changes | Repo-specific — requires `test_runner.sh` at repo root |
 
-## SwiftBar Plugin
+## SwiftBar Plugins
 
-`swiftbar_plugins/ai_token_usage.1m.py` shows a token usage leaderboard for Claude Code and Codex in the macOS menu bar (1-minute refresh). Installed by `setup.sh` via symlink to `~/.swiftbar/plugins/`.
+- `swiftbar_plugins/ai_token_usage.1m.py` — token usage leaderboard for Claude Code and Codex (1-minute refresh).
+- `swiftbar_plugins/moat_orphans.5m.py` — warning indicator for stale Moat containers (5-minute refresh).
+
+Both are installed by `setup.sh` via a single symlink of `swiftbar_plugins/` to `~/.swiftbar/plugins/`.
 
 ## Shell Highlights
 

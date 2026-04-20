@@ -339,7 +339,7 @@ alias glp="git log --pretty=oneline"
 # Ruby (Homebrew-managed; takes precedence over system Ruby)
 export PATH="/usr/local/opt/ruby/bin:$PATH"
 # Ruby gems
-export PATH="/Users/patrickspieker/.gem/bin:$PATH"
+export PATH="$HOME/.gem/bin:$PATH"
 # Ruby gem executables (resolved at shell start)
 export PATH="$(gem environment gemdir)/bin:$PATH"
 # Java 18
@@ -349,7 +349,7 @@ export PATH="$JAVA_HOME/bin:$PATH"
 export PATH="$PATH:/usr/local/smlnj/bin"
 # Homebrew
 export PATH=/opt/homebrew/bin:$PATH
-# Not sure why this is here?
+# System admin binaries (standard location).
 export PATH="/usr/local/sbin:$PATH"
 # VS Code CLI — enables `code .`
 export PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
@@ -390,7 +390,7 @@ case $- in
     *) return;;
 esac
 
-export OSH='/Users/patrickspieker/.oh-my-bash'
+export OSH="$HOME/.oh-my-bash"
 
 OSH_THEME="purity"
 
@@ -417,7 +417,7 @@ PROMPT_COMMAND="__ghostty_osc7${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
 
 
 # ===== PNPM =====
-export PNPM_HOME="/Users/patrickspieker/Library/pnpm"
+export PNPM_HOME="$HOME/Library/pnpm"
 case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;

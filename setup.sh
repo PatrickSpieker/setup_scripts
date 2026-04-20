@@ -123,13 +123,6 @@ ln -sfn "$REPO_DIR/swiftbar_plugins" ~/.swiftbar/plugins
 
 
 
-# ===== FINDER QUICK ACTIONS =====
-# "Open in Ghostty" context menu item for Finder.
-mkdir -p ~/Library/Services
-ln -sfn "$REPO_DIR/services/Open in Ghostty.workflow" ~/Library/Services/
-
-
-
 # ===== KARABINER ELEMENTS =====
 # Remap Caps Lock to Escape system-wide.
 mkdir -p ~/.config/karabiner/assets/complex_modifications
