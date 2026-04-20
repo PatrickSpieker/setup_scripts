@@ -41,6 +41,11 @@ def test_shellcheck_setup():
     assert r.returncode == 0, r.stdout + r.stderr
 
 
+def test_shellcheck_bootstrap_agent_homes():
+    r = run_shellcheck(REPO_DIR / "scripts/bootstrap_agent_homes.sh")
+    assert r.returncode == 0, r.stdout + r.stderr
+
+
 # ===== Config validation =====
 
 def load_json(path):
