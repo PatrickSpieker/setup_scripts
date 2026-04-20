@@ -11,7 +11,7 @@ mcp:
     url: https://mcp.linear.app/mcp
     auth:
       grant: mcp-linear
-      header: Authorization
+      header: Bearer
 env:
   GIT_CONFIG_GLOBAL: "/tmp/.gitconfig-isolated"
   GIT_CONFIG_SYSTEM: "/tmp/.gitsystem-isolated"
