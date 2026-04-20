@@ -251,8 +251,6 @@ mco() {
   done
   local rebuild_args=()
   [[ "$rebuild" == true ]] && rebuild_args=(--rebuild)
-  # Moat is the sandbox here; avoid Codex's inner sandbox/trust/model prompts.
-  local codex_args=(--dangerously-bypass-approvals-and-sandbox -m gpt-5.4 -C /workspace)
 
   _mcl_warn_orphaned_containers
   _mcl_ensure_ssh_key || return 1
@@ -274,7 +272,7 @@ mco() {
   if [[ "$mount" == true ]]; then
     local branch="${args[0]:-moat-$(date +%Y%m%d-%H%M%S)}"
     git checkout -b "$branch"
-    moat codex --full-auto=false "${rebuild_args[@]}" -- "${codex_args[@]}"
+    moat codex --full-auto=false "${rebuild_args[@]}"
   else
     # Ensure repo has at least one commit (needed for worktree branch creation)
     if ! git rev-parse HEAD &>/dev/null; then
@@ -284,7 +282,7 @@ mco() {
     fi
 
     local branch="${args[0]:-moat-$(date +%Y%m%d-%H%M%S)}"
-    moat codex --worktree "$branch" --full-auto=false "${rebuild_args[@]}" -- "${codex_args[@]}"
+    moat codex --worktree "$branch" --full-auto=false "${rebuild_args[@]}"
     echo "Cleaning up worktree and container for branch: $branch"
     moat wt clean "$branch" 2>/dev/null
   fi

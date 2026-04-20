@@ -71,7 +71,11 @@ def test_templates_moat_codex_yaml_valid():
 
 
 def test_codex_moat_config_toml_valid():
-    tomllib.loads((REPO_DIR / "defaults/codex-moat-config.toml").read_text())
+    config = tomllib.loads((REPO_DIR / "defaults/codex-moat-config.toml").read_text())
+    assert config["model"] == "gpt-5.4"
+    assert config["approval_policy"] == "never"
+    assert config["sandbox_mode"] == "danger-full-access"
+    assert config["projects"]["/workspace"]["trust_level"] == "trusted"
 
 
 def test_invalid_json_rejected():
