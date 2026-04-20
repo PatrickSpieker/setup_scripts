@@ -25,7 +25,7 @@ fi
 case "$MODE" in
   lint)
     echo "Running linters..."
-    python3 -m pytest "$TESTS_DIR/test_lint.py" "$TESTS_DIR/test_skill_structure.py" -v ;;
+    python3 -m pytest "$TESTS_DIR/test_lint.py" "$TESTS_DIR/test_skill_structure.py" "$TESTS_DIR/test_bootstrap_agent_homes.py" -v ;;
   test)
     echo "Running tests..."
     python3 -m pytest "$TESTS_DIR/test_pre_push.py" "$TESTS_DIR/test_bashrc_functions.py" -v ;;
