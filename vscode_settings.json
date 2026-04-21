@@ -42,4 +42,5 @@
     "editor.defaultFormatter": "golang.go",
   },
   "update.showReleaseNotes": false,
+  "chat.disableAIFeatures": true,
 }
