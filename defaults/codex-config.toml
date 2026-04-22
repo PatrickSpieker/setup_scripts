@@ -1,0 +1,37 @@
+model = "gpt-5.4"
+model_reasoning_effort = "medium"
+
+notify = ["/Users/patrickspieker/.codex/plugins/cache/openai-bundled/computer-use/1.0.755/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended"]
+
+[marketplaces.openai-bundled]
+last_updated = "2026-04-22T14:23:34Z"
+source_type = "local"
+source = "/Users/patrickspieker/.codex/.tmp/bundled-marketplaces/openai-bundled"
+
+[plugins."computer-use@openai-bundled"]
+enabled = true
+
+[projects."/Users/patrickspieker/code/antaeus/hdw-app"]
+trust_level = "trusted"
+
+[projects."/Users/patrickspieker/setup_scripts"]
+trust_level = "trusted"
+
+[projects."/Users/patrickspieker/code/antaeus/web-app"]
+trust_level = "trusted"
+
+[mcp_servers.xcode]
+command = "xcrun"
+args = ["mcpbridge"]
+
+[mcp_servers.xcode.tools.XcodeListWindows]
+approval_mode = "approve"
+
+[mcp_servers.xcode.tools.GetTestList]
+approval_mode = "approve"
+
+[mcp_servers.xcode.tools.RunSomeTests]
+approval_mode = "approve"
+
+[mcp_servers.xcode.tools.BuildProject]
+approval_mode = "approve"
