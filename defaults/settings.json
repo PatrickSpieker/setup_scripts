@@ -1,6 +1,15 @@
 {
+  "extraKnownMarketplaces": {
+    "render-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "render-oss/skills"
+      }
+    }
+  },
   "effortLevel": "xhigh",
   "skipDangerousModePermissionPrompt": true,
+  "skipAutoPermissionPrompt": true,
   "mcpServers": {
     "linear": {
       "transport": "http",
@@ -13,8 +22,7 @@
       ]
     }
   },
-  "skipAutoPermissionPrompt": true,
-  "permissions": {
-    "defaultMode": "auto"
+  "enabledPlugins": {
+    "render@render-plugins": true
   }
 }
