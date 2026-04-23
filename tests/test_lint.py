@@ -59,6 +59,18 @@ def test_settings_json_valid():
     load_json(REPO_DIR / "defaults/settings.json")
 
 
+def test_settings_moat_json_valid():
+    load_json(REPO_DIR / "defaults/settings-moat.json")
+
+
+def test_settings_moat_playwright_is_headless():
+    """The container-scoped settings must run Playwright headless."""
+    moat = load_json(REPO_DIR / "defaults/settings-moat.json")
+    host = load_json(REPO_DIR / "defaults/settings.json")
+    assert "--headless" in moat["mcpServers"]["playwright"]["args"]
+    assert "--headless" not in host["mcpServers"]["playwright"]["args"]
+
+
 def test_vscode_settings_jsonc_valid():
     load_json(REPO_DIR / "vscode_settings.json")
 

@@ -1,7 +1,29 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_DIR="${1:-$HOME/setup_scripts}"
+# Usage: bootstrap_agent_homes.sh <repo-dir> [--moat]
+#
+# Links skills and Claude settings into $HOME/.claude and $HOME/.codex.
+# Pass --moat when running inside a Moat container so the container-specific
+# settings file (defaults/settings-moat.json) is linked instead of the host
+# file. The container file differs only in the Playwright MCP args (headless,
+# no-sandbox).
+
+MOAT_MODE=false
+POSITIONAL=()
+for arg in "$@"; do
+  case "$arg" in
+    --moat) MOAT_MODE=true ;;
+    *) POSITIONAL+=("$arg") ;;
+  esac
+done
+
+REPO_DIR="${POSITIONAL[0]:-$HOME/setup_scripts}"
+
+SETTINGS_FILE="settings.json"
+if $MOAT_MODE; then
+  SETTINGS_FILE="settings-moat.json"
+fi
 
 link_skills() {
   local agent_home="$1"
@@ -23,5 +45,5 @@ mkdir -p "$HOME/.claude" "$HOME/.codex"
 link_skills "$HOME/.claude"
 link_skills "$HOME/.codex"
 
-ln -sfn "$REPO_DIR/defaults/settings.json" "$HOME/.claude/settings.json"
+ln -sfn "$REPO_DIR/defaults/$SETTINGS_FILE" "$HOME/.claude/settings.json"
 ln -sfn "$REPO_DIR/AGENTS.md" "$HOME/.claude/CLAUDE.md"

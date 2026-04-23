@@ -94,6 +94,10 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 | `linear-llms` | Load context on Linear (issues, GraphQL API, SDK) from a bundled llms.txt index |
 | `moat-llms-full` | Load context on Moat (container runtime for AI agents) from a bundled llms.txt reference |
 | `render-llms-full` | Load context on Render (cloud platform) from a bundled llms.txt reference |
+| `render-debug` | Debug failed Render deployments by analyzing logs, metrics, and database state |
+| `render-monitor` | Monitor Render services in real-time — health, metrics, logs, deployment verification |
+| `firebase-basics` | Firebase CLI setup and project management (install check, login, active project, web SDK) |
+| `firebase-auth-basics` | Set up and use Firebase Authentication (provisioning, sign-in flows, security rules) |
 
 ### How skills are installed
 
@@ -115,10 +119,20 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 `moat.yaml` configures the [Moat](https://majorcontext.com/moat/llms.txt) sandbox runtime:
 
 - **Grants:** `claude`, `github`, `ssh:github.com`
-- **post_build hook:** Clones this repo and symlinks `skills/` to `~/.claude/skills/`
-- **pre_run hook:** Sets `core.hooksPath` to point at `hooks/` from the cloned repo
+- **post_build hook:** Clones this repo, symlinks `skills/` to `~/.claude/skills/`, and runs `npx playwright install chromium` so the Playwright MCP server has a browser in the container image.
+- **pre_run hook:** Sets `core.hooksPath` to point at `hooks/` from the cloned repo and passes `--moat` to `bootstrap_agent_homes.sh` so the container-scoped settings file is linked.
+- **Env:** `IN_MOAT=1` flags the container so tooling (e.g., the `pr-screenshots` skill) can pick between headful and headless behavior.
 
 The `pre_run` hook uses per-worktree git config (`extensions.worktreeConfig` + `git config --worktree`) so that each Moat container's hook configuration is isolated and doesn't write to the shared git common directory.
+
+### Playwright: host-headful, container-headless
+
+The Claude settings file is split so the Playwright MCP server behaves differently in each context:
+
+- **Host** (`defaults/settings.json`, symlinked to `~/.claude/settings.json` on the laptop): Playwright runs **headful** via `npx @playwright/mcp@latest --isolated`, so you can watch the browser.
+- **Container** (`defaults/settings-moat.json`, linked by `bootstrap_agent_homes.sh --moat`): Playwright runs **headless** with `--no-sandbox`, since the container has no display.
+
+There is no CDP, WebSocket, or port forwarding between host and container — each runs its own browser, fully isolated.
 
 `templates/moat.yaml` is a starter config for Claude Code projects (used by `mcl`); `templates/moat-codex.yaml` is the equivalent for Codex projects (used by `mco`). Both use the same `hooksPath` approach, which means all hooks in `hooks/` are active — including `pre-commit`. Repos that don't have a `test_runner.sh` will need to add one or the pre-commit hook will block commits.
 

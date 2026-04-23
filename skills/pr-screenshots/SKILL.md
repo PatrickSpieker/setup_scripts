@@ -18,6 +18,7 @@ Do NOT use for tiny / non-UI changes (backend refactors, dependency bumps).
 
 - The repo is a web app runnable locally (dev server exposes a URL Playwright can hit).
 - `@playwright/test` or `playwright` is installed (check `package.json`). If not, install it (`pnpm add -D playwright` or equivalent) and ensure a browser is provisioned (`npx playwright install chromium`).
+- The script runs headful on the laptop and headless inside a Moat container (toggled by the `IN_MOAT` env var that `moat.yaml` sets to `"1"`).
 - `gh` is authenticated and `gh pr view` succeeds for the current branch.
 - App auth: if the app requires login, you must have credentials available via env vars or a fixture. Otherwise scope this skill to unauthenticated flows.
 
@@ -77,7 +78,10 @@ async function shot(page, name, { fullPage = false, settle = 150 } = {}) {
 }
 
 async function main() {
-  const browser = await chromium.launch({ headless: true });
+  // Headful on the laptop so the user can watch the run; headless inside a
+  // Moat container (no display, no viewer). IN_MOAT is set by moat.yaml.
+  const headless = process.env.IN_MOAT === "1";
+  const browser = await chromium.launch({ headless });
   const ctx = await browser.newContext({ viewport: { width: 1400, height: 860 } });
   const page = await ctx.newPage();
   page.on("pageerror", (e) => console.error("PAGE ERROR:", e.message));
