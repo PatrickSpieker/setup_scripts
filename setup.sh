@@ -116,6 +116,13 @@ ln -sfn "$REPO_DIR/skills" ~/.codex/skills
 
 
 
+# ===== PLAYWRIGHT =====
+# Install chromium so the @playwright/mcp MCP server (configured headful on
+# the host in defaults/settings.json) has a browser to drive.
+npx -y playwright@latest install chromium
+
+
+
 # ===== SWIFTBAR =====
 # SwiftBar reads plugins from ~/.swiftbar/plugins.
 mkdir -p ~/.swiftbar

@@ -6,6 +6,9 @@ grants:
   - github
   - ssh:github.com
 
+env:
+  IN_MOAT: "1"
+
 hooks:
   post_build: git config --global http.proxyAuthMethod basic && git clone https://github.com/PatrickSpieker/setup_scripts.git /tmp/setup-scripts && bash /tmp/setup-scripts/scripts/bootstrap_agent_homes.sh /tmp/setup-scripts && cp /tmp/setup-scripts/defaults/codex-moat-config.toml ~/.codex/config.toml
   pre_run: git -C /workspace config extensions.worktreeConfig true && git -C /workspace config --worktree core.hooksPath /tmp/setup-scripts/hooks
