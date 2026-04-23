@@ -1,12 +1,6 @@
 {
-  "extraKnownMarketplaces": {
-    "render-plugins": {
-      "source": {
-        "source": "github",
-        "repo": "render-oss/skills"
-      }
-    }
-  },
+  "enabledPlugins": {},
+  "extraKnownMarketplaces": {},
   "effortLevel": "xhigh",
   "skipDangerousModePermissionPrompt": true,
   "skipAutoPermissionPrompt": true,
@@ -21,8 +15,5 @@
         "@playwright/mcp"
       ]
     }
-  },
-  "enabledPlugins": {
-    "render@render-plugins": true
   }
 }
