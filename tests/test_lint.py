@@ -63,11 +63,30 @@ def test_settings_moat_json_valid():
     load_json(REPO_DIR / "defaults/settings-moat.json")
 
 
-def test_settings_moat_playwright_is_headless():
-    """The container-scoped settings must run Playwright headless."""
+def test_settings_moat_has_no_mcp_servers():
+    """Container-scoped settings must not declare mcpServers.
+
+    Moat generates its own ~/.claude.json with MCP entries from moat.yaml's
+    top-level `mcp:` and agent-scoped `claude.mcp:`. Declaring mcpServers in
+    ~/.claude/settings.json is ignored and only creates confusion.
+    """
     moat = load_json(REPO_DIR / "defaults/settings-moat.json")
+    assert "mcpServers" not in moat
+
+
+def test_moat_yaml_declares_playwright_headless():
+    """Playwright must be declared under claude.mcp in moat.yaml, with
+    container-safe args (headless, no-sandbox, isolated)."""
+    moat = yaml.safe_load((REPO_DIR / "moat.yaml").read_text())
+    args = moat["claude"]["mcp"]["playwright"]["args"]
+    assert "--headless" in args
+    assert "--no-sandbox" in args
+    assert "--isolated" in args
+
+
+def test_host_settings_playwright_is_headful():
+    """Host Playwright stays headful so the user can watch the browser."""
     host = load_json(REPO_DIR / "defaults/settings.json")
-    assert "--headless" in moat["mcpServers"]["playwright"]["args"]
     assert "--headless" not in host["mcpServers"]["playwright"]["args"]
 
 

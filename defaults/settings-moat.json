@@ -3,21 +3,5 @@
   "extraKnownMarketplaces": {},
   "effortLevel": "xhigh",
   "skipDangerousModePermissionPrompt": true,
-  "skipAutoPermissionPrompt": true,
-  "mcpServers": {
-    "linear": {
-      "transport": "http",
-      "url": "https://mcp.linear.app/mcp"
-    },
-    "playwright": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@playwright/mcp@latest",
-        "--headless",
-        "--isolated",
-        "--no-sandbox"
-      ]
-    }
-  }
+  "skipAutoPermissionPrompt": true
 }
