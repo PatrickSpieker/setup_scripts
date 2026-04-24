@@ -107,6 +107,52 @@ def test_moat_yaml_declares_playwright_via_shim():
     )
 
 
+def test_template_moat_yaml_mirrors_root_playwright_wiring():
+    """templates/moat.yaml gets copied into client repos by `mcl` and is the
+    snapshot that other projects use. It must declare the same Playwright
+    wiring as the root moat.yaml (shim path, empty args, post_build_root for
+    install-deps, npx-warm in post_build) so containers spawned in other
+    repos get a working Playwright MCP too. Drift here silently breaks
+    clients that already have a snapshot."""
+    template = yaml.safe_load((REPO_DIR / "templates/moat.yaml").read_text())
+    pw = template["claude"]["mcp"]["playwright"]
+    assert pw["command"].endswith("/playwright-mcp.sh")
+    assert pw.get("args", []) == []
+    hooks = template["hooks"]
+    assert "install-deps chromium" in hooks["post_build_root"], (
+        "templates/moat.yaml post_build_root must run `playwright install-deps "
+        "chromium` (system libs need root)."
+    )
+    assert "@playwright/mcp@latest --help" in hooks["post_build"], (
+        "templates/moat.yaml post_build must warm the @playwright/mcp npx "
+        "cache so the first MCP probe doesn't time out."
+    )
+
+
+def test_template_moat_codex_yaml_has_playwright_wiring():
+    """templates/moat-codex.yaml is the snapshot `mco` copies into Codex
+    client repos. It must declare Playwright under codex.mcp (per Moat docs
+    — Codex sandbox-local MCPs use codex.mcp, written to .mcp.json), and
+    install system libs / chromium / warm the MCP cache the same way the
+    Claude templates do."""
+    template = yaml.safe_load((REPO_DIR / "templates/moat-codex.yaml").read_text())
+    pw = template["codex"]["mcp"]["playwright"]
+    assert pw["command"].endswith("/playwright-mcp.sh"), (
+        "Codex Playwright MCP must launch via the shared shim — the shim "
+        "handles chromium-path resolution and the auth-injecting proxy."
+    )
+    assert pw.get("args", []) == []
+    hooks = template["hooks"]
+    assert "install-deps chromium" in hooks["post_build_root"]
+    assert "playwright@latest install chromium" in hooks["post_build"], (
+        "post_build must download the bundled Chromium browser binary "
+        "(separate from system libs in post_build_root)."
+    )
+    assert "@playwright/mcp@latest --help" in hooks["post_build"], (
+        "post_build must warm the @playwright/mcp npx cache."
+    )
+
+
 def test_playwright_shim_includes_proxy_bridging():
     """The shim must spawn a local CONNECT proxy so Chromium can use Moat's
     authenticated HTTPS_PROXY (Chromium's --proxy-server doesn't accept
