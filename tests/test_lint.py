@@ -105,6 +105,26 @@ def test_moat_yaml_declares_playwright_headless():
     assert "--isolated" in args
 
 
+def test_moat_yaml_installs_chromium_system_deps():
+    """post_build_root must run `playwright install-deps chromium` so the
+    bundled chromium finds libglib/libnss/etc. at runtime. post_build alone
+    runs as moatuser (no root) and cannot install system packages."""
+    for path in (REPO_DIR / "moat.yaml", REPO_DIR / "templates/moat.yaml"):
+        moat = yaml.safe_load(path.read_text())
+        hooks = moat.get("hooks", {})
+        post_build = hooks.get("post_build", "")
+        # Only enforce deps install where chromium is being installed.
+        if "playwright@latest install chromium" not in post_build:
+            continue
+        post_build_root = hooks.get("post_build_root", "")
+        assert "install-deps chromium" in post_build_root, (
+            f"{path} installs chromium in post_build but is missing a "
+            "post_build_root that runs `playwright install-deps chromium`. "
+            "Without the system libs (libglib-2.0.so.0 etc.), the browser "
+            "fails to launch with 'cannot open shared object file'."
+        )
+
+
 def test_host_settings_playwright_is_headful():
     """Host Playwright stays headful so the user can watch the browser."""
     host = load_json(REPO_DIR / "defaults/settings.json")
