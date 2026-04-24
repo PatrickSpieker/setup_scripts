@@ -3,7 +3,8 @@
   "extraKnownMarketplaces": {},
   "effortLevel": "xhigh",
   "skipDangerousModePermissionPrompt": true,
-  "skipAutoPermissionPrompt": true,
+  "theme": "light-ansi",
+  "verbose": true,
   "mcpServers": {
     "linear": {
       "transport": "http",
@@ -17,5 +18,6 @@
         "--isolated"
       ]
     }
-  }
+  },
+  "skipAutoPermissionPrompt": true
 }
