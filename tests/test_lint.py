@@ -46,6 +46,20 @@ def test_shellcheck_bootstrap_agent_homes():
     assert r.returncode == 0, r.stdout + r.stderr
 
 
+def test_shellcheck_playwright_mcp():
+    r = run_shellcheck(REPO_DIR / "scripts/playwright-mcp.sh")
+    assert r.returncode == 0, r.stdout + r.stderr
+
+
+def test_playwright_mcp_is_executable():
+    """The MCP wrapper is invoked directly by Moat via `command:`, so it must
+    have the execute bit set."""
+    import os
+    import stat
+    mode = (REPO_DIR / "scripts/playwright-mcp.sh").stat().st_mode
+    assert mode & stat.S_IXUSR, "scripts/playwright-mcp.sh is not executable"
+
+
 # ===== Config validation =====
 
 def load_json(path):
@@ -76,9 +90,16 @@ def test_settings_moat_has_no_mcp_servers():
 
 def test_moat_yaml_declares_playwright_headless():
     """Playwright must be declared under claude.mcp in moat.yaml, with
-    container-safe args (headless, no-sandbox, isolated)."""
+    container-safe args (headless, no-sandbox, isolated), and launched via
+    the shim that resolves the bundled chromium path."""
     moat = yaml.safe_load((REPO_DIR / "moat.yaml").read_text())
-    args = moat["claude"]["mcp"]["playwright"]["args"]
+    pw = moat["claude"]["mcp"]["playwright"]
+    assert pw["command"].endswith("/playwright-mcp.sh"), (
+        "playwright MCP should launch via scripts/playwright-mcp.sh so "
+        "--executable-path is injected; `npx @playwright/mcp` alone defaults "
+        "to the Chrome channel which isn't installed in the container."
+    )
+    args = pw["args"]
     assert "--headless" in args
     assert "--no-sandbox" in args
     assert "--isolated" in args

@@ -16,8 +16,8 @@ mcp:
 claude:
   mcp:
     playwright:
-      command: npx
-      args: ["-y", "@playwright/mcp@latest", "--headless", "--isolated", "--no-sandbox"]
+      command: /tmp/setup-scripts/scripts/playwright-mcp.sh
+      args: ["--headless", "--isolated", "--no-sandbox"]
 
 env:
   GIT_CONFIG_GLOBAL: "/tmp/.gitconfig-isolated"
