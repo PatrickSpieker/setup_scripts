@@ -17,7 +17,7 @@ claude:
   mcp:
     playwright:
       command: /tmp/setup-scripts/scripts/playwright-mcp.sh
-      args: ["--headless", "--isolated", "--no-sandbox"]
+      args: []
 
 env:
   GIT_CONFIG_GLOBAL: "/tmp/.gitconfig-isolated"

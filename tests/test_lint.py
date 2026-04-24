@@ -88,21 +88,37 @@ def test_settings_moat_has_no_mcp_servers():
     assert "mcpServers" not in moat
 
 
-def test_moat_yaml_declares_playwright_headless():
-    """Playwright must be declared under claude.mcp in moat.yaml, with
-    container-safe args (headless, no-sandbox, isolated), and launched via
-    the shim that resolves the bundled chromium path."""
+def test_moat_yaml_declares_playwright_via_shim():
+    """Playwright MCP must launch via scripts/playwright-mcp.sh — the shim
+    handles chromium path resolution, the local auth-injecting proxy that
+    fronts Moat's authenticated HTTPS_PROXY, and the --config file with all
+    container-safe launchOptions (headless, isolated, --no-sandbox,
+    --ignore-certificate-errors). moat.yaml's args should be empty so the
+    shim's config is the single source of truth."""
     moat = yaml.safe_load((REPO_DIR / "moat.yaml").read_text())
     pw = moat["claude"]["mcp"]["playwright"]
     assert pw["command"].endswith("/playwright-mcp.sh"), (
-        "playwright MCP should launch via scripts/playwright-mcp.sh so "
-        "--executable-path is injected; `npx @playwright/mcp` alone defaults "
-        "to the Chrome channel which isn't installed in the container."
+        "playwright MCP must launch via scripts/playwright-mcp.sh "
+        "(see docstring in the script for why)"
     )
-    args = pw["args"]
-    assert "--headless" in args
-    assert "--no-sandbox" in args
-    assert "--isolated" in args
+    assert pw.get("args", []) == [], (
+        "moat.yaml playwright args should be empty — the shim builds an MCP "
+        "--config JSON with everything needed; CLI args here only confuse."
+    )
+
+
+def test_playwright_shim_includes_proxy_bridging():
+    """The shim must spawn a local CONNECT proxy so Chromium can use Moat's
+    authenticated HTTPS_PROXY (Chromium's --proxy-server doesn't accept
+    inline basic auth). Catch regressions where someone simplifies the shim."""
+    shim = (REPO_DIR / "scripts/playwright-mcp.sh").read_text()
+    assert 'Proxy-Authorization' in shim, "shim must inject Proxy-Authorization to upstream"
+    assert '127.0.0.1' in shim, "shim must point Chromium at a localhost proxy"
+    assert '--ignore-certificate-errors' in shim, (
+        "Moat's TLS-intercepting CA isn't in chromium's trust store; "
+        "shim must pass --ignore-certificate-errors"
+    )
+    assert '--no-sandbox' in shim, "container has no sandbox; --no-sandbox required"
 
 
 def test_host_settings_playwright_is_headful():
