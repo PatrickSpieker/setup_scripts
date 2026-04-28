@@ -79,13 +79,18 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 | `gh-address-pr-comments` | Resolve actionable PR review comments one-by-one |
 | `pr-screenshots` | Capture Playwright screenshots for each user journey and embed them in the PR description |
 | `make-tests` | Add tests for the change you're working on |
+| `tdd` | Test-driven development with red-green-refactor loop |
 | `design-doc` | Format implementation plans as structured design documents |
 | `de-slop` | Remove AI artifacts and cleanup noise before a PR |
 | `explore-repo` | Structured codebase exploration before planning or building |
+| `zoom-out` | Get a higher-level map of an unfamiliar area of code, using the language in CONTEXT.md |
+| `improve-codebase-architecture` | Find deepening refactoring opportunities informed by CONTEXT.md and docs/adr/ |
+| `grill-with-docs` | Stress-test a plan against the project's domain model and ADRs; update docs inline |
 | `work-forever` | Run in highly autonomous mode for long-running tasks |
 | `subagent` | Delegate exploration to a non-interactive Codex exec run |
 | `new-skill` | Create a new skill from conversation history |
 | `new-cmd` | Create a new command from conversation history |
+| `to-prd` | Turn the current conversation context into a PRD and submit it as a GitHub issue |
 | `delegate-cursor-background-task` | Create a GitHub/Linear ticket for Cursor's background agent |
 | `youtube-extractor` | Extract transcripts, titles, and thumbnails from YouTube videos |
 | `pdf-viewing` | OCR PDFs with page tracking and rasterize to images |
