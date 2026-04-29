@@ -27,11 +27,12 @@ setup_scripts/
 ├── vimrc_main               # Neovim config (vim-plug, keymaps, plugins)
 ├── vscode_settings.json     # VS Code settings
 ├── obsidian_vimrc           # Obsidian vim keybindings
+├── hammerspoon/             # Hammerspoon Lua config (symlinked to ~/.hammerspoon/)
+│   └── init.lua             #   Minimal starter: hyper+R reloads, alert on load
 ├── defaults/
 │   ├── settings.json        # Claude Code defaults (symlinked to ~/.claude/settings.json)
 │   └── codex-moat-config.toml # Codex defaults inside Moat (copied to ~/.codex/config.toml)
 ├── hooks/
-│   ├── pre-commit           # Runs test_runner.sh lint (repo-specific)
 │   └── pre-push             # Blocks Claude Code from pushing to main/master (generic)
 ├── scripts/
 │   └── bootstrap_agent_homes.sh # Links skills/, settings.json, AGENTS.md into ~/.claude and ~/.codex (used by moat.yaml pre_run)
@@ -118,6 +119,7 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 | `bash_profile_main` | `~/.bash_profile` | Sources bashrc |
 | `vimrc_main` | `~/.config/nvim/init.vim` | vim-plug managed; run `:PlugInstall` after setup |
 | `vscode_settings.json` | `~/Library/Application Support/Code/User/settings.json` | |
+| `hammerspoon/` | `~/.hammerspoon/` | Lua automation config; hyper (cmd+alt+ctrl) + R reloads |
 | `obsidian_vimrc` | (manual) | Vim keybindings for Obsidian |
 
 ## Moat
@@ -140,14 +142,13 @@ The Claude settings file is split so the Playwright MCP server behaves different
 
 There is no CDP, WebSocket, or port forwarding between host and container — each runs its own browser, fully isolated.
 
-`templates/moat.yaml` is a starter config for Claude Code projects (used by `mcl`); `templates/moat-codex.yaml` is the equivalent for Codex projects (used by `mco`). Both use the same `hooksPath` approach, which means all hooks in `hooks/` are active — including `pre-commit`. Repos that don't have a `test_runner.sh` will need to add one or the pre-commit hook will block commits.
+`templates/moat.yaml` is a starter config for Claude Code projects (used by `mcl`); `templates/moat-codex.yaml` is the equivalent for Codex projects (used by `mco`). Both use the same `hooksPath` approach, which means all hooks in `hooks/` are active. The hooks here are generic (only `pre-push` currently), so they're safe to drop into any repo.
 
 ## Hooks
 
 | Hook | Purpose | Scope |
 |------|---------|-------|
 | `hooks/pre-push` | Prevents Claude Code (`$CLAUDECODE=1`) from pushing to `main` or `master` | Generic — safe for all repos |
-| `hooks/pre-commit` | Runs `test_runner.sh lint` on staged changes | Repo-specific — requires `test_runner.sh` at repo root |
 
 ## SwiftBar Plugins
 
