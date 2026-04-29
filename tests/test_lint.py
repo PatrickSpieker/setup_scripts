@@ -2,6 +2,7 @@
 
 import json
 import re
+import shutil
 import subprocess
 import tomllib
 
@@ -48,6 +49,18 @@ def test_shellcheck_bootstrap_agent_homes():
 
 def test_shellcheck_playwright_mcp():
     r = run_shellcheck(REPO_DIR / "scripts/playwright-mcp.sh")
+    assert r.returncode == 0, r.stdout + r.stderr
+
+
+def test_hammerspoon_init_lua_valid():
+    luac = shutil.which("luac")
+    if not luac:
+        pytest.skip("luac not installed (brew install lua)")
+    r = subprocess.run(
+        [luac, "-p", str(REPO_DIR / "hammerspoon/init.lua")],
+        capture_output=True,
+        text=True,
+    )
     assert r.returncode == 0, r.stdout + r.stderr
 
 

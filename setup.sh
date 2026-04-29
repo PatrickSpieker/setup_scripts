@@ -130,6 +130,19 @@ ln -sfn "$REPO_DIR/swiftbar_plugins" ~/.swiftbar/plugins
 
 
 
+# ===== HAMMERSPOON =====
+# Symlink the repo's hammerspoon/ dir to ~/.hammerspoon. ln -sfn nests inside
+# an existing directory rather than replacing it, so we have to clear the
+# destination ourselves — but only if it's a symlink (safe) or absent.
+if [ -L ~/.hammerspoon ]; then
+  rm ~/.hammerspoon
+elif [ -e ~/.hammerspoon ]; then
+  echo "WARNING: ~/.hammerspoon is a real directory, not a symlink. Move it aside if you want this repo's config."
+fi
+[ -e ~/.hammerspoon ] || ln -sfn "$REPO_DIR/hammerspoon" ~/.hammerspoon
+
+
+
 # ===== KARABINER ELEMENTS =====
 # Remap Caps Lock to Escape system-wide.
 mkdir -p ~/.config/karabiner/assets/complex_modifications
