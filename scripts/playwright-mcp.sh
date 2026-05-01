@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Launcher for @playwright/mcp inside a Moat container.
 #
-# Three things this handles that the MCP can't on its own:
+# Four things this handles that the MCP can't on its own:
 # 1. Resolves the bundled Chromium binary. post_build runs
 #    `npx playwright install chromium`, which lays it down at a versioned
 #    path under ~/.cache/ms-playwright/chromium-<rev>/. The MCP defaults to
@@ -16,6 +16,10 @@
 # 3. Tells Chromium to ignore the Moat CA's intercepted certs. The proxy
 #    still verifies the real upstream cert (per Moat docs / TLS interception
 #    section), so this isn't loosening real network security.
+# 4. Accepts project-specific Chromium flags via the EXTRA_CHROMIUM_ARGS
+#    env var (whitespace-separated). Because this wrapper passes --config,
+#    moat.yaml's claude.mcp.playwright.args slot is unusable for extra
+#    flags — projects set them in moat.yaml's top-level env: block instead.
 #
 # The MCP --config file is built fresh on each run; everything (executable
 # path, headless, isolated, --no-sandbox, proxy server, ignore-cert) goes
@@ -74,13 +78,17 @@ if [[ -n "$UPSTREAM" ]]; then
 fi
 
 CONFIG="$(mktemp --suffix=.json)"
-EXE="$CHROMIUM" PROXY_PORT="$PROXY_PORT" node -e '
+EXE="$CHROMIUM" PROXY_PORT="$PROXY_PORT" EXTRA_CHROMIUM_ARGS="${EXTRA_CHROMIUM_ARGS:-}" node -e '
   const fs = require("fs");
   const args = ["--no-sandbox"];
   if (process.env.PROXY_PORT) {
     args.push("--proxy-server=http://127.0.0.1:" + process.env.PROXY_PORT);
     args.push("--ignore-certificate-errors");
   }
+  // Project-specific Chromium flags from moat.yaml. Whitespace-separated;
+  // empty / unset env var = no extra args, preserving prior behavior.
+  const extra = (process.env.EXTRA_CHROMIUM_ARGS || "").trim();
+  if (extra) args.push(...extra.split(/\s+/));
   fs.writeFileSync(process.argv[1], JSON.stringify({
     browser: {
       isolated: true,
