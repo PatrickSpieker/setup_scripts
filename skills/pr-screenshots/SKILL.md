@@ -19,7 +19,7 @@ Do NOT use for tiny / non-UI changes (backend refactors, dependency bumps).
 - The repo is a web app runnable locally (dev server exposes a URL Playwright can hit).
 - The Playwright MCP is configured — tools named `mcp__playwright__browser_*` are available in this session. This repo's `moat.yaml` wires it up; on the host it's configured via `defaults/settings.json`. You do NOT need to `npm install playwright` or `npx playwright install` — the MCP server provisions its own Chromium (headful on host, headless in Moat).
 - `gh` is authenticated and `gh pr view` succeeds for the current branch.
-- App auth: if the app requires login, you must have credentials available via env vars or a fixture. Otherwise scope this skill to unauthenticated flows.
+- App auth: if the app requires login, you must have credentials available via env vars or a fixture. Otherwise scope this skill to unauthenticated flows. (Antaeus repo: see the `## Antaeus` section below for the staging Firebase config to drop into a `.env` file.)
 
 ## Steps
 
@@ -174,6 +174,22 @@ Apply with `gh pr edit <PR> --body-file /tmp/pr-body-updated.md`.
 ### 8. Verify
 
 Read the returned PR URL back to the user. Don't curl the image URLs — raw endpoints return 404 without auth; the reviewer sees them in-browser via their GitHub session.
+
+## Antaeus
+
+The `antaeus-web-app` repo (`pnpm dev` → Vite on `http://localhost:5173`) needs a `.env` at the repo root before sign-in works — the Firebase web SDK fails fast on a missing API key, so without it `/login` silently can't authenticate and `/sharing` (and every other guarded route) is unreachable. The config below is the **staging** Firebase project — public client-side identifiers, safe to embed here, but kept out of the repo so production builds can override per-environment via Render.
+
+Drop this into `/workspace/.env` before starting the dev server (the staging API base URL is the default in `src/config/api.ts`, no override needed):
+
+```env
+VITE_FIREBASE_API_KEY=AIzaSyCvv3DLb3Biw60q0sN1c2rLMLQJ9hh4fKk
+VITE_FIREBASE_AUTH_DOMAIN=antaeus-staging-1.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=antaeus-staging-1
+```
+
+Then sign up a fresh throwaway account (`claude-shots-<unix-ts>@example.com` / any 6+ char password) — the staging Firebase project accepts arbitrary email/password registrations and the staging Antaeus backend provisions a profile on first sign-in. Do not reuse production accounts. Tear down via API at the end of the run (delete posts, revoke grants/invites); the Firebase user itself lingers since the client can't self-delete — note it under "manual cleanup" if it matters.
+
+If you need an Epic-linked profile to populate Record/Search/Recordings, follow the same `fhircamila` / `fhirderrick` / `epicepic1` sandbox accounts the `qa-explore` skill uses (see `/home/moatuser/.claude/skills/qa-explore/SKILL.md`). For sharing-only flows (InviteCard, /sharing, switcher), no Epic link is required.
 
 ## Pitfalls
 
