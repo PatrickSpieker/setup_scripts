@@ -5,19 +5,5 @@
   "skipDangerousModePermissionPrompt": true,
   "theme": "light-ansi",
   "verbose": true,
-  "mcpServers": {
-    "linear": {
-      "transport": "http",
-      "url": "https://mcp.linear.app/mcp"
-    },
-    "playwright": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@playwright/mcp@latest",
-        "--isolated"
-      ]
-    }
-  },
   "skipAutoPermissionPrompt": true
 }
