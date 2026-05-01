@@ -180,10 +180,39 @@ def test_playwright_shim_includes_proxy_bridging():
     assert '--no-sandbox' in shim, "container has no sandbox; --no-sandbox required"
 
 
-def test_host_settings_playwright_is_headful():
-    """Host Playwright stays headful so the user can watch the browser."""
+def test_settings_json_has_no_mcp_servers():
+    """User-scope Claude Code MCPs live in ~/.claude.json (top-level
+    `mcpServers`), written by `claude mcp add --scope user`. The
+    `mcpServers` block in ~/.claude/settings.json is silently ignored by
+    current Claude Code, so declaring it here is dead config that misleads
+    readers into thinking host MCPs are wired up."""
     host = load_json(REPO_DIR / "defaults/settings.json")
-    assert "--headless" not in host["mcpServers"]["playwright"]["args"]
+    assert "mcpServers" not in host, (
+        "Remove `mcpServers` from defaults/settings.json — it is not read by "
+        "Claude Code. Register user-scope MCPs via `claude mcp add --scope "
+        "user` (encoded in setup.sh) instead."
+    )
+
+
+def test_setup_sh_registers_playwright_user_scope():
+    """setup.sh must register Playwright at user scope so a fresh laptop
+    gets headful Playwright in every repo, not just ones where Claude was
+    previously run with a per-project entry."""
+    setup = (REPO_DIR / "setup.sh").read_text()
+    assert "claude mcp add --scope user playwright" in setup, (
+        "setup.sh must run `claude mcp add --scope user playwright -- npx "
+        "-y @playwright/mcp@latest --isolated` so Playwright is available "
+        "in every project on a fresh laptop."
+    )
+    assert "@playwright/mcp@latest" in setup
+    assert "--isolated" in setup, (
+        "Host Playwright should pass --isolated so each session uses a "
+        "fresh browser profile."
+    )
+    assert "--headless" not in setup.split("claude mcp add --scope user playwright")[1].split("\n")[0], (
+        "Host Playwright stays headful so the user can watch the browser; "
+        "do not pass --headless on the `claude mcp add` line."
+    )
 
 
 def test_vscode_settings_jsonc_valid():

@@ -107,6 +107,12 @@ curl https://cursor.com/install -fsS | bash
 mkdir -p ~/.claude
 ln -sfn "$REPO_DIR/skills" ~/.claude/skills
 
+# Register Playwright MCP at user scope so it's available in every project.
+# Claude Code stores user-scope MCPs in ~/.claude.json under top-level
+# `mcpServers` — `mcpServers` in ~/.claude/settings.json is NOT honored.
+# `|| true` swallows the "already exists" error on re-run.
+claude mcp add --scope user playwright -- npx -y @playwright/mcp@latest --isolated || true
+
 
 
 # ===== CODEX =====
