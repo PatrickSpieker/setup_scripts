@@ -96,6 +96,7 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 | `delegate-cursor-background-task` | Create a GitHub/Linear ticket for Cursor's background agent |
 | `youtube-extractor` | Extract transcripts, titles, and thumbnails from YouTube videos |
 | `pdf-viewing` | OCR PDFs with page tracking and rasterize to images |
+| `pdf-to-epub-md` | Batch-convert PDFs in the current dir to EPUB-bound markdown via marker, then dispatch one `epub-md-formatter` agent per book to clean each output |
 | `cc-llms` | Load context on the Claude Developer Platform from a bundled llms.txt reference |
 | `codex-llms-full` | Load context on OpenAI Codex (CLI, IDE, cloud, SDK) from a bundled llms.txt reference |
 | `linear-llms` | Load context on Linear (issues, GraphQL API, SDK) from a bundled llms.txt index |
@@ -110,6 +111,14 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 
 - **Claude Code:** `setup.sh` symlinks `skills/` to `~/.claude/skills/`
 - **Codex CLI:** `sync-skills` in `bashrc_main` symlinks each skill to `~/.codex/skills/` on every shell startup
+
+## Agents
+
+Subagents are Claude-only and live in `agents/<name>.md`. `setup.sh` symlinks `agents/` to `~/.claude/agents/`; inside Moat, `bootstrap_agent_homes.sh` links each `*.md` individually so the directory itself stays a real dir.
+
+| Agent | Description |
+|-------|-------------|
+| `epub-md-formatter` | Reformat marker-extracted markdown into EPUB-bound markdown ready for Calibre/Pandoc. Dispatched per-book by the `pdf-to-epub-md` skill. |
 
 ## Dotfiles
 

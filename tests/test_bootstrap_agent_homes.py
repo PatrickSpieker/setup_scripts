@@ -61,3 +61,37 @@ def test_bootstrap_links_moat_settings_when_moat_flag_set(repo_dir, tmp_path):
     link = home / ".claude/settings.json"
     assert link.is_symlink()
     assert os.readlink(link) == str(repo_dir / "defaults/settings-moat.json")
+
+
+def test_bootstrap_links_each_claude_agent(repo_dir, tmp_path):
+    home = tmp_path / "home"
+
+    result = run_bootstrap(repo_dir, home)
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    # The agents/ dir itself should be a real directory, not a symlink —
+    # mirrors the skills/ pattern so the dir survives re-bootstraps that
+    # may need to swap individual agent symlinks.
+    agents_dir = home / ".claude/agents"
+    assert agents_dir.is_dir()
+    assert not agents_dir.is_symlink()
+    # Every .md file in the repo's agents/ should appear as a symlink.
+    for agent in (repo_dir / "agents").glob("*.md"):
+        link = agents_dir / agent.name
+        assert link.is_symlink(), f"{link} should be a symlink"
+        assert os.readlink(link) == str(agent)
+
+
+def test_bootstrap_replaces_existing_claude_agents_symlink(repo_dir, tmp_path):
+    home = tmp_path / "home"
+    old_target = tmp_path / "old-agents"
+    old_target.mkdir()
+    (home / ".claude").mkdir(parents=True)
+    (home / ".claude/agents").symlink_to(old_target)
+
+    result = run_bootstrap(repo_dir, home)
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    agents_dir = home / ".claude/agents"
+    assert agents_dir.is_dir()
+    assert not agents_dir.is_symlink()
