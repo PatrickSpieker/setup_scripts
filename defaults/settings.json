@@ -3,7 +3,7 @@
   "extraKnownMarketplaces": {},
   "effortLevel": "xhigh",
   "skipDangerousModePermissionPrompt": true,
-  "theme": "light-ansi",
+  "theme": "auto",
   "verbose": true,
   "skipAutoPermissionPrompt": true
 }
