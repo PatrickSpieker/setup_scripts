@@ -152,6 +152,16 @@ elif [ -e ~/.hammerspoon ]; then
 fi
 [ -e ~/.hammerspoon ] || ln -sfn "$REPO_DIR/hammerspoon" ~/.hammerspoon
 
+# MANUAL STEP: disable the macOS system Cmd+Shift+4 shortcut so Hammerspoon's
+# init.lua binding can claim it. The system "Save picture of selected area as
+# a file" hotkey is registered at the WindowServer level and beats user-level
+# Carbon hotkeys, so without this step pressing Cmd+Shift+4 saves to Desktop
+# via the OS handler and Hammerspoon never sees the keystroke. Direct edits
+# to com.apple.symbolichotkeys aren't honored until WindowServer reloads, so
+# this has to be done through the GUI:
+#   System Settings → Keyboard → Keyboard Shortcuts → Screenshots →
+#   uncheck "Save picture of selected area as a file"
+
 
 
 # ===== KARABINER ELEMENTS =====
