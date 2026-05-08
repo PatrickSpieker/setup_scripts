@@ -43,4 +43,6 @@
   },
   "update.showReleaseNotes": false,
   "chat.disableAIFeatures": true,
+  "editor.showFoldingControls": "always",
+  "notebook.showFoldingControls": "always",
 }
