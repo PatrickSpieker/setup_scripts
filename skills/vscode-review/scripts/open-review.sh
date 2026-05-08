@@ -112,14 +112,16 @@ echo "Opening ${#TEXT_FILES[@]} file(s) for review ($SCOPE)..."
 first=1
 for f in "${TEXT_FILES[@]}"; do
   if [[ $first -eq 1 ]]; then
-    code -n --diff "$SNAPSHOT_DIR/$f" "$f"
+    code -n "$f"
     first=0
   else
-    code -r --diff "$SNAPSHOT_DIR/$f" "$f"
+    code -r "$f"
   fi
+  code -r --diff "$SNAPSHOT_DIR/$f" "$f"
 done
 
-code -r "${TEXT_FILES[@]}"
+# Refocus the first file's live tab so review starts there.
+code -r "${TEXT_FILES[0]}"
 
 echo ""
 echo "Review summary:"
