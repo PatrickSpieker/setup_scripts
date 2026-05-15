@@ -20,7 +20,7 @@ brew bundle --file Brewfile
 setup_scripts/
 ├── setup.sh                 # Main install script (Homebrew, bash, vim, skills, SwiftBar)
 ├── Brewfile                 # Homebrew packages (git, gh, neovim, ripgrep, fzf, codex, etc.; claude-code uses native installer)
-├── AGENTS.md                # Agent-facing instructions (in-repo symlink: .claude/claude.md; bootstrap also links to ~/.claude/CLAUDE.md)
+├── AGENTS.md                # Agent-facing instructions. Linked as user-scope global rules to ~/.claude/CLAUDE.md and ~/.codex/AGENTS.md on every shell start (bashrc_main) and inside Moat (bootstrap_agent_homes.sh). In-repo symlink: .claude/claude.md → ../AGENTS.md.
 ├── moat.yaml                # Moat runtime config (grants, hooks for skills + pre-push)
 ├── bashrc_main              # Bash config (aliases, git shortcuts, PATH, oh-my-bash, fzf)
 ├── bash_profile_main        # Bash profile (sources bashrc)

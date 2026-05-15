@@ -306,6 +306,12 @@ sync-skills() {
   done
 }
 sync-skills
+
+# Link this repo's AGENTS.md as user-scope global instructions for Claude Code
+# and Codex. ln -sfn is idempotent. Moat doesn't run bashrc — bootstrap_agent_
+# homes.sh handles the same wiring inside the container.
+ln -sfn ~/setup_scripts/AGENTS.md ~/.claude/CLAUDE.md
+ln -sfn ~/setup_scripts/AGENTS.md ~/.codex/AGENTS.md
 # ===== END CODEX SKILLS =====
 
 

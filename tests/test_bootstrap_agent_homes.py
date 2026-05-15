@@ -95,3 +95,21 @@ def test_bootstrap_replaces_existing_claude_agents_symlink(repo_dir, tmp_path):
     agents_dir = home / ".claude/agents"
     assert agents_dir.is_dir()
     assert not agents_dir.is_symlink()
+
+
+def test_bootstrap_links_agents_md_globally(repo_dir, tmp_path):
+    """AGENTS.md must be linked as user-scope global instructions for both
+    Claude Code (~/.claude/CLAUDE.md) and Codex (~/.codex/AGENTS.md) inside
+    the Moat container. Moat doesn't run bashrc, so this is the only path
+    that wires global agent rules in containers."""
+    home = tmp_path / "home"
+
+    result = run_bootstrap(repo_dir, home)
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    claude_link = home / ".claude/CLAUDE.md"
+    codex_link = home / ".codex/AGENTS.md"
+    assert claude_link.is_symlink()
+    assert codex_link.is_symlink()
+    assert os.readlink(claude_link) == str(repo_dir / "AGENTS.md")
+    assert os.readlink(codex_link) == str(repo_dir / "AGENTS.md")

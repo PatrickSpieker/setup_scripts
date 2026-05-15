@@ -100,6 +100,24 @@ def test_sync_skills_creates_symlinks(repo_dir, mock_bin, fake_home):
     assert (fake_home / ".codex/skills/skill-a").is_symlink()
 
 
+def test_sourcing_bashrc_links_agents_md_globally(repo_dir, mock_bin, fake_home):
+    """Sourcing bashrc_main must symlink AGENTS.md into ~/.claude/CLAUDE.md
+    and ~/.codex/AGENTS.md so global agent rules apply on the host."""
+    _setup_sourcing_mocks(mock_bin)
+    # Provide a real AGENTS.md under ~/setup_scripts/ so the link target
+    # resolves (the inline `ln -sfn` points at ~/setup_scripts/AGENTS.md).
+    (fake_home / "setup_scripts/AGENTS.md").write_text("global rules\n")
+
+    r = run_bash_function(":", repo_dir=repo_dir, mock_bin=mock_bin, fake_home=fake_home)
+    assert r.returncode == 0
+    claude_link = fake_home / ".claude/CLAUDE.md"
+    codex_link = fake_home / ".codex/AGENTS.md"
+    assert claude_link.is_symlink()
+    assert codex_link.is_symlink()
+    assert os.readlink(claude_link) == str(fake_home / "setup_scripts/AGENTS.md")
+    assert os.readlink(codex_link) == str(fake_home / "setup_scripts/AGENTS.md")
+
+
 # ===========================================================================
 # mcl — basic behavior
 # ===========================================================================

@@ -60,3 +60,4 @@ done
 
 ln -sfn "$REPO_DIR/defaults/$SETTINGS_FILE" "$HOME/.claude/settings.json"
 ln -sfn "$REPO_DIR/AGENTS.md" "$HOME/.claude/CLAUDE.md"
+ln -sfn "$REPO_DIR/AGENTS.md" "$HOME/.codex/AGENTS.md"
