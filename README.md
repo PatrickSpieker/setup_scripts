@@ -75,7 +75,7 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 |-------|-------------|
 | `gh-commit` | Create small, logical commits with conventional commit messages |
 | `gh-ship` | Commit, push, and create PR in one step |
-| `ship-plan` | Commit a plan-mode plan file to `docs/plans/<slug>.md` on a fresh branch and open a PR for review (plan only, no code) |
+| `ship-plan` | Open a `feat/<slug>` PR off main with the current plan as the PR description (single empty marker commit, no file in repo). Plan-first review before any implementation; implementation commits land on the same branch later |
 | `gh-review-pr` | Review a GitHub PR focusing on correctness, tests, and risk |
 | `gh-fix-ci` | Find the first failing CI check and fix it |
 | `gh-address-pr-comments` | Resolve actionable PR review comments one-by-one |
