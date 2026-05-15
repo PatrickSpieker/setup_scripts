@@ -75,7 +75,6 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 |-------|-------------|
 | `gh-commit` | Create small, logical commits with conventional commit messages |
 | `gh-ship` | Commit, push, and create PR in one step |
-| `ship-plan` | Commit a plan-mode plan file to `docs/plans/<slug>.md` on a fresh branch and open a PR for review (plan only, no code) |
 | `gh-review-pr` | Review a GitHub PR focusing on correctness, tests, and risk |
 | `gh-fix-ci` | Find the first failing CI check and fix it |
 | `gh-address-pr-comments` | Resolve actionable PR review comments one-by-one |
@@ -85,9 +84,11 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 | `design-doc` | Format implementation plans as structured design documents |
 | `de-slop` | Remove AI artifacts and cleanup noise before a PR |
 | `explore-repo` | Structured codebase exploration before planning or building |
+| `vscode-review` | Open every changed file on the current branch in a new VS Code window — a `--diff` tab and a live-file tab per file. Use to review local Claude/Codex output before committing |
+| `local-review` | Address inline `//r <thought>` review markers left in the working tree — apply the change and remove the marker, or rewrite as `//c <reply>` to push back. Pairs with `vscode-review` |
 | `zoom-out` | Get a higher-level map of an unfamiliar area of code, using the language in CONTEXT.md |
 | `improve-codebase-architecture` | Find deepening refactoring opportunities informed by CONTEXT.md and docs/adr/ |
-| `grill-with-docs` | Stress-test a plan against the project's domain model and ADRs; update docs inline |
+| `spec-it` | Grill the user one question at a time to extract a complete implementation plan into context, update CONTEXT.md / ADRs as terms and decisions resolve, then ship the plan as a `spec/<slug>` PR off main with the plan as the description |
 | `work-forever` | Run in highly autonomous mode for long-running tasks |
 | `subagent` | Delegate exploration to a non-interactive Codex exec run |
 | `new-skill` | Create a new skill from conversation history |
