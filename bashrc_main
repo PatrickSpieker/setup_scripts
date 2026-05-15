@@ -356,6 +356,8 @@ export PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/b
 # Go
 export GOPATH="$HOME/go"
 export PATH="$GOPATH/bin:$PATH"
+# Postgres 18 (keg-only — for psql/pg_dump and `render psql`)
+export PATH="/opt/homebrew/opt/postgresql@18/bin:$PATH"
 # ===== END PATH =====
 
 
