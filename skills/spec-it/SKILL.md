@@ -19,7 +19,7 @@ The skill trusts the user — no check that exploration has happened. If the use
 
 1. **Grills.** One question at a time, walks the design tree, resolves dependencies before moving on, recommends an answer for each question, cross-references the code when claims are made.
 2. **Updates docs inline.** As domain terms resolve, edits `CONTEXT.md`. As irreversible decisions crystallise, sparingly offers ADRs in `docs/adr/`.
-3. **Writes up the plan.** When the user signals done, synthesises the conversation into a 3-section plan (The What / The How / Verification/Testing).
+3. **Writes up the plan.** When the user signals done, synthesises the conversation into a 3-section plan (Interface Changes / Implementation Changes / Test Plan).
 4. **Ships.** Branches off main as `spec/<slug>`, empty marker commit `plan: <slug>`, one commit per doc file changed during grilling, push, open PR with the plan as the description.
 5. **Optionally builds.** Asks the user whether to implement the spec now. If yes, implementation commits land on the same `spec/<slug>` branch and the same PR — the plan in the PR description stays as the record of intent.
 
@@ -74,8 +74,8 @@ Grilling ends when the user signals it: _"that's enough,"_ _"ship it,"_ _"we're 
 
 After the user signals done, synthesise the conversation into a markdown plan with **exactly these three sections**:
 
-```markdown
-## The What
+````markdown
+## Interface Changes
 
 Strictly the interface — what the consumer of this change sees, nothing about how
 it's built. The consumer depends on what's being shipped: for a service it's the
@@ -84,20 +84,41 @@ app it's the UI and the behaviour delta; for a CLI it's the flags and output.
 The contract someone on the other side of the boundary would observe. No
 implementation detail.
 
-## The How
+May be empty when the change is a pure internal refactor with no consumer-visible
+delta — keep the section header for structural consistency and write `none —
+internal refactor` (or equivalent) as the body.
+
+## Implementation Changes
 
 The implementation: design decisions made during grilling, why this storage
 choice, why this concurrency pattern, why this error model. Alternatives
 considered and discarded, optional pieces that could be added later. Bullet-point
 or short prose; this section is a reference, not a tutorial.
 
-## Verification/Testing
+## Test Plan
 
 How the change will be verified. Test approach (unit vs integration boundaries),
 what fixtures look like, specific edge cases the grilling surfaced that need
 explicit coverage, plus manual verification steps where automated tests aren't
 worth it.
+
+When the test invocation is concrete enough at planning time, include a fenced
+`bash` block with the command(s) the implementer should be able to run when the
+work is done — gives them a copy-pasteable target. If the test plan needs
+multiple executable steps, give each its own fenced block — one copy-button
+click per step. Omit when the test surface isn't yet defined or the change is
+manual-verification-only.
+
+```bash
+# step 1 — lint
+./test_runner.sh lint
 ```
+
+```bash
+# step 2 — tests
+./test_runner.sh test
+```
+````
 
 Don't pad. Each section should earn its space.
 
@@ -183,7 +204,7 @@ gh pr create \
   --base "$default_branch" \
   --title "$title" \
   --body-file - <<'EOF'
-<the plan from "Plan write-up" above, verbatim — The What / The How / Verification/Testing>
+<the plan from "Plan write-up" above, verbatim — Interface Changes / Implementation Changes / Test Plan>
 EOF
 ```
 
