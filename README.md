@@ -39,26 +39,7 @@ setup_scripts/
 ├── templates/
 │   ├── moat.yaml            # Template moat config for Claude Code projects (used by `mcl`)
 │   └── moat-codex.yaml      # Template moat config for Codex projects (used by `mco`)
-├── skills/                  # AI agent skills (Claude Code + Codex CLI)
-│   ├── gh-commit/           #   Conventional commits
-│   ├── gh-ship/             #   Commit + push + create PR
-│   ├── gh-review-pr/        #   Thorough PR review
-│   ├── gh-fix-ci/           #   Fix first failing CI check
-│   ├── gh-address-pr-comments/ # Resolve PR review comments
-│   ├── pr-screenshots/      #   Capture Playwright screenshots for PR walkthrough
-│   ├── make-tests/          #   Generate tests for current changes
-│   ├── de-slop/             #   Remove AI artifacts before PR
-│   ├── explore-repo/        #   Structured codebase exploration
-│   ├── work-forever/        #   Autonomous long-running mode
-│   ├── subagent/            #   Delegate to Codex exec subagent
-│   ├── new-skill/           #   Create a new skill
-│   ├── youtube-extractor/   #   Extract YouTube transcripts + metadata
-│   ├── pdf-viewing/         #   OCR and rasterize PDFs
-│   ├── cc-llms/             #   Claude Developer Platform context (bundled llms.txt)
-│   ├── codex-llms-full/     #   OpenAI Codex context (bundled llms.txt)
-│   ├── linear-llms/         #   Linear context (bundled llms.txt index)
-│   ├── moat-llms-full/      #   Moat context (bundled llms.txt)
-│   └── render-llms-full/    #   Render context (bundled llms.txt)
+├── skills/                  # AI agent skills (Claude Code + Codex CLI) — see Skills table below
 └── swiftbar_plugins/
     ├── ai_token_usage.1m.py # Menu bar token usage tracker (Claude + Codex, 1-min refresh)
     └── moat_orphans.5m.py   # Menu bar warning for stale Moat containers (5-min refresh)
