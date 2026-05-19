@@ -74,7 +74,7 @@ Grilling ends when the user signals it: _"that's enough,"_ _"ship it,"_ _"we're 
 
 After the user signals done, synthesise the conversation into a markdown plan with **exactly these three sections**:
 
-```markdown
+````markdown
 ## The What
 
 Strictly the interface — what the consumer of this change sees, nothing about how
@@ -97,7 +97,17 @@ How the change will be verified. Test approach (unit vs integration boundaries),
 what fixtures look like, specific edge cases the grilling surfaced that need
 explicit coverage, plus manual verification steps where automated tests aren't
 worth it.
+
+When the test invocation is concrete enough at planning time, include a fenced
+`bash` block with the command(s) the implementer should be able to run when the
+work is done — gives them a copy-pasteable target. Omit when the test surface
+isn't yet defined or the change is manual-verification-only.
+
+```bash
+# example — only include when the command is known up front
+pytest tests/test_new_feature.py -v
 ```
+````
 
 Don't pad. Each section should earn its space.
 

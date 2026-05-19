@@ -85,11 +85,11 @@ Answer three things:
 
 - **What** — strictly the interface side: the change as a consumer sees it. For a service that's the API surface (new route, changed response shape); for an end-user app it's the UI / behaviour delta; for a CLI it's the new flag or output. Nothing about implementation.
 - **How** — non-obvious implementation choices, design notes, alternatives considered and discarded, optional follow-ups. Skip when the diff speaks for itself.
-- **Verification/Testing** — tests added (unit, integration), manual smoke checks, what a reviewer should look at to confirm the change is correct.
+- **Verification/Testing** — tests added (unit, integration), manual smoke checks, what a reviewer should look at to confirm the change is correct. **When the PR adds or updates automated tests, include a fenced `bash` code block with the exact command(s) to run them** so a reviewer (or CI) can copy-paste. Skip the code block when there's nothing automated to run (e.g., docs-only changes, manual-smoke-only).
 
 Use these as content prompts, not a mandatory template. A one-line PR ("typo fix in README") doesn't need three sections. A non-trivial change does:
 
-```markdown
+````markdown
 ## What
 <consumer-visible change — no implementation detail>
 
@@ -97,8 +97,13 @@ Use these as content prompts, not a mandatory template. A one-line PR ("typo fix
 <non-obvious implementation note — omit the section if the diff speaks for itself>
 
 ## Verification/Testing
-<tests added / manual smoke check>
+<one-line summary: what tests were added / what was smoke-checked>
+
+```bash
+# exact command(s) — only when there's something automated to run
+./test_runner.sh test
 ```
+````
 
 ## Edge cases
 
