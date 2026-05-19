@@ -1,0 +1,52 @@
+{
+  "daily": [
+    {
+      "period": "2026-05-19",
+      "agent": "all",
+      "modelsUsed": ["claude-opus-4-7"],
+      "inputTokens": 1000,
+      "outputTokens": 2000,
+      "cacheCreationTokens": 500,
+      "cacheReadTokens": 10000,
+      "totalTokens": 13500,
+      "totalCost": 1.23,
+      "metadata": {"agents": ["claude"]}
+    },
+    {
+      "period": "2026-05-10",
+      "agent": "all",
+      "modelsUsed": ["claude-opus-4-6"],
+      "inputTokens": 500,
+      "outputTokens": 800,
+      "cacheCreationTokens": 0,
+      "cacheReadTokens": 5000,
+      "totalTokens": 6300,
+      "totalCost": 2.00,
+      "metadata": {"agents": ["claude"]}
+    },
+    {
+      "period": "2026-05-12",
+      "agent": "all",
+      "modelsUsed": ["gpt-5.4"],
+      "inputTokens": 300000,
+      "outputTokens": 5000,
+      "cacheCreationTokens": 0,
+      "cacheReadTokens": 250000,
+      "totalTokens": 555000,
+      "totalCost": 0.50,
+      "metadata": {"agents": ["codex"]}
+    },
+    {
+      "period": "2026-05-15",
+      "agent": "all",
+      "modelsUsed": ["claude-opus-4-7", "gpt-5.4"],
+      "inputTokens": 10000,
+      "outputTokens": 3000,
+      "cacheCreationTokens": 100,
+      "cacheReadTokens": 20000,
+      "totalTokens": 33100,
+      "totalCost": 5.00,
+      "metadata": {"agents": ["claude", "codex"]}
+    }
+  ]
+}
