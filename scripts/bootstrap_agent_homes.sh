@@ -45,19 +45,6 @@ mkdir -p "$HOME/.claude" "$HOME/.codex"
 link_skills "$HOME/.claude"
 link_skills "$HOME/.codex"
 
-# Subagents are Claude-only and live in $HOME/.claude/agents/<name>.md.
-# Replace any existing symlink, then symlink each agent file individually so
-# the directory itself stays a real dir (matching the pattern used for skills).
-agents_dir="$HOME/.claude/agents"
-if [[ -L "$agents_dir" ]]; then
-  rm "$agents_dir"
-fi
-mkdir -p "$agents_dir"
-for agent in "$REPO_DIR"/agents/*.md; do
-  [[ -f "$agent" ]] || continue
-  ln -sfn "$agent" "$agents_dir/$(basename "$agent")"
-done
-
 ln -sfn "$REPO_DIR/defaults/$SETTINGS_FILE" "$HOME/.claude/settings.json"
 ln -sfn "$REPO_DIR/AGENTS.md" "$HOME/.claude/CLAUDE.md"
 ln -sfn "$REPO_DIR/AGENTS.md" "$HOME/.codex/AGENTS.md"
