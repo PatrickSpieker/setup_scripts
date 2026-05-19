@@ -30,12 +30,14 @@ setup_scripts/
 ├── hammerspoon/             # Hammerspoon Lua config (symlinked to ~/.hammerspoon/)
 │   └── init.lua             #   Minimal starter: hyper+R reloads, alert on load
 ├── defaults/
-│   ├── settings.json        # Claude Code defaults (symlinked to ~/.claude/settings.json)
+│   ├── settings.json        # Claude Code defaults on the host (symlinked to ~/.claude/settings.json)
+│   ├── settings-moat.json   # Claude Code defaults inside Moat (linked by bootstrap_agent_homes.sh --moat; headless Playwright + --no-sandbox)
 │   └── codex-moat-config.toml # Codex defaults inside Moat (copied to ~/.codex/config.toml)
 ├── hooks/
 │   └── pre-push             # Blocks Claude Code from pushing to main/master (generic)
 ├── scripts/
-│   └── bootstrap_agent_homes.sh # Links skills/, settings.json, AGENTS.md into ~/.claude and ~/.codex (used by moat.yaml pre_run)
+│   ├── bootstrap_agent_homes.sh # Links skills/, settings.json, AGENTS.md into ~/.claude and ~/.codex (used by moat.yaml pre_run)
+│   └── playwright-mcp.sh    # Launcher for @playwright/mcp inside Moat — resolves bundled Chromium, bridges HTTPS_PROXY auth, ignores TLS-intercept certs
 ├── templates/
 │   ├── moat.yaml            # Template moat config for Claude Code projects (used by `mcl`)
 │   └── moat-codex.yaml      # Template moat config for Codex projects (used by `mco`)
