@@ -21,6 +21,7 @@ The skill trusts the user — no check that exploration has happened. If the use
 2. **Updates docs inline.** As domain terms resolve, edits `CONTEXT.md`. As irreversible decisions crystallise, sparingly offers ADRs in `docs/adr/`.
 3. **Writes up the plan.** When the user signals done, synthesises the conversation into a 3-section plan (The What / The How / Testing).
 4. **Ships.** Branches off main as `spec/<slug>`, empty marker commit `plan: <slug>`, one commit per doc file changed during grilling, push, open PR with the plan as the description.
+5. **Optionally builds.** Asks the user whether to implement the spec now. If yes, implementation commits land on the same `spec/<slug>` branch and the same PR — the plan in the PR description stays as the record of intent.
 
 ## Hard rules
 
@@ -179,7 +180,23 @@ gh pr create \
 EOF
 ```
 
-Print the PR URL. Implementation commits land on the same branch later; the PR description (the plan) stays as the historical record of intent. If the plan changes during implementation, edit the PR description with `gh pr edit --body-file`.
+Print the PR URL. The PR description (the plan) stays as the historical record of intent — implementation commits land on the same branch, either now (see "Build it" below) or later. If the plan changes during implementation, edit the PR description with `gh pr edit --body-file`.
+
+## Build it (optional)
+
+After the PR is open, ask the user one question: _"Build the spec now, or stop here?"_
+
+If they want to stop, the skill is done. The plan is on the PR; the user (or another agent, in a future session) can pick it up later.
+
+If they want to build now:
+
+- Stay on the `spec/<slug>` branch — implementation commits push to the same PR.
+- The plan in the PR description is the spec. Work from it; don't re-derive decisions that grilling already resolved.
+- Commit one logical change at a time with conventional commit messages (see `/gh-commit`). Push as you go so the PR reflects current state.
+- If implementation surfaces a real decision that changes the plan, edit the PR description (`gh pr edit --body-file -`) so the description and the commits stay in sync. Don't let the plan rot.
+- When implementation is done, the same PR is what gets reviewed — no second PR, no separate planning artifact.
+
+Don't propose ending implementation yourself. Keep going until the user calls it, the same way grilling ends.
 
 ## Edge cases
 
