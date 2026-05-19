@@ -102,11 +102,13 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 `moat.yaml` configures the [Moat](https://majorcontext.com/moat/llms.txt) sandbox runtime:
 
 - **Grants:** `claude`, `github`, `ssh:github.com`
-- **post_build hook:** Clones this repo, symlinks `skills/` to `~/.claude/skills/`, and runs `npx playwright install chromium` so the Playwright MCP server has a browser in the container image.
-- **pre_run hook:** Sets `core.hooksPath` to point at `hooks/` from the cloned repo and passes `--moat` to `bootstrap_agent_homes.sh` so the container-scoped settings file is linked.
+- **post_build hook:** Runs once at image-build time. Sets up isolated git config files, configures `http.proxyAuthMethod` for Moat's authenticated proxy, runs `npx playwright install chromium`, and warms the `@playwright/mcp` npx cache so the first MCP probe doesn't time out.
+- **pre_run hook:** Runs on every container start. Clones this repo to `/tmp/setup-scripts`, runs `bootstrap_agent_homes.sh --moat` (which symlinks `skills/`, `AGENTS.md`, and the container settings file into `~/.claude` and `~/.codex`), copies `defaults/codex-moat-config.toml` to `~/.codex/config.toml`, and sets per-worktree `core.hooksPath` so the repo's hooks fire inside the container.
 - **Env:** `IN_MOAT=1` flags the container so tooling (e.g., the `pr-screenshots` skill) can pick between headful and headless behavior.
 
-The `pre_run` hook uses per-worktree git config (`extensions.worktreeConfig` + `git config --worktree`) so that each Moat container's hook configuration is isolated and doesn't write to the shared git common directory.
+Because the clone happens in `pre_run` (not `post_build`), every Moat session pulls the latest `main` of `setup_scripts` rather than whatever was current at image-build time — skill edits on the host show up in the next container start without rebuilding the image.
+
+The `pre_run` hook also enables `extensions.worktreeConfig` before writing `core.hooksPath` with `git config --worktree`, so each Moat container's hook configuration is isolated and doesn't write to the shared git common directory across worktrees.
 
 ### Playwright: host-headful, container-headless
 
