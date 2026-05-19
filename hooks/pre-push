@@ -2,7 +2,10 @@
 # Generic pre-push hook: blocks Claude Code from pushing to main/master.
 # Safe for all repos — only activates when CLAUDECODE=1.
 if [[ "$CLAUDECODE" == "1" ]]; then
-  while read -r _ _ remote_ref _; do
+  # `|| [[ -n "$remote_ref" ]]` handles the final line when stdin lacks a
+  # trailing newline — `read` returns 1 at EOF, but the fields are still set,
+  # so we need to process them before exiting the loop.
+  while read -r _ _ remote_ref _ || [[ -n "$remote_ref" ]]; do
     if [[ "$remote_ref" =~ refs/heads/(main|master)$ ]]; then
       echo "ERROR: Pushing to main/master is blocked for Claude Code."
       exit 1
