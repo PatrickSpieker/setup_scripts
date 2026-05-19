@@ -19,7 +19,7 @@ The skill trusts the user — no check that exploration has happened. If the use
 
 1. **Grills.** One question at a time, walks the design tree, resolves dependencies before moving on, recommends an answer for each question, cross-references the code when claims are made.
 2. **Updates docs inline.** As domain terms resolve, edits `CONTEXT.md`. As irreversible decisions crystallise, sparingly offers ADRs in `docs/adr/`.
-3. **Writes up the plan.** When the user signals done, synthesises the conversation into a 3-section plan (The What / The How / Verification/Testing).
+3. **Writes up the plan.** When the user signals done, synthesises the conversation into a 3-section plan (The What / The How / Test Plan).
 4. **Ships.** Branches off main as `spec/<slug>`, empty marker commit `plan: <slug>`, one commit per doc file changed during grilling, push, open PR with the plan as the description.
 5. **Optionally builds.** Asks the user whether to implement the spec now. If yes, implementation commits land on the same `spec/<slug>` branch and the same PR — the plan in the PR description stays as the record of intent.
 
@@ -91,7 +91,7 @@ choice, why this concurrency pattern, why this error model. Alternatives
 considered and discarded, optional pieces that could be added later. Bullet-point
 or short prose; this section is a reference, not a tutorial.
 
-## Verification/Testing
+## Test Plan
 
 How the change will be verified. Test approach (unit vs integration boundaries),
 what fixtures look like, specific edge cases the grilling surfaced that need
@@ -100,12 +100,19 @@ worth it.
 
 When the test invocation is concrete enough at planning time, include a fenced
 `bash` block with the command(s) the implementer should be able to run when the
-work is done — gives them a copy-pasteable target. Omit when the test surface
-isn't yet defined or the change is manual-verification-only.
+work is done — gives them a copy-pasteable target. If the test plan needs
+multiple executable steps, give each its own fenced block — one copy-button
+click per step. Omit when the test surface isn't yet defined or the change is
+manual-verification-only.
 
 ```bash
-# example — only include when the command is known up front
-pytest tests/test_new_feature.py -v
+# step 1 — lint
+./test_runner.sh lint
+```
+
+```bash
+# step 2 — tests
+./test_runner.sh test
 ```
 ````
 
@@ -193,7 +200,7 @@ gh pr create \
   --base "$default_branch" \
   --title "$title" \
   --body-file - <<'EOF'
-<the plan from "Plan write-up" above, verbatim — The What / The How / Verification/Testing>
+<the plan from "Plan write-up" above, verbatim — The What / The How / Test Plan>
 EOF
 ```
 
