@@ -28,7 +28,7 @@ case "$MODE" in
     python3 -m pytest "$TESTS_DIR/test_lint.py" "$TESTS_DIR/test_skill_structure.py" "$TESTS_DIR/test_bootstrap_agent_homes.py" -v ;;
   test)
     echo "Running tests..."
-    python3 -m pytest "$TESTS_DIR/test_pre_push.py" "$TESTS_DIR/test_bashrc_functions.py" -v ;;
+    python3 -m pytest "$TESTS_DIR/test_pre_push.py" "$TESTS_DIR/test_bashrc_functions.py" "$TESTS_DIR/test_token_usage.py" -v ;;
   all)
     echo "Running all..."
     python3 -m pytest "$TESTS_DIR" -v ;;
