@@ -105,14 +105,6 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 - **Claude Code:** `setup.sh` symlinks `skills/` to `~/.claude/skills/`
 - **Codex CLI:** `sync-skills` in `bashrc_main` symlinks each skill to `~/.codex/skills/` on every shell startup
 
-## Agents
-
-Subagents are Claude-only and live in `agents/<name>.md`. `setup.sh` symlinks `agents/` to `~/.claude/agents/`; inside Moat, `bootstrap_agent_homes.sh` links each `*.md` individually so the directory itself stays a real dir.
-
-| Agent | Description |
-|-------|-------------|
-| `epub-md-formatter` | Reformat marker-extracted markdown into EPUB-bound markdown ready for Calibre/Pandoc. Dispatched per-book by the `pdf-to-epub-md` skill. |
-
 ## Dotfiles
 
 | File | Installs to | Notes |

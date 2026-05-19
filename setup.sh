@@ -107,11 +107,6 @@ curl https://cursor.com/install -fsS | bash
 mkdir -p ~/.claude
 ln -sfn "$REPO_DIR/skills" ~/.claude/skills
 
-# Subagents live in ~/.claude/agents/<name>.md and are Claude-only (no Codex
-# equivalent). Symlink the whole dir so adding a new agent in the repo is
-# enough — no re-run of setup.sh needed.
-ln -sfn "$REPO_DIR/agents" ~/.claude/agents
-
 # Register Playwright MCP at user scope so it's available in every project.
 # Claude Code stores user-scope MCPs in ~/.claude.json under top-level
 # `mcpServers` — `mcpServers` in ~/.claude/settings.json is NOT honored.
