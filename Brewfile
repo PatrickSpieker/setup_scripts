@@ -30,7 +30,7 @@ brew "pkgconf"
 
 # ===== Database =====
 brew "mysql"
-brew "postgresql@15", restart_service: :changed
+brew "postgresql@18", restart_service: :changed
 brew "sqlite-utils", link: false
 
 # ===== Networking & Security =====
