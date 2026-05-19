@@ -18,8 +18,10 @@ Resume sessions:
 - Use `--cd` or `--add-dir` when resuming to adjust roots.
 
 Models and reasoning:
-- Default model is `gpt-5-codex` on macOS/Linux and `gpt-5` on Windows.
-- Switch mid-session with `/model` or specify on launch: `codex --model <name>`.
+- Model and reasoning effort are separate knobs. Pin both in
+  `~/.codex/config.toml`, or override on launch:
+  `codex --model gpt-5.4 --config model_reasoning_effort=high`.
+- Switch model mid-session with `/model`.
 
 Image inputs:
 - `codex -i screenshot.png "Explain this error"`
@@ -37,21 +39,32 @@ Image inputs:
 
 Avoid `--yolo` unless running in an isolated runner.
 
-## Model selection (gpt-5.2-codex family)
-Available models:
-- `gpt-5.2-codex-low`
-- `gpt-5.2-codex-med`
-- `gpt-5.2-codex-high`
-- `gpt-5.2-codex-xhigh-fast`
+## Model selection
+
+Two separate knobs:
+
+- **Model**: `gpt-5.4` (recommended general-purpose) or `gpt-5.4-mini`
+  (faster, lower-depth). Newer families (e.g. `gpt-5.5`) may exist — check
+  `codex --help` or the Codex changelog.
+- **Reasoning effort** (`model_reasoning_effort`): `minimal | low | medium |
+  high | xhigh`. `xhigh` is model-dependent.
+
+Defaults pinned in this repo:
+
+- Host (`defaults/codex-config.toml`): `gpt-5.5` + `xhigh`
+- Moat container (`defaults/codex-moat-config.toml`): `gpt-5.4` + `xhigh`
 
 Heuristics:
-- Low: fast repo scanning, simple summaries, single-file lookup.
-- Med: multi-file reading, straightforward edits, light refactors.
-- High: complex reasoning, tricky bugs, broader changes.
-- Xhigh-fast: highest difficulty or ambiguous work; use when others fail.
 
-If the task is mostly IO (searching/listing), prefer low or med with a compact prompt.
-If the task requires deep reasoning, prefer high or xhigh-fast and include more context.
+- Light reads, scans, summaries → `gpt-5.4-mini` + `low` or `medium`.
+- Default day-to-day work → `gpt-5.4` + `medium` or `high`.
+- Hardest reasoning / multi-step refactors → top model + `high` or `xhigh`.
+
+Override on launch:
+
+```
+codex --model gpt-5.4-mini --config model_reasoning_effort=low
+```
 
 ## Code reading workflow
 Start with discovery:
