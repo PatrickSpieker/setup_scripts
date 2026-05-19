@@ -1,5 +1,4 @@
 {
-  "workbench.colorTheme": "Quiet Light",
   "vim.insertModeKeyBindings": [
     {
       "before": ["j", "j"],
