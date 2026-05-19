@@ -342,17 +342,10 @@ alias glp="git log --pretty=oneline"
 
 
 # ===== PATH =====
-# Ruby (Homebrew-managed; takes precedence over system Ruby)
-export PATH="/usr/local/opt/ruby/bin:$PATH"
 # Ruby gems
 export PATH="$HOME/.gem/bin:$PATH"
 # Ruby gem executables (resolved at shell start)
 export PATH="$(gem environment gemdir)/bin:$PATH"
-# Java 18
-export JAVA_HOME="$HOME/jdk-18.0.1.1.jdk/Contents/Home"
-export PATH="$JAVA_HOME/bin:$PATH"
-# SML/NJ (not available via Homebrew)
-export PATH="$PATH:/usr/local/smlnj/bin"
 # Homebrew
 export PATH=/opt/homebrew/bin:$PATH
 # System admin binaries (standard location).
