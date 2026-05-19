@@ -7,6 +7,13 @@ description: Commit, push, and create PR in one step.
 
 Commit, push, and create PR in one step.
 
+## Hard rules
+
+- **Never push to main/master.** Always ship from a feature branch. If on main/master at start, stop and ask the user to branch.
+- **Never `git add .` or `git add -A`.** Stage specific paths only — guards against committing secrets or unrelated work.
+- **One commit unless changes are clearly separate concerns.** Same discipline as `/gh-commit`.
+- **If there are no diffs, stop.** Don't invent work to ship.
+
 ## Steps
 
 1. Safety check
@@ -58,14 +65,46 @@ git push -u origin $(git branch --show-current)
 ```bash
 gh pr view --json number,body 2>/dev/null
 ```
-- If no PR: `gh pr create --title "type(scope): desc" --body "## Summary\n- changes"`
+- If no PR: compose the body per **PR body** below, then:
+  ```bash
+  gh pr create --title "type(scope): desc" --body-file - <<'EOF'
+  <body>
+  EOF
+  ```
 - If PR exists:
   1. Read the existing PR description from the `body` field above
-  2. Update the description to account for the changes just pushed (add new bullet points, revise summary, etc.) while preserving any content that is still accurate
-  3. `gh pr edit --body "updated body"` to apply the updated description
+  2. Update it to account for the new commits — same **PR body** mental model — preserving anything still accurate
+  3. `gh pr edit --body-file -` to apply
   4. Report the PR URL
 
 Read if present: `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`.
+
+## PR body
+
+Answer three things:
+
+- **What** — strictly the interface side: the change as a consumer sees it. For a service that's the API surface (new route, changed response shape); for an end-user app it's the UI / behaviour delta; for a CLI it's the new flag or output. Nothing about implementation.
+- **How** — non-obvious implementation choices, design notes, alternatives considered and discarded, optional follow-ups. Skip when the diff speaks for itself.
+- **Verification/Testing** — tests added (unit, integration), manual smoke checks, what a reviewer should look at to confirm the change is correct.
+
+Use these as content prompts, not a mandatory template. A one-line PR ("typo fix in README") doesn't need three sections. A non-trivial change does:
+
+```markdown
+## What
+<consumer-visible change — no implementation detail>
+
+## How
+<non-obvious implementation note — omit the section if the diff speaks for itself>
+
+## Verification/Testing
+<tests added / manual smoke check>
+```
+
+## Edge cases
+
+- **Working tree has unrelated changes:** stage only the paths you intend to ship.
+- **PR already exists for the branch:** update its description with the new commits' context (step 5); don't open a duplicate.
+- **No `origin` remote:** stop — `git push` and `gh pr create` both require it.
 
 ## Moat
 
