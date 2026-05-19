@@ -61,7 +61,9 @@ Do NOT propose interfaces yet. Ask the user: "Which of these would you like to e
 
 ### 3. Grilling loop
 
-Once the user picks a candidate, drop into a grilling conversation. Walk the design tree with them — constraints, dependencies, the shape of the deepened module, what sits behind the seam, what tests survive.
+Once the user picks a candidate, drop into the grilling discipline defined in [/spec-it](../spec-it/SKILL.md) — one question at a time, recommend an answer for each, walk the design tree depth-first, cross-reference the code when claims are made. Apply it to: constraints, dependencies, the shape of the deepened module, what sits behind the seam, what tests survive.
+
+This skill does not ship a PR at the end (that's spec-it's job). It produces a sharpened refactor plan in the conversation, plus any inline CONTEXT.md / ADR updates below.
 
 Side effects happen inline as decisions crystallize:
 

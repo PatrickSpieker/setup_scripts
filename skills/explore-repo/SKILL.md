@@ -1,16 +1,16 @@
 ---
 name: explore-repo
-description: Perform a structured codebase exploration to build deep understanding before planning or building.
+description: Perform a structured codebase exploration to build deep understanding before planning or building. Natural precursor to `/spec-it` — the exploration summary becomes the grounding for the grilling that produces the plan.
 ---
 
 # Explore Repo
 
-Perform a live, structured exploration of a codebase to build deep understanding before planning or building.
+Perform a live, structured exploration of a codebase to build deep understanding before planning or building. Pipeline: `/explore-repo → /spec-it → PR`.
 
 ## Philosophy
 
 - Every exploration is **live discovery**. Do not rely on cached summaries or stale documentation. Read the actual code — it changes faster than docs can keep up.
-- Think like a **staff engineer onboarding** to a new codebase: curious, thorough, methodical. Ask open-ended questions about architecture, trade-offs, and the "why" behind decisions — not just "what files exist."
+- Think like a **staff engineer** who is onboarding to a new codebase: curious, thorough, methodical. Ask open-ended questions about architecture, trade-offs, and the "why" behind decisions — not just "what files exist."
 - The goal is to **fill the context window with relevant, high-quality information** so that subsequent planning has everything it needs. You are not building anything yet.
 
 ## When to use
@@ -86,6 +86,7 @@ At the end of exploration, produce a structured summary for use as planning inpu
 ## Exploration Summary
 
 ### Tech Stack
+
 - Language: ...
 - Framework: ...
 - Key Dependencies: ...
@@ -94,23 +95,31 @@ At the end of exploration, produce a structured summary for use as planning inpu
 - CI/CD: ...
 
 ### Architecture Diagram
+
 (ASCII or Mermaid diagram of major components)
 
 ### Key Patterns
+
 - **Pattern Name**: Brief description → `path/to/example.ts`
 
 ### Conventions to Follow
+
 - (Specific conventions observed in the code)
 
 ### Relevant Files for [Task]
+
 - `path/to/file.ts` — why it's relevant
 
 ### Similar Prior Art
+
 - (Similar implementations in the codebase)
 
 ### Open Questions
+
 - (Anything that needs human input)
 ```
+
+Hand this summary to `/spec-it` to start grilling the user about implementation intent.
 
 ## Rules
 

@@ -47,14 +47,11 @@ setup_scripts/
 │   ├── gh-address-pr-comments/ # Resolve PR review comments
 │   ├── pr-screenshots/      #   Capture Playwright screenshots for PR walkthrough
 │   ├── make-tests/          #   Generate tests for current changes
-│   ├── design-doc/          #   Structured design documents
 │   ├── de-slop/             #   Remove AI artifacts before PR
 │   ├── explore-repo/        #   Structured codebase exploration
 │   ├── work-forever/        #   Autonomous long-running mode
 │   ├── subagent/            #   Delegate to Codex exec subagent
 │   ├── new-skill/           #   Create a new skill
-│   ├── new-cmd/             #   Create a new command
-│   ├── delegate-cursor-background-task/ # Hand off work to Cursor agent
 │   ├── youtube-extractor/   #   Extract YouTube transcripts + metadata
 │   ├── pdf-viewing/         #   OCR and rasterize PDFs
 │   ├── cc-llms/             #   Claude Developer Platform context (bundled llms.txt)
@@ -81,7 +78,6 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 | `pr-screenshots` | Capture Playwright screenshots for each user journey and embed them in the PR description |
 | `make-tests` | Add tests for the change you're working on |
 | `tdd` | Test-driven development with red-green-refactor loop |
-| `design-doc` | Format implementation plans as structured design documents |
 | `de-slop` | Remove AI artifacts and cleanup noise before a PR |
 | `explore-repo` | Structured codebase exploration before planning or building |
 | `vscode-review` | Open every changed file on the current branch in a new VS Code window — a `--diff` tab and a live-file tab per file. Use to review local Claude/Codex output before committing |
@@ -92,12 +88,8 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 | `work-forever` | Run in highly autonomous mode for long-running tasks |
 | `subagent` | Delegate exploration to a non-interactive Codex exec run |
 | `new-skill` | Create a new skill from conversation history |
-| `new-cmd` | Create a new command from conversation history |
-| `to-prd` | Turn the current conversation context into a PRD and submit it as a GitHub issue |
-| `delegate-cursor-background-task` | Create a GitHub/Linear ticket for Cursor's background agent |
 | `youtube-extractor` | Extract transcripts, titles, and thumbnails from YouTube videos |
 | `pdf-viewing` | OCR PDFs with page tracking and rasterize to images |
-| `pdf-to-epub-md` | Batch-convert PDFs in the current dir to EPUB-bound markdown via marker, then dispatch one `epub-md-formatter` agent per book to clean each output |
 | `cc-llms` | Load context on the Claude Developer Platform from a bundled llms.txt reference |
 | `codex-llms-full` | Load context on OpenAI Codex (CLI, IDE, cloud, SDK) from a bundled llms.txt reference |
 | `linear-llms` | Load context on Linear (issues, GraphQL API, SDK) from a bundled llms.txt index |
