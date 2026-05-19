@@ -83,17 +83,17 @@ Read if present: `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`.
 
 Answer three things:
 
-- **What** — strictly the interface side: the change as a consumer sees it. For a service that's the API surface (new route, changed response shape); for an end-user app it's the UI / behaviour delta; for a CLI it's the new flag or output. Nothing about implementation.
-- **How** — non-obvious implementation choices, design notes, alternatives considered and discarded, optional follow-ups. Skip when the diff speaks for itself.
+- **Interface Changes** — strictly the consumer side: the change as a consumer sees it. For a service that's the API surface (new route, changed response shape); for an end-user app it's the UI / behaviour delta; for a CLI it's the new flag or output. Nothing about implementation. **May be empty for pure internal refactors** — keep the section header for structural consistency and write `none — internal refactor` (or equivalent) as the body.
+- **Implementation Changes** — non-obvious implementation choices, design notes, alternatives considered and discarded, optional follow-ups. Skip when the diff speaks for itself.
 - **Test Plan** — tests added (unit, integration), manual smoke checks, what a reviewer should look at to confirm the change is correct. **When the PR adds or updates automated tests, include a fenced `bash` code block with the exact command(s) to run them** so a reviewer (or CI) can copy-paste. **If the test plan needs multiple executable steps, give each its own fenced block** — one copy-button click per step, no manual splitting required. Skip blocks entirely when there's nothing automated to run (e.g., docs-only changes, manual-smoke-only).
 
 Use these as content prompts, not a mandatory template. A one-line PR ("typo fix in README") doesn't need three sections. A non-trivial change does:
 
 ````markdown
-## What
-<consumer-visible change — no implementation detail>
+## Interface Changes
+<consumer-visible change — no implementation detail; for pure refactors: `none — internal refactor`>
 
-## How
+## Implementation Changes
 <non-obvious implementation note — omit the section if the diff speaks for itself>
 
 ## Test Plan
