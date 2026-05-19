@@ -1,12 +1,6 @@
 ---
 name: render-monitor
 description: Monitor Render services in real-time. Check health, performance metrics, logs, and resource usage. Use when users want to check service status, view metrics, monitor performance, or verify deployments are healthy.
-license: MIT
-compatibility: Requires Render MCP tools or CLI
-metadata:
-  author: Render
-  version: "1.0.0"
-  category: monitoring
 ---
 
 # Monitor Render Services
