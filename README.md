@@ -68,6 +68,7 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 | `zoom-out` | Get a higher-level map of an unfamiliar area of code, using the language in CONTEXT.md |
 | `improve-codebase-architecture` | Find deepening refactoring opportunities informed by CONTEXT.md and docs/adr/ |
 | `spec-it` | Grill the user one question at a time to extract a complete implementation plan into context, update CONTEXT.md / ADRs as terms and decisions resolve, then ship the plan as a `spec/<slug>` PR off main with the plan as the description |
+| `ubiquitous-language` | Drill-sergeant for the domain language. Reads/writes `language.md`, asks one DDD-loaded question at a time — surfacing missing behavior, false cognates, duplicate concepts, weak definitions — until the user explicitly stops |
 | `work-forever` | Run in highly autonomous mode for long-running tasks |
 | `subagent` | Delegate exploration to a non-interactive Codex exec run |
 | `new-skill` | Create a new skill from conversation history |
