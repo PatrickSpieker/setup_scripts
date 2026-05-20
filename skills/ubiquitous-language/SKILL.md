@@ -70,7 +70,7 @@ When the user describes something and uses 8+ words for a concept that recurs, s
 The fastest way to find a hole in the language is to use it in a scenario, out loud, in complete sentences. Ask the user to walk through a real workflow ("a new patient is referred and a primary caregiver is assigned and they want to add a backup") using *only* terms from `language.md`. If they have to reach outside the UL or hand-wave, they have found a missing term.
 
 ### 8. Distill.
-Adding is easy. Subtracting is hard and more important. Periodically (every ~20 minutes of work, or when the file crosses ~30 terms), ask: *which of these have we not used in a real scenario in the last hour? Which are noise?* Be willing to delete or move terms to an "Archived / Considered" section.
+Adding is easy. Subtracting is hard and more important. Periodically (every ~20 minutes of work, or when the file crosses ~30 terms), ask: *which of these have we not used in a real scenario in the last hour? Which are noise?* Be willing to delete them — git history is the audit trail (model history = code history).
 
 ### 9. Code-only words and chat-only words are both broken.
 If a term lives in code but never in conversation, it is probably an implementation artifact, not a domain concept. (`UserPreferencesDTO` is not domain language.) If a term lives in conversation but never in code, the code is lying about what the system does. Either direction is a tell.
