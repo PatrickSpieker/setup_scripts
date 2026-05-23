@@ -147,6 +147,27 @@ def test_mixed_day_splits_per_agent(plugin, claude_data, codex_data):
     assert claude_15["cost"] + codex_15["cost"] == pytest.approx(5.00)
 
 
+# ─── cache line rendering ───────────────────────────────────────────────────
+
+def test_codex_cache_line_omits_creation(plugin, capsys):
+    """Codex reports no cache-creation metric, so its cache line must show only
+    reads — never a misleading '/ 0 created'."""
+    codex_today = {"cost": 5.81, "output": 20123, "cache_read": 6316800, "cache_create": 0}
+    plugin._print_agent_today("🟢", "Codex", codex_today, plugin.COLOR_CODEX,
+                              show_cache_create=False)
+    out = capsys.readouterr().out
+    assert "read" in out
+    assert "created" not in out
+
+
+def test_claude_cache_line_keeps_creation(plugin, capsys):
+    claude_today = {"cost": 70.0, "output": 1000, "cache_read": 100000, "cache_create": 5000}
+    plugin._print_agent_today("🟠", "Claude Code", claude_today, plugin.COLOR_CLAUDE,
+                              show_cache_create=True)
+    out = capsys.readouterr().out
+    assert "read" in out and "created" in out
+
+
 # ─── formatting ─────────────────────────────────────────────────────────────
 
 def test_fmt_cost_zero(plugin):

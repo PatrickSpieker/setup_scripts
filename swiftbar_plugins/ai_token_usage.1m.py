@@ -216,13 +216,18 @@ def render_error(err):
     print("Refresh | refresh=true")
 
 
-def _print_agent_today(emoji, name, totals, color):
+def _print_agent_today(emoji, name, totals, color, show_cache_create=True):
     if totals["cost"] > 0:
         print(f"{emoji}  {name}: {fmt_cost(totals['cost'])} | {FONT_LABEL} color={color}")
         print(f"--Output: {fmt_tokens(totals['output'])} tokens | {FONT_SMALL} color={COLOR_DIM}")
-        if totals["cache_read"] > 0 or totals["cache_create"] > 0:
-            print(f"--Cache: {fmt_tokens(totals['cache_read'])} read / "
-                  f"{fmt_tokens(totals['cache_create'])} created | {FONT_SMALL} color={COLOR_DIM}")
+        # Codex's ccusage record exposes only cache reads (cachedInputTokens);
+        # it has no cache-creation metric, so suppress the "/ N created" half
+        # rather than render a misleading "/ 0 created".
+        if totals["cache_read"] > 0 or (show_cache_create and totals["cache_create"] > 0):
+            cache = f"{fmt_tokens(totals['cache_read'])} read"
+            if show_cache_create:
+                cache += f" / {fmt_tokens(totals['cache_create'])} created"
+            print(f"--Cache: {cache} | {FONT_SMALL} color={COLOR_DIM}")
     else:
         print(f"{emoji}  {name}: {fmt_cost(0)} | {FONT_SMALL} color={COLOR_DIM}")
 
@@ -255,8 +260,10 @@ def render():
     # ── TODAY ───────────────────────────────────────────────────────────
     print(f"📊  TODAY ({today}) | {FONT_LABEL} color={COLOR_HEADER}")
     print("---")
-    _print_agent_today("🟠", "Claude Code", claude_today, COLOR_CLAUDE)
-    _print_agent_today("🟢", "Codex", codex_today, COLOR_CODEX)
+    _print_agent_today("🟠", "Claude Code", claude_today, COLOR_CLAUDE,
+                       show_cache_create=AGENTS["claude"]["cache_create_key"] is not None)
+    _print_agent_today("🟢", "Codex", codex_today, COLOR_CODEX,
+                       show_cache_create=AGENTS["codex"]["cache_create_key"] is not None)
     print("---")
     print(f"Today: {fmt_cost(combined_today)} | {FONT_LABEL} color={COLOR_TOTAL}")
 
