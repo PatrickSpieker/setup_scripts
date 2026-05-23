@@ -46,10 +46,14 @@ git diff --stat
 
 If the PR was `MERGED`/`CLOSED` (step 1), don't push to this branch — **auto-recover, no prompt**: move the fixes to a fresh branch off HEAD and open a new PR.
 ```bash
+default_branch=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name)
+git fetch origin "$default_branch:$default_branch" 2>/dev/null || git fetch origin "$default_branch"  # ff default; avoids a stale-base branch
 cur=$(git branch --show-current)
 new="${cur}-followup"
 git rev-parse --verify "$new" 2>/dev/null && new="${new}-$(date +%H%M%S)"
 git checkout -b "$new"
+# Independent of the merged PR (not a follow-up)? base on the fresh default instead:
+# git stash -u && git checkout -b "$new" "origin/$default_branch" && git stash pop
 ```
 Otherwise push to the open PR's branch:
 ```bash

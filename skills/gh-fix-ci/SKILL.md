@@ -34,10 +34,14 @@ gh pr view --json state,number,url -q '"\(.state) #\(.number) \(.url)"' 2>/dev/n
 ```
 - If state is `MERGED`/`CLOSED`, pushing here strands the fix. **Auto-recover, no prompt** — move the fix to a fresh branch off HEAD and open a new PR for it:
   ```bash
+  default_branch=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name)
+  git fetch origin "$default_branch:$default_branch" 2>/dev/null || git fetch origin "$default_branch"  # ff default; avoids a stale-base branch
   cur=$(git branch --show-current)
   new="${cur}-followup"
   git rev-parse --verify "$new" 2>/dev/null && new="${new}-$(date +%H%M%S)"
   git checkout -b "$new"
+  # Independent of the merged PR (not a follow-up)? base on the fresh default instead:
+  # git stash -u && git checkout -b "$new" "origin/$default_branch" && git stash pop
   ```
   Push `$new` and `gh pr create` a new PR; report it to the user. (A merged PR also means there's no live CI run to re-green — surface that.)
 - If `OPEN`/`NONE`, push normally:
