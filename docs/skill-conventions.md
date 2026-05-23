@@ -4,7 +4,8 @@ Canonical reference for authoring and maintaining skills in this repo.
 
 ## Directory Structure
 
-Every skill lives at `skills/<skill-name>/` with at minimum a `SKILL.md`.
+Global skills in this repo live at `skills/<skill-name>/` with at minimum a
+`SKILL.md`.
 
 ```
 skills/<skill-name>/
@@ -13,6 +14,11 @@ skills/<skill-name>/
   references/       # Optional. Reference material (docs, llms.txt files).
   resources/        # Optional. Bundled assets or sub-references.
 ```
+
+Project-specific skills should live in the target repo at
+`.agents/skills/<skill-name>/`. When Claude Code also needs those repo-local
+skills, keep `.claude/skills` as a symlink to `../.agents/skills` so Codex and
+Claude read the same source of truth.
 
 ## SKILL.md Format
 
