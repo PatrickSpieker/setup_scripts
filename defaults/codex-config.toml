@@ -1,22 +1,20 @@
 model = "gpt-5.5"
-model_reasoning_effort = "xhigh"
+model_reasoning_effort = "medium"
 
-notify = ["/Users/patrickspieker/.codex/plugins/cache/openai-bundled/computer-use/1.0.755/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended"]
+
+notify = ["/Users/patrickspieker/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended"]
 
 [marketplaces.openai-bundled]
-last_updated = "2026-04-24T20:28:30Z"
+last_updated = "2026-05-23T20:39:49Z"
 source_type = "local"
 source = "/Users/patrickspieker/.codex/.tmp/bundled-marketplaces/openai-bundled"
 
 [marketplaces.openai-primary-runtime]
-last_updated = "2026-04-24T15:50:35Z"
+last_updated = "2026-05-23T19:50:57Z"
 source_type = "local"
 source = "/Users/patrickspieker/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
 
 [plugins."computer-use@openai-bundled"]
-enabled = true
-
-[plugins."browser-use@openai-bundled"]
 enabled = true
 
 [plugins."documents@openai-primary-runtime"]
@@ -26,6 +24,15 @@ enabled = true
 enabled = true
 
 [plugins."presentations@openai-primary-runtime"]
+enabled = true
+
+[plugins."linear@openai-curated"]
+enabled = true
+
+[plugins."figma@openai-curated"]
+enabled = true
+
+[plugins."browser@openai-bundled"]
 enabled = true
 
 [projects."/Users/patrickspieker/code/antaeus/hdw-app"]
@@ -40,11 +47,26 @@ trust_level = "trusted"
 [projects."/Users/patrickspieker/code/antaeus/api"]
 trust_level = "trusted"
 
+[projects."/Users/patrickspieker/Documents/Codex/2026-05-23/let-s-connect-figma-here"]
+trust_level = "trusted"
+
+[projects."/Users/patrickspieker/Documents/Codex/2026-05-23/also-let-s-connect-xcode"]
+trust_level = "trusted"
+
+[projects."/Users/patrickspieker/Documents/Codex/2026-05-23/okay-xcode-is-connected-via-the"]
+trust_level = "trusted"
+
+[projects."/Users/patrickspieker/Documents/Codex/2026-05-23/i-m-on-a-mac-and"]
+trust_level = "trusted"
+
+[projects."/Users/patrickspieker/Documents/Codex/2026-05-23/planning-to-hike-from-paradise-to"]
+trust_level = "trusted"
+
 [mcp_servers.xcode]
 command = "xcrun"
 args = ["mcpbridge"]
 
-[mcp_servers.xcode.tools.XcodeListWindows]
+[mcp_servers.xcode.tools.BuildProject]
 approval_mode = "approve"
 
 [mcp_servers.xcode.tools.GetTestList]
@@ -53,5 +75,41 @@ approval_mode = "approve"
 [mcp_servers.xcode.tools.RunSomeTests]
 approval_mode = "approve"
 
-[mcp_servers.xcode.tools.BuildProject]
+[mcp_servers.xcode.tools.XcodeListWindows]
 approval_mode = "approve"
+
+[mcp_servers.node_repl]
+command = "/Applications/Codex.app/Contents/Resources/node_repl"
+startup_timeout_sec = 120.0
+
+[mcp_servers.node_repl.env]
+BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
+BROWSER_USE_MARKETPLACE_NAME = "openai-bundled"
+CODEX_CLI_PATH = "/Applications/Codex.app/Contents/Resources/codex"
+CODEX_HOME = "/Users/patrickspieker/.codex"
+NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
+NODE_REPL_NODE_MODULE_DIRS = ""
+NODE_REPL_NODE_PATH = "/Applications/Codex.app/Contents/Resources/node"
+NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "167fdf579477181fba1773c1efb067b00c5a64fe85dafb50a2001bde198dc739"
+NODE_REPL_TRUSTED_CODE_PATHS = "/Users/patrickspieker/.codex"
+NODE_REPL_UNTRUSTED_ENV_ALLOWLIST = "BROWSER_USE_MARKETPLACE_NAME"
+SKY_CUA_SERVICE_PATH = "/Users/patrickspieker/.codex/.tmp/bundled-marketplaces/openai-bundled/plugins/computer-use/Codex Computer Use.app"
+
+[mcp_servers.XcodeBuildMCP]
+command = "xcodebuildmcp"
+args = ["mcp"]
+
+[mcp_servers.playwright]
+command = "npx"
+args = ["-y", "@playwright/mcp@latest", "--isolated"]
+
+[desktop]
+
+[desktop.open-in-target-preferences]
+global = "vscode"
+
+[desktop.open-in-target-preferences.perPath]
+"/Users/patrickspieker/code/hdw/HDW" = "vscode"
+
+[features]
+js_repl = false
