@@ -1,0 +1,34 @@
+{
+  "daily": [
+    {
+      "date": "2026-05-19",
+      "modelsUsed": ["claude-opus-4-7"],
+      "inputTokens": 1000,
+      "outputTokens": 2000,
+      "cacheCreationTokens": 500,
+      "cacheReadTokens": 10000,
+      "totalTokens": 13500,
+      "totalCost": 1.23
+    },
+    {
+      "date": "2026-05-15",
+      "modelsUsed": ["claude-opus-4-7"],
+      "inputTokens": 8000,
+      "outputTokens": 2500,
+      "cacheCreationTokens": 100,
+      "cacheReadTokens": 18000,
+      "totalTokens": 28600,
+      "totalCost": 4.00
+    },
+    {
+      "date": "2026-05-10",
+      "modelsUsed": ["claude-opus-4-6"],
+      "inputTokens": 500,
+      "outputTokens": 800,
+      "cacheCreationTokens": 0,
+      "cacheReadTokens": 5000,
+      "totalTokens": 6300,
+      "totalCost": 2.00
+    }
+  ]
+}
