@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # <xbar.title>AI Token Leaderboard</xbar.title>
-# <xbar.version>v2.0</xbar.version>
+# <xbar.version>v3.0</xbar.version>
 # <xbar.author>Patrick Spieker</xbar.author>
 # <xbar.desc>Token usage leaderboard for Claude Code and OpenAI Codex</xbar.desc>
 # <xbar.dependencies>python,node</xbar.dependencies>
@@ -20,13 +20,34 @@ NPX_CANDIDATES = [NPX, "/opt/homebrew/bin/npx", "/usr/local/bin/npx", "/usr/bin/
 # Pinned to a major. Previous code used `@latest` for both `ccusage` and the
 # now-deprecated `@ccusage/codex`; when ccusage v19 renamed `date` → `period`
 # and folded the Codex CLI in, the menu bar silently rendered $0.00 for weeks.
-# Bump the major here after eyeballing a real `ccusage daily --json` and
-# confirming the schema in tests/fixtures/ccusage_daily.json still matches.
+# Bump the major here after eyeballing real `ccusage claude daily --json` /
+# `ccusage codex daily --json` output and confirming the fixtures in
+# tests/fixtures/ still match.
 CCUSAGE_PKG = "ccusage@19"
 
-# Fields every ccusage daily record must carry. If any record is missing one,
-# the schema has drifted and we render a loud error instead of silent zeros.
-REQUIRED_FIELDS = ("period", "totalCost", "metadata")
+# Per-agent ccusage subcommands. v19's *merged* `ccusage daily` collapses any
+# day where both tools ran into ONE record tagged metadata.agents:[claude,codex]
+# with a single combined cost and no per-agent split — so an agent-bucketing
+# approach shows the full day's cost under both agents (they look identical).
+# The per-agent subcommands are the only accurate source, but they disagree on
+# field names, so each carries the keys needed to normalize it:
+#   - cost_key:         claude → totalCost, codex → costUSD
+#   - cache_read_key:   claude → cacheReadTokens, codex → cachedInputTokens
+#   - cache_create_key: codex has no cache-creation concept (None → 0)
+AGENTS = {
+    "claude": {
+        "subcmd": ["claude", "daily"],
+        "cost_key": "totalCost",
+        "cache_read_key": "cacheReadTokens",
+        "cache_create_key": "cacheCreationTokens",
+    },
+    "codex": {
+        "subcmd": ["codex", "daily"],
+        "cost_key": "costUSD",
+        "cache_read_key": "cachedInputTokens",
+        "cache_create_key": None,
+    },
+}
 
 # Colors
 COLOR_CLAUDE = "#D97757"
@@ -53,54 +74,57 @@ class CcusageError(Exception):
     """ccusage returned something unparseable or schema-incompatible."""
 
 
-def fetch_usage(timeout=30):
-    """Run `ccusage daily --since … --json` for the last 30 days.
+def fetch_agent(agent, timeout=30):
+    """Run `ccusage <agent> daily --since … --json` for the last 30 days.
 
-    Returns the list of daily records. Raises CcusageError for any failure
-    mode — non-zero exit, empty stdout, non-JSON stdout (the deprecation-message
-    failure mode that bit us last time lands here), or records missing
-    REQUIRED_FIELDS. The caller renders an error sentinel in the menu bar.
+    Returns that agent's daily records, normalized to the canonical shape (see
+    normalize). Raises CcusageError for any failure mode — non-zero exit, empty
+    stdout, non-JSON stdout (the deprecation-message failure mode that bit us
+    last time lands here), or records missing the agent's required raw fields.
+    The caller renders an error sentinel in the menu bar.
     """
+    spec = AGENTS[agent]
     npx = find_npx()
     env = os.environ.copy()
     env["PATH"] = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:" + env.get("PATH", "")
     since = (datetime.now() - timedelta(days=30)).strftime("%Y%m%d")
     try:
         result = subprocess.run(
-            [npx, "-y", CCUSAGE_PKG, "daily", "--since", since, "--json"],
+            [npx, "-y", CCUSAGE_PKG, *spec["subcmd"], "--since", since, "--json"],
             capture_output=True, text=True, timeout=timeout, env=env,
         )
     except (subprocess.TimeoutExpired, FileNotFoundError) as e:
-        raise CcusageError(f"npx failed: {e}") from e
+        raise CcusageError(f"npx failed ({agent}): {e}") from e
 
     if result.returncode != 0:
-        raise CcusageError(f"ccusage exit {result.returncode}: {result.stderr.strip()[:200]}")
+        raise CcusageError(f"ccusage {agent} exit {result.returncode}: {result.stderr.strip()[:200]}")
 
     stdout = result.stdout.strip()
     if not stdout:
-        raise CcusageError("ccusage returned empty stdout")
+        raise CcusageError(f"ccusage {agent} returned empty stdout")
 
     try:
         data = json.loads(stdout)
     except json.JSONDecodeError as e:
-        raise CcusageError(f"ccusage stdout was not JSON: {stdout[:120]}") from e
+        raise CcusageError(f"ccusage {agent} stdout was not JSON: {stdout[:120]}") from e
 
-    return parse_records(data)
+    raw = parse_records(data, required=("date", spec["cost_key"]))
+    return normalize(raw, agent)
 
 
-def parse_records(data):
-    """Validate and unwrap a parsed ccusage daily response.
+def parse_records(data, required=("date", "totalCost")):
+    """Validate and unwrap a parsed ccusage per-agent daily response.
 
-    Split out from fetch_usage so tests can hit it directly with a fixture
+    Split out from fetch_agent so tests can hit it directly with a fixture
     without shelling out to npx. Empty record lists are allowed (means "no
     usage in the last 30 days"); the schema check only fires when records
-    exist but don't match what we expect.
+    exist but don't carry the agent's `required` raw fields.
     """
     records = data.get("daily") if isinstance(data, dict) else data
     if not isinstance(records, list):
         raise CcusageError(f"unexpected ccusage shape: top-level was {type(data).__name__}")
     if records:
-        missing = [f for f in REQUIRED_FIELDS if f not in records[0]]
+        missing = [f for f in required if f not in records[0]]
         if missing:
             raise CcusageError(
                 f"ccusage record missing fields {missing}; "
@@ -109,34 +133,29 @@ def parse_records(data):
     return records
 
 
-def agents_of(record):
-    """Return the set of agents that contributed to a daily record.
+def normalize(records, agent):
+    """Map an agent's raw ccusage records to one canonical shape.
 
-    ccusage v19 emits one record per date with `metadata.agents` listing
-    every agent that ran that day. A mixed-agent day (`["claude", "codex"]`)
-    has aggregated totals with no per-agent split available, so callers
-    that bucket by agent need to decide what to do — see bucket_by_agent.
+    The per-agent subcommands disagree on field names — `claude daily` uses
+    totalCost / cacheReadTokens / cacheCreationTokens; `codex daily` uses
+    costUSD / cachedInputTokens and has no cache-creation concept. Translate
+    both to claude-style keys so extract_totals stays agent-agnostic. The
+    canonical `period` key (vs the raw `date`) keeps period_filter prefixing
+    identical to the rest of the plugin.
     """
-    return set((record.get("metadata") or {}).get("agents") or [])
-
-
-def bucket_by_agent(records):
-    """Tag each record with every agent that contributed to it.
-
-    Mixed-agent records land in BOTH buckets. That intentionally
-    overcounts per-agent totals on mixed days (claude_today + codex_today
-    can exceed total_today) — but ccusage doesn't expose a per-agent split
-    for mixed days, so this is the most honest we can be. Use the full
-    record list for day/month/total figures; use the buckets only for
-    per-agent rows.
-    """
-    buckets = {"claude": [], "codex": []}
+    spec = AGENTS[agent]
+    out = []
     for r in records:
-        a = agents_of(r)
-        for name in ("claude", "codex"):
-            if name in a:
-                buckets[name].append(r)
-    return buckets
+        out.append({
+            "period":              r.get("date", ""),
+            "totalCost":           float(r.get(spec["cost_key"]) or 0),
+            "inputTokens":         int(r.get("inputTokens") or 0),
+            "outputTokens":        int(r.get("outputTokens") or 0),
+            "cacheReadTokens":     int(r.get(spec["cache_read_key"]) or 0),
+            "cacheCreationTokens": int(r.get(spec["cache_create_key"]) or 0),
+            "totalTokens":         int(r.get("totalTokens") or 0),
+        })
+    return out
 
 
 def extract_totals(records, period_filter=None):
@@ -185,7 +204,7 @@ def fmt_cost(c):
 def render_error(err):
     """Distinct error state — never let ccusage failure look like a quiet day.
 
-    The previous version swallowed ccusage failures and rendered $0.00, which
+    A previous version swallowed ccusage failures and rendered $0.00, which
     was indistinguishable from "you didn't use any AI today." This makes
     upstream breakage visible at a glance.
     """
@@ -210,7 +229,8 @@ def _print_agent_today(emoji, name, totals, color):
 
 def render():
     try:
-        records = fetch_usage()
+        claude_records = fetch_agent("claude")
+        codex_records  = fetch_agent("codex")
     except CcusageError as e:
         render_error(e)
         return
@@ -218,16 +238,15 @@ def render():
     today = datetime.now().strftime("%Y-%m-%d")
     month = datetime.now().strftime("%Y-%m")
 
-    by_agent = bucket_by_agent(records)
-
-    # Per-agent rows can overcount on mixed days. Day/month totals always
-    # come from the full record list so the menu bar number is exact.
-    claude_today = extract_totals(by_agent["claude"], period_filter=today)
-    codex_today  = extract_totals(by_agent["codex"],  period_filter=today)
-    claude_month = extract_totals(by_agent["claude"], period_filter=month)
-    codex_month  = extract_totals(by_agent["codex"],  period_filter=month)
-    combined_today = extract_totals(records, period_filter=today)["cost"]
-    combined_month = extract_totals(records, period_filter=month)["cost"]
+    # Each agent's records come from its own subcommand, so per-agent figures
+    # are exact and combined totals are simply their sum — no mixed-day
+    # double counting.
+    claude_today = extract_totals(claude_records, period_filter=today)
+    codex_today  = extract_totals(codex_records,  period_filter=today)
+    claude_month = extract_totals(claude_records, period_filter=month)
+    codex_month  = extract_totals(codex_records,  period_filter=month)
+    combined_today = claude_today["cost"] + codex_today["cost"]
+    combined_month = claude_month["cost"] + codex_month["cost"]
 
     # ── Menu bar ────────────────────────────────────────────────────────
     print(f"⚡ {fmt_cost(combined_today)} | {FONT_MONO}")
@@ -267,12 +286,11 @@ def render():
     for i in range(7):
         d = (datetime.now() - timedelta(days=i)).strftime("%Y-%m-%d")
         d_short = (datetime.now() - timedelta(days=i)).strftime("%a %m/%d")
-        ct = extract_totals(by_agent["claude"], period_filter=d)
-        cx = extract_totals(by_agent["codex"], period_filter=d)
-        day_cost = extract_totals(records, period_filter=d)["cost"]
+        ct = extract_totals(claude_records, period_filter=d)
+        cx = extract_totals(codex_records, period_filter=d)
+        day_cost = ct["cost"] + cx["cost"]
         if day_cost > 0:
-            bar_total = ct["cost"] + cx["cost"]
-            c_pct = ct["cost"] / bar_total if bar_total else 0
+            c_pct = ct["cost"] / day_cost if day_cost else 0
             c_bar = "🟠" * max(1, round(c_pct * 8)) if ct["cost"] > 0 else ""
             x_bar = "🟢" * max(1, round((1 - c_pct) * 8)) if cx["cost"] > 0 else ""
             print(f"--{d_short}  {fmt_cost(day_cost):>7s}  {c_bar}{x_bar} | {FONT_SMALL}")

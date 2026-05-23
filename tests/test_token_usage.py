@@ -3,8 +3,12 @@
 The plugin renders silently broken zeros when ccusage's JSON shape drifts
 (empirically: ccusage v19 renamed `date` → `period` and absorbed the
 @ccusage/codex CLI, and the plugin showed $0.00 for weeks before anyone
-noticed). The fixture in tests/fixtures/ccusage_daily.json captures the
-current ccusage v19 shape; bump it deliberately when bumping the major in
+noticed). It also used to show identical per-agent costs on any day both
+tools ran, because the *merged* `ccusage daily` collapses such days into one
+record with no per-agent split. v3 fixes that by calling the per-agent
+subcommands (`ccusage claude daily` / `ccusage codex daily`) and normalizing
+their two different schemas. The fixtures in tests/fixtures/ capture the
+current per-agent shapes; bump them deliberately when bumping the major in
 the plugin's CCUSAGE_PKG.
 """
 
@@ -16,7 +20,7 @@ import pytest
 
 REPO_DIR = Path(__file__).resolve().parent.parent
 PLUGIN = REPO_DIR / "swiftbar_plugins" / "ai_token_usage.1m.py"
-FIXTURE = REPO_DIR / "tests" / "fixtures" / "ccusage_daily.json"
+FIXTURES = REPO_DIR / "tests" / "fixtures"
 
 
 def _load_plugin():
@@ -34,31 +38,47 @@ def plugin():
 
 
 @pytest.fixture
-def fixture_data():
-    return json.loads(FIXTURE.read_text())
+def claude_data():
+    return json.loads((FIXTURES / "ccusage_claude_daily.json").read_text())
 
 
-def test_parse_records_unwraps_daily_key(plugin, fixture_data):
-    records = plugin.parse_records(fixture_data)
-    assert len(records) == 4
-    assert records[0]["period"] == "2026-05-19"
+@pytest.fixture
+def codex_data():
+    return json.loads((FIXTURES / "ccusage_codex_daily.json").read_text())
 
 
-def test_parse_records_accepts_bare_list(plugin, fixture_data):
+# ─── parse_records ──────────────────────────────────────────────────────────
+
+def test_parse_records_unwraps_daily_key(plugin, claude_data):
+    records = plugin.parse_records(claude_data, required=("date", "totalCost"))
+    assert len(records) == 3
+    assert records[0]["date"] == "2026-05-19"
+
+
+def test_parse_records_accepts_bare_list(plugin, claude_data):
     # Some ccusage versions might emit a top-level list instead of {"daily":...}.
-    records = plugin.parse_records(fixture_data["daily"])
-    assert len(records) == 4
+    records = plugin.parse_records(claude_data["daily"], required=("date", "totalCost"))
+    assert len(records) == 3
+
+
+def test_parse_records_validates_per_agent_cost_key(plugin, codex_data):
+    # Codex uses costUSD, not totalCost — parse_records must accept the key the
+    # caller declares, and reject when it's absent.
+    records = plugin.parse_records(codex_data, required=("date", "costUSD"))
+    assert len(records) == 2
+    with pytest.raises(plugin.CcusageError, match="missing fields"):
+        plugin.parse_records(codex_data, required=("date", "totalCost"))
 
 
 def test_parse_records_raises_on_missing_required_fields(plugin):
-    bad = {"daily": [{"date": "2026-05-19", "cost": 1.0}]}  # old v18 shape
+    bad = {"daily": [{"day": "2026-05-19", "cost": 1.0}]}  # old/foreign shape
     with pytest.raises(plugin.CcusageError, match="missing fields"):
-        plugin.parse_records(bad)
+        plugin.parse_records(bad, required=("date", "totalCost"))
 
 
 def test_parse_records_raises_on_unexpected_shape(plugin):
     with pytest.raises(plugin.CcusageError, match="unexpected ccusage shape"):
-        plugin.parse_records("use npx ccusage instead")  # the v18 deprecation msg
+        plugin.parse_records("use npx ccusage instead")  # a deprecation msg
 
 
 def test_parse_records_accepts_empty_list(plugin):
@@ -67,61 +87,67 @@ def test_parse_records_accepts_empty_list(plugin):
     assert plugin.parse_records({"daily": []}) == []
 
 
-def test_bucket_by_agent_splits_pure_records(plugin, fixture_data):
-    records = plugin.parse_records(fixture_data)
-    by_agent = plugin.bucket_by_agent(records)
-    claude_periods = {r["period"] for r in by_agent["claude"]}
-    codex_periods = {r["period"] for r in by_agent["codex"]}
-    # 2026-05-15 is mixed and lands in both buckets
-    assert claude_periods == {"2026-05-19", "2026-05-10", "2026-05-15"}
-    assert codex_periods == {"2026-05-12", "2026-05-15"}
+# ─── normalize ──────────────────────────────────────────────────────────────
+
+def test_normalize_claude_maps_canonical_keys(plugin, claude_data):
+    records = plugin.normalize(claude_data["daily"], "claude")
+    r = records[0]
+    assert r["period"] == "2026-05-19"          # date → period
+    assert r["totalCost"] == pytest.approx(1.23)
+    assert r["cacheReadTokens"] == 10000
+    assert r["cacheCreationTokens"] == 500
 
 
-def test_extract_totals_filters_by_period_prefix(plugin, fixture_data):
-    records = plugin.parse_records(fixture_data)
-    by_agent = plugin.bucket_by_agent(records)
+def test_normalize_codex_translates_divergent_schema(plugin, codex_data):
+    records = plugin.normalize(codex_data["daily"], "codex")
+    r = records[0]
+    assert r["period"] == "2026-05-15"
+    assert r["totalCost"] == pytest.approx(1.00)         # costUSD → totalCost
+    assert r["cacheReadTokens"] == 250000                 # cachedInputTokens → cacheReadTokens
+    assert r["cacheCreationTokens"] == 0                  # codex has no cache-creation
 
-    # Today (2026-05-19): only the single claude record
-    today_claude = plugin.extract_totals(by_agent["claude"], period_filter="2026-05-19")
+
+# ─── extract_totals ─────────────────────────────────────────────────────────
+
+def test_extract_totals_filters_by_period_prefix(plugin, claude_data, codex_data):
+    claude = plugin.normalize(claude_data["daily"], "claude")
+    codex = plugin.normalize(codex_data["daily"], "codex")
+
+    today_claude = plugin.extract_totals(claude, period_filter="2026-05-19")
     assert today_claude["cost"] == pytest.approx(1.23)
     assert today_claude["output"] == 2000
 
-    # Whole month (2026-05): claude bucket includes its 3 records, incl mixed
-    month_claude = plugin.extract_totals(by_agent["claude"], period_filter="2026-05")
-    assert month_claude["cost"] == pytest.approx(1.23 + 2.00 + 5.00)
+    month_claude = plugin.extract_totals(claude, period_filter="2026-05")
+    assert month_claude["cost"] == pytest.approx(1.23 + 4.00 + 2.00)
 
-    # Whole month for codex includes its solo day + the mixed day
-    month_codex = plugin.extract_totals(by_agent["codex"], period_filter="2026-05")
-    assert month_codex["cost"] == pytest.approx(0.50 + 5.00)
-
-    # The full record list is the source of truth for day/month totals
-    month_total = plugin.extract_totals(records, period_filter="2026-05")
-    assert month_total["cost"] == pytest.approx(1.23 + 2.00 + 0.50 + 5.00)
+    month_codex = plugin.extract_totals(codex, period_filter="2026-05")
+    assert month_codex["cost"] == pytest.approx(1.00 + 0.50)
 
 
-def test_extract_totals_no_filter_sums_all(plugin, fixture_data):
-    records = plugin.parse_records(fixture_data)
-    total = plugin.extract_totals(records)
-    assert total["cost"] == pytest.approx(1.23 + 2.00 + 0.50 + 5.00)
+def test_extract_totals_no_filter_sums_all(plugin, claude_data):
+    claude = plugin.normalize(claude_data["daily"], "claude")
+    total = plugin.extract_totals(claude)
+    assert total["cost"] == pytest.approx(1.23 + 4.00 + 2.00)
 
 
-def test_mixed_day_overcount_is_intentional(plugin, fixture_data):
-    """Document the trade-off: per-agent totals on mixed days are double-
-    counted because ccusage v19 doesn't expose a per-agent cost split. The
-    full-record total stays correct, which is what the menu bar shows."""
-    records = plugin.parse_records(fixture_data)
-    by_agent = plugin.bucket_by_agent(records)
+def test_mixed_day_splits_per_agent(plugin, claude_data, codex_data):
+    """Regression for the bug that motivated v3: on a day both tools ran, the
+    old merged-daily approach showed each agent the full combined cost (so the
+    two rows were identical). With per-agent subcommands the split is real and
+    the combined total is their sum."""
+    claude = plugin.normalize(claude_data["daily"], "claude")
+    codex = plugin.normalize(codex_data["daily"], "codex")
 
-    claude = plugin.extract_totals(by_agent["claude"], period_filter="2026-05-15")
-    codex = plugin.extract_totals(by_agent["codex"], period_filter="2026-05-15")
-    total = plugin.extract_totals(records, period_filter="2026-05-15")
+    claude_15 = plugin.extract_totals(claude, period_filter="2026-05-15")
+    codex_15 = plugin.extract_totals(codex, period_filter="2026-05-15")
 
-    # Both buckets see the full $5 on the mixed day...
-    assert claude["cost"] == pytest.approx(5.00)
-    assert codex["cost"] == pytest.approx(5.00)
-    # ...but the source-of-truth total is the actual $5, not $10.
-    assert total["cost"] == pytest.approx(5.00)
+    assert claude_15["cost"] == pytest.approx(4.00)
+    assert codex_15["cost"] == pytest.approx(1.00)
+    assert claude_15["cost"] != codex_15["cost"]                 # no longer identical
+    assert claude_15["cost"] + codex_15["cost"] == pytest.approx(5.00)
 
+
+# ─── formatting ─────────────────────────────────────────────────────────────
 
 def test_fmt_cost_zero(plugin):
     assert plugin.fmt_cost(0) == "$0.00"

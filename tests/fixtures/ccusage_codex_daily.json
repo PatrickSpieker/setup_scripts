@@ -1,0 +1,24 @@
+{
+  "daily": [
+    {
+      "date": "2026-05-15",
+      "inputTokens": 300000,
+      "cachedInputTokens": 250000,
+      "outputTokens": 3000,
+      "reasoningOutputTokens": 900,
+      "totalTokens": 303900,
+      "costUSD": 1.00,
+      "models": {"gpt-5.4": {"isFallback": false}}
+    },
+    {
+      "date": "2026-05-12",
+      "inputTokens": 300000,
+      "cachedInputTokens": 250000,
+      "outputTokens": 5000,
+      "reasoningOutputTokens": 1200,
+      "totalTokens": 305000,
+      "costUSD": 0.50,
+      "models": {"gpt-5.4": {"isFallback": false}}
+    }
+  ]
+}
