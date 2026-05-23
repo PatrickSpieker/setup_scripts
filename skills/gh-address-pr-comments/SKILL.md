@@ -15,6 +15,7 @@ gh pr view {PR_NUMBER} --json title,body,state,author,headRefName,baseRefName,ur
 gh api repos/{OWNER}/{REPO}/pulls/{PR_NUMBER}/comments
 gh api repos/{OWNER}/{REPO}/issues/{PR_NUMBER}/comments
 ```
+- **Check `state` first.** If it's `MERGED` (or `CLOSED`), the comments are historical and any fix you push to this branch is stranded. Surface that to the user; if they still want the changes made, the push in step 7 auto-recovers onto a fresh branch + new PR.
 
 2. Checkout PR
 ```bash
@@ -42,6 +43,15 @@ git diff --stat
 ```
 
 7. Commit + push fixes (use `/gh-commit` then push, or `/gh-ship`)
+
+If the PR was `MERGED`/`CLOSED` (step 1), don't push to this branch — **auto-recover, no prompt**: move the fixes to a fresh branch off HEAD and open a new PR.
+```bash
+cur=$(git branch --show-current)
+new="${cur}-followup"
+git rev-parse --verify "$new" 2>/dev/null && new="${new}-$(date +%H%M%S)"
+git checkout -b "$new"
+```
+Otherwise push to the open PR's branch:
 ```bash
 # SSH transport is auto-configured in Moat; credential helper covers non-Moat
 gh auth setup-git 2>/dev/null || true
