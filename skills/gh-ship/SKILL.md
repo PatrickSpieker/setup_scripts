@@ -10,6 +10,7 @@ Commit, push, and create PR in one step.
 ## Hard rules
 
 - **Never push to main/master.** Always ship from a feature branch. If on main/master at start, stop and ask the user to branch.
+- **Never push onto a branch whose PR is already merged.** The commit would be stranded — a squash-merge leaves the branch behind, so the commit never reaches the default branch and is effectively lost. Detect this and auto-recover onto a fresh branch (step 1.5).
 - **Never `git add .` or `git add -A`.** Stage specific paths only — guards against committing secrets or unrelated work.
 - **One commit unless changes are clearly separate concerns.** Same discipline as `/gh-commit`.
 - **If there are no diffs, stop.** Don't invent work to ship.
@@ -21,6 +22,27 @@ Commit, push, and create PR in one step.
 git branch --show-current
 ```
 - If on `main`/`master`: stop and create a branch: `git checkout -b feat/short-desc`
+
+1.5. Merged-branch guard
+```bash
+gh pr view --json state,number,url -q '"\(.state) #\(.number) \(.url)"' 2>/dev/null || echo "NONE"
+```
+- **If state is `MERGED`** (or `CLOSED`): pushing here would strand the commit. **Auto-recover, no prompt.** First fast-forward the local default branch — a merge you just made may not be in local `main` yet, and branching off a stale base produces a PR that's "behind" and can revert files on merge:
+  ```bash
+  default_branch=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name)
+  git fetch origin "$default_branch:$default_branch" 2>/dev/null || git fetch origin "$default_branch"  # ff local default; falls back to updating the tracking ref only
+  ```
+  Then create the fresh branch and run the rest of the ship there:
+  ```bash
+  cur=$(git branch --show-current)
+  new="${cur}-followup"   # or a fresh descriptive slug for the new work
+  git rev-parse --verify "$new" 2>/dev/null && new="${new}-$(date +%H%M%S)"  # avoid collision
+  git checkout -b "$new"
+  ```
+  Branching off HEAD carries your uncommitted changes and works even when local `$default_branch` was behind, since the PR's base is the remote `origin/$default_branch`. **If the new work is independent of the merged PR** (not a follow-up that builds on it), base it on the freshly-fetched default instead so the branch isn't behind: `git stash -u && git checkout -b "$new" "origin/$default_branch" && git stash pop`.
+
+  Continue with steps 2–5 on `$new`. Because the default branch already contains the merged work, the new PR's diff shows only the genuinely new commits. In step 5 this branch has no PR, so you'll **create** a new one (never reopen/edit the merged PR). Tell the user the recovery happened and link the new PR.
+- **If `OPEN` or `NONE`:** proceed normally.
 
 2. Inspect changes
 ```bash
@@ -63,15 +85,15 @@ git push -u origin $(git branch --show-current)
 
 5. Create or update PR
 ```bash
-gh pr view --json number,body 2>/dev/null
+gh pr view --json number,state,body 2>/dev/null
 ```
-- If no PR: compose the body per **PR body** below, then:
+- If no PR, **or the PR's `state` is `MERGED`/`CLOSED`** (the step 1.5 guard should already have moved you to a fresh branch, so this branch normally has no PR): compose the body per **PR body** below, then:
   ```bash
   gh pr create --title "type(scope): desc" --body-file - <<'EOF'
   <body>
   EOF
   ```
-- If PR exists:
+- If an **`OPEN`** PR exists:
   1. Read the existing PR description from the `body` field above
   2. Update it to account for the new commits — same **PR body** mental model — preserving anything still accurate
   3. `gh pr edit --body-file -` to apply

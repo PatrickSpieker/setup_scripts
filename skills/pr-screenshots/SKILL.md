@@ -124,6 +124,22 @@ Read 2–3 of the generated PNGs with the Read tool. Verify they show the intend
 
 ### 6. Commit the screenshots
 
+**Merged-branch guard:** before committing, confirm the PR is still open.
+```bash
+gh pr view --json state,number,url -q '"\(.state) #\(.number) \(.url)"' 2>/dev/null || echo "NONE"
+```
+If state is `MERGED`/`CLOSED`, the screenshots can't reach this PR — **auto-recover, no prompt**: branch off HEAD, commit there, and (in step 7) open a new PR instead of editing the merged one.
+```bash
+default_branch=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name)
+git fetch origin "$default_branch:$default_branch" 2>/dev/null || git fetch origin "$default_branch"  # ff default; avoids a stale-base branch
+cur=$(git branch --show-current)
+new="${cur}-followup"
+git rev-parse --verify "$new" 2>/dev/null && new="${new}-$(date +%H%M%S)"
+git checkout -b "$new"
+# Independent of the merged PR (not a follow-up)? base on the fresh default instead:
+# git stash -u && git checkout -b "$new" "origin/$default_branch" && git stash pop
+```
+
 ```bash
 git add docs/screenshots/<slug>/
 git commit -m "docs: add PR screenshots for <feature>"
