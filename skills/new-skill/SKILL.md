@@ -11,10 +11,11 @@ Create a skill from conversation history or user description.
 
 There are two places a skill can live:
 
-- **Global**: `~/.claude/skills/` (symlinked to `~/setup_scripts/skills/`, this repo).
+- **Global**: `~/setup_scripts/skills/` (symlinked into `~/.claude/skills/` and `~/.codex/skills/`).
   Available in every project. Create here when the skill is general-purpose.
-- **Per-repo**: `<project>/.claude/skills/`. Checked into a specific project.
-  Create here when the skill is project-specific.
+- **Per-repo**: `<project>/.agents/skills/`. Checked into a specific project.
+  Create here when the skill is project-specific. If Claude Code also needs the
+  repo skill, keep `<project>/.claude/skills` as a symlink to `../.agents/skills`.
 
 If both locations have a skill with the same name, the global one wins.
 
@@ -26,7 +27,7 @@ If both locations have a skill with the same name, the global one wins.
    - Use thread context clues to infer name, description, and triggers
 
 2. **Determine destination**: global (default) or per-repo
-   - If the skill is project-specific, use `.claude/skills/` in the current project
+   - If the skill is project-specific, use `.agents/skills/` in the current project
    - Otherwise, use `~/setup_scripts/skills/` (the global symlink target)
 
 3. Propose the skill name, description, triggers, and whether scripts are needed
@@ -35,7 +36,7 @@ If both locations have a skill with the same name, the global one wins.
 4. Check existing skills for patterns
 ```bash
 ls ~/.claude/skills/        # global
-ls .claude/skills/ 2>/dev/null  # per-repo
+ls .agents/skills/ 2>/dev/null  # per-repo
 ```
 
 5. Create skill in the chosen location:
@@ -98,7 +99,7 @@ echo "ok"
 ## Rules
 
 - Default to capturing conversation if history exists
-- Global skills go in `~/setup_scripts/skills/`; per-repo skills go in `<project>/.claude/skills/`
+- Global skills go in `~/setup_scripts/skills/`; per-repo skills go in `<project>/.agents/skills/`
 - Ask at most one question, only if ambiguity blocks execution
 - Only create scripts if requested
 - Match existing skill patterns in the repo (check frontmatter, section style)

@@ -88,6 +88,9 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 
 - **Claude Code:** `setup.sh` symlinks `skills/` to `~/.claude/skills/`
 - **Codex CLI:** `sync-skills` in `bashrc_main` symlinks each skill to `~/.codex/skills/` on every shell startup
+- **Repo-specific skills:** Check project-local skills into `<project>/.agents/skills/`.
+  If Claude Code needs the same repo skills, keep `<project>/.claude/skills` as
+  a symlink to `../.agents/skills`.
 
 ## Dotfiles
 
