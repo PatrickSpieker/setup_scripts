@@ -96,8 +96,14 @@ gh pr view --json number,state,body 2>/dev/null
 - If an **`OPEN`** PR exists:
   1. Read the existing PR description from the `body` field above
   2. Update it to account for the new commits — same **PR body** mental model — preserving anything still accurate
-  3. `gh pr edit --body-file -` to apply
+  3. Write the revised body to a temp file, then apply it through the REST API:
+     ```bash
+     pr_number=$(gh pr view --json number -q .number)
+     gh api --method PATCH "repos/{owner}/{repo}/pulls/$pr_number" -F body=@/tmp/pr-body.md --jq .html_url
+     ```
   4. Report the PR URL
+
+**PR edit API rule:** for title/body/base edits, prefer `gh api --method PATCH "repos/{owner}/{repo}/pulls/$pr_number"` over `gh pr edit`. `gh pr edit` is convenient and still documented, but it has a recurring GraphQL failure mode where it fetches Projects/classic `projectCards` even when only changing the body/title, which can break in automation or with narrower tokens. The REST update endpoint is narrower and only needs Pull requests write permission. `gh pr edit` is still acceptable for labels, reviewers, assignees, milestones, or projects when you specifically need those high-level helpers.
 
 Read if present: `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`.
 
