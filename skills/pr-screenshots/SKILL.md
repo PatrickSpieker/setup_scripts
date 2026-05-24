@@ -185,7 +185,11 @@ Structure:
 ...
 ```
 
-Apply with `gh pr edit <PR> --body-file /tmp/pr-body-updated.md`.
+Apply with the REST update endpoint, not `gh pr edit`, so a body-only update does not go through `gh pr edit`'s broader GraphQL/project metadata path:
+
+```bash
+gh api --method PATCH "repos/{owner}/{repo}/pulls/<PR>" -F body=@/tmp/pr-body-updated.md --jq .html_url
+```
 
 ### 8. Verify
 

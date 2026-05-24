@@ -210,7 +210,12 @@ gh pr create \
 EOF
 ```
 
-Print the PR URL. The PR description (the plan) stays as the historical record of intent — implementation commits land on the same branch, either now (see "Build it" below) or later. If the plan changes during implementation, edit the PR description with `gh pr edit --body-file`.
+Print the PR URL. The PR description (the plan) stays as the historical record of intent — implementation commits land on the same branch, either now (see "Build it" below) or later. If the plan changes during implementation, update the PR description through the REST API:
+
+```bash
+pr_number=$(gh pr view --json number -q .number)
+gh api --method PATCH "repos/{owner}/{repo}/pulls/$pr_number" -F body=@/tmp/pr-body.md --jq .html_url
+```
 
 ## Build it (optional)
 
@@ -223,7 +228,7 @@ If they want to build now:
 - Stay on the `spec/<slug>` branch — implementation commits push to the same PR.
 - The plan in the PR description is the spec. Work from it; don't re-derive decisions that grilling already resolved.
 - Commit one logical change at a time with conventional commit messages (see `/gh-commit`). Push as you go so the PR reflects current state.
-- If implementation surfaces a real decision that changes the plan, edit the PR description (`gh pr edit --body-file -`) so the description and the commits stay in sync. Don't let the plan rot.
+- If implementation surfaces a real decision that changes the plan, write the revised description to `/tmp/pr-body.md` and update it with `gh api --method PATCH "repos/{owner}/{repo}/pulls/$pr_number" -F body=@/tmp/pr-body.md` so the description and the commits stay in sync. Don't let the plan rot. Prefer this REST update path over `gh pr edit` for title/body/base edits; `gh pr edit` can hit unrelated Projects/classic GraphQL failures even when only changing a PR body.
 - When implementation is done, the same PR is what gets reviewed — no second PR, no separate planning artifact.
 
 Don't propose ending implementation yourself. Keep going until the user calls it, the same way grilling ends.
