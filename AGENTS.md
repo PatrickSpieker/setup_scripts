@@ -6,3 +6,8 @@ Context for Moat can be found at: https://majorcontext.com/moat/llms.txt
 - **If `git push` fails with `Permission denied (publickey)`**: the SSH agent proxy has no keys. This is a host-side issue — the user's SSH agent didn't have GitHub keys loaded when Moat started. **Stop immediately** and tell the user to run `ssh-add` on their host machine and restart the Moat run. Do not attempt workarounds (switching to HTTPS, unsetting `insteadOf` rules, pushing via the GitHub API) — they will all fail because the system git config rewrites HTTPS→SSH and the network proxy blocks direct HTTPS to github.com.
 Context for Claude Code can be found at: https://platform.claude.com/llms.txt
 Context for Codex can be found at: https://developers.openai.com/codex/llms.txt
+
+## Diagrams in PR descriptions
+
+- **State machines: use Mermaid `flowchart LR`, not `stateDiagram-v2`.** GitHub's Mermaid renderer doesn't word-wrap state-diagram edge labels — anything wider than the available horizontal slot is silently clipped — and `stateDiagram-v2` doesn't honor `\n` in labels (only `<br/>`). `flowchart LR` honors `\n` for multi-line edge labels, gives much more horizontal room, and the `([name])` stadium shape still reads as a state node. Use `((•))` for the terminal start/end markers (the equivalent of `[*]` in state-diagram syntax). When the PR changes the state machine, draw **both** the before and after diagrams so the delta is obvious.
+
