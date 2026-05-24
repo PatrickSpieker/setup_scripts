@@ -120,6 +120,8 @@ manual-verification-only.
 ```
 ````
 
+**Diagrams.** When the plan introduces or changes a **state machine** (entity lifecycle, status-enum transitions, workflow), include a Mermaid `flowchart LR` block in the relevant section showing **before → after** transitions. Do not use `stateDiagram-v2` — GitHub's renderer silently clips its edge labels and doesn't honor `\n` (only `<br/>`). `flowchart LR` with `([name])` stadium nodes and `((•))` terminal circles reads as a state machine while staying legible. See `AGENTS.md` for the full convention.
+
 Don't pad. Each section should earn its space.
 
 ## Slug + title

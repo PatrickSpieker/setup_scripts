@@ -109,6 +109,8 @@ Answer three things:
 - **Implementation Changes** — non-obvious implementation choices, design notes, alternatives considered and discarded, optional follow-ups. Skip when the diff speaks for itself.
 - **Test Plan** — tests added (unit, integration), manual smoke checks, what a reviewer should look at to confirm the change is correct. **When the PR adds or updates automated tests, include a fenced `bash` code block with the exact command(s) to run them** so a reviewer (or CI) can copy-paste. **If the test plan needs multiple executable steps, give each its own fenced block** — one copy-button click per step, no manual splitting required. Skip blocks entirely when there's nothing automated to run (e.g., docs-only changes, manual-smoke-only).
 
+**Diagrams.** When the PR introduces or changes a **state machine** (entity lifecycle, status-enum transitions, workflow), include a Mermaid `flowchart LR` block in the relevant section — show **before → after** when the change is to an existing machine, not just the after. Do not use `stateDiagram-v2`; GitHub's renderer silently clips its edge labels and doesn't honor `\n`. See `AGENTS.md` for the full convention.
+
 Use these as content prompts, not a mandatory template. A one-line PR ("typo fix in README") doesn't need three sections. A non-trivial change does:
 
 ````markdown
