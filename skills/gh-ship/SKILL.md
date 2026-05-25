@@ -9,7 +9,7 @@ Commit, push, and create PR in one step.
 
 ## Hard rules
 
-- **Never push to main/master.** Always ship from a feature branch. If on main/master at start, stop and ask the user to branch. Prefer a `codex/short-desc` branch name when the repo or app context does not provide a different convention.
+- **Never push to main/master.** Always ship from a feature branch. If on main/master at start, stop and ask the user to branch. When the repo or app context provides no branch-name convention, prefix with your own agent name — `<agent>/short-desc` (e.g. `codex/short-desc`, `claude/short-desc`).
 - **Never push onto a branch whose PR is already merged.** The commit would be stranded — a squash-merge leaves the branch behind, so the commit never reaches the default branch and is effectively lost. Detect this and auto-recover onto a fresh branch (step 1.5).
 - **Never `git add .` or `git add -A`.** Stage specific paths only — guards against committing secrets or unrelated work.
 - **One commit unless changes are clearly separate concerns.** Same discipline as `/gh-commit`.
@@ -21,7 +21,7 @@ Commit, push, and create PR in one step.
 ```bash
 git branch --show-current
 ```
-- If on `main`/`master`: stop and create a branch; prefer the Codex convention when no repo-specific branch prefix is available: `git checkout -b codex/short-desc`
+- If on `main`/`master`: stop and create a branch; when no repo-specific branch prefix is available, prefix with your own agent name: `git checkout -b <agent>/short-desc` (e.g. `codex/short-desc`, `claude/short-desc`)
 
 1.5. Merged-branch guard
 ```bash
