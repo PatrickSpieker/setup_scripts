@@ -1,205 +1,160 @@
 ---
 name: pr-screenshots
-description: Capture Playwright screenshots for each user journey in the current PR and embed them in the PR description.
+description: Capture and verify web UI screenshots for affected pull-request journeys with Playwright, store them under a commit-pinned walkthrough, or refresh the web walkthrough on an existing PR. Use directly when adding web PR screenshots or when gh-ship delegates a consumer-visible web change.
 ---
 
-# PR Screenshots
+# Web PR Screenshots
 
-Drive the browser with the Playwright MCP tools, save one PNG per distinct UI state under `docs/screenshots/<slug>/`, commit them, and embed them in the PR description.
+Capture one PNG per materially changed web UI state, using safe representative data, and render a commit-pinned Web block under `## Interface Changes` -> `### Walkthrough`.
 
-## When to use
+Operate in one of two modes:
 
-- You've finished (or nearly finished) a branch with visible UI changes and want to give the reviewer a walkthrough without requiring them to boot the dev server.
-- User explicitly asks to "add screenshots to the PR" or "show the reviewer the flow."
+- **Capture mode:** called by `gh-ship` before the main commit. Write and verify images, then return their paths and journeys. Do not commit, push, or edit a PR.
+- **Refresh mode:** called directly for an existing PR. Capture, commit, push, and replace the generated Web walkthrough block while preserving other platforms and hand-written PR content.
 
-Do NOT use for tiny / non-UI changes (backend refactors, dependency bumps).
+Read `AGENTS.md`, `CLAUDE.md`, and `CONTRIBUTING.md` when present.
 
-## Prerequisites
+## 1. Establish scope
 
-- The repo is a web app runnable locally (dev server exposes a URL Playwright can hit).
-- The Playwright MCP is configured — tools named `mcp__playwright__browser_*` are available in this session. This repo's `moat.yaml` wires it up; on the host it's configured via `defaults/settings.json`. You do NOT need to `npm install playwright` or `npx playwright install` — the MCP server provisions its own Chromium (headful on host, headless in Moat).
-- `gh` is authenticated and `gh pr view` succeeds for the current branch.
-- App auth: if the app requires login, you must have credentials available via env vars or a fixture. Otherwise scope this skill to unauthenticated flows. (Antaeus repo: see the `## Antaeus` section below for the staging Firebase config to drop into a `.env` file.)
-
-## Steps
-
-### 1. Figure out what user journeys to capture
+Accept `BASE` and `SLUG` from `gh-ship` when provided. Otherwise derive them:
 
 ```bash
 git fetch origin
-BASE=$(gh pr view --json baseRefName -q .baseRefName 2>/dev/null || git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
-git diff --name-only "$BASE"...HEAD
-gh pr view --json title,body 2>/dev/null
+BASE=$(gh pr view --json baseRefName -q .baseRefName 2>/dev/null || \
+  gh repo view --json defaultBranchRef -q .defaultBranchRef.name)
+SLUG=$(git branch --show-current | sed 's@.*/@@; s/[^a-zA-Z0-9-]/-/g' | tr '[:upper:]' '[:lower:]')
+git diff --name-status "origin/$BASE"...HEAD
+git diff --name-status
 ```
 
-Treat each of these as one journey:
-- **New or heavily-modified page/route** → one journey per page.
-- **Major new component used in a flow** → a journey through the flow that uses it.
-- **New user-facing API route** → capture the UI that consumes it.
-- If the PR description already names flows, use those verbatim.
+Infer journeys from behavior in the full diff:
 
-List them back to the user in one short paragraph before capturing. Bail if nothing visual changed.
+- New or heavily changed page/route: one journey per page.
+- Changed component: capture the flow and state in which a reviewer sees it.
+- API-backed UI: capture the consuming UI with realistic fixture data.
+- Copy, validation, modal, loading, error, and success changes: capture each materially changed visible state.
 
-### 2. Discover the dev server command and URL
+If no consumer-visible web UI changed, return `not required`. Do not capture merely because the repository contains a web app.
+
+## 2. Discover and start the app
+
+Inspect package-manager files, workspace configuration, scripts, and contributor instructions. Prefer the repository's established dev or preview command. Do not install a second browser automation stack; use the configured Playwright MCP/browser tools.
+
+Determine the local URL from configuration or server output. Start the app with isolated fixture/demo data. When the changed journey requires authentication or persisted server state and the repository exposes a safe staging environment, create a fresh throwaway staging account and representative test records for the capture; do not bail merely because no reusable account exists. Never point screenshot setup at production data or the user's personal data directory.
+
+If the app cannot start, authentication still cannot be satisfied safely after creating or attempting an allowed throwaway staging account, Playwright is unavailable, or a required journey cannot be reached, return a precise blocker. In refresh mode, continue to the draft handling step rather than silently retaining stale evidence.
+
+## 3. Prepare scoped output
 
 ```bash
-jq -r '.scripts | to_entries[] | "\(.key): \(.value)"' package.json 2>/dev/null
+PROJECT_ROOT=$(git rev-parse --show-toplevel)
+OUT="$PROJECT_ROOT/docs/screenshots/$SLUG/web"
+mkdir -p "$OUT"
+find "$OUT" -maxdepth 1 -type f -name '*.png' -delete
 ```
 
-Look for a `dev`, `start`, `serve`, or similar script. Note the port it prints (default Vite: 5173, Next.js: 3000, Create React App: 3000). If the port is not obvious from the script, ask the user.
+Delete obsolete files only from this exact generated platform directory. Never clean another PR slug, the iOS directory, or manually managed screenshot paths.
 
-Pick a `SLUG` from the PR/branch name (kebab-case, descriptive, e.g. `checkout-redesign`). Screenshots land in `docs/screenshots/<SLUG>/`.
+## 4. Capture with Playwright
 
-### 3. Start the dev server
+Set the default viewport once:
+
+```text
+browser_resize(width=1400, height=860)
+```
+
+Add mobile/tablet viewports only when the diff changes responsive or breakpoint-specific behavior.
+
+For each journey:
+
+1. Navigate to the starting route.
+2. Seed or create representative non-sensitive data, including a fresh throwaway staging account when safe staging auth is required.
+3. Use the accessibility snapshot to locate controls.
+4. Interact until the materially changed state is stable.
+5. Capture `docs/screenshots/<slug>/web/NN-kebab-case.png`.
+
+Use two-digit ranges per journey (`01-`, `10-`, `20-`) so later insertions do not renumber unrelated journeys. Capture states, not click animations. Use full-page screenshots only when the changed layout requires it. Close the browser when done.
+
+## 5. Verify every image
+
+Open every generated PNG. Confirm that each image:
+
+- shows the intended stable state;
+- contains no credentials, personal information, production records, notifications, or unrelated browser content;
+- has no blocking dialogs, keyboards, focus artifacts, or stale data;
+- is legible at review size.
+
+Prefer recapturing with safe fixtures over editing the image. If redaction is unavoidable, disclose it in the caption. If a safe representative image cannot be produced, return incomplete evidence with the blocker.
+
+Keep the generated set reasonably small; remove redundant states and compress oversized images using the repository's existing tooling.
+
+## 6. Return capture results
+
+In capture mode, return:
+
+- status: `complete`, `not required`, or `blocked`;
+- paths grouped by journey;
+- a short caption and alt text for every image;
+- viewport(s) used;
+- blocker when incomplete.
+
+Do not stage or commit in capture mode. `gh-ship` owns the main commit.
+
+## 7. Render the Web walkthrough
+
+After the caller supplies the final commit SHA, render only the Web platform block:
+
+```markdown
+#### Web
+
+##### <Journey>
+<img src="https://github.com/<owner>/<repo>/blob/<SHA>/docs/screenshots/<slug>/web/01-state.png?raw=true" alt="..." width="900" />
+
+<brief caption>
+```
+
+Place it under `## Interface Changes` -> `### Walkthrough`. Pin every URL to the commit SHA. Preserve the iOS block when refreshing Web independently.
+
+For blocked evidence, render:
+
+```markdown
+#### Web
+
+> [!WARNING]
+> Evidence incomplete; this PR remains draft.
+> - Missing: web walkthrough
+> - Blocker: <specific blocker>
+```
+
+## 8. Standalone refresh mode
+
+Require an open PR. If the PR is merged or closed, recover to a new branch rather than committing stranded screenshots.
+
+After successful capture:
 
 ```bash
-PROJECT_ROOT="$(git rev-parse --show-toplevel)"
-SLUG="<chosen-slug>"
-BASE_URL="http://localhost:<port>"
-
-# Start dev server in background if not already running
-curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/" | grep -q 200 || \
-  ( cd "$PROJECT_ROOT" && $DEV_CMD > /tmp/dev-server.log 2>&1 & )
-
-# Wait for readiness
-until curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/" | grep -q 200; do sleep 1; done
-
-mkdir -p "$PROJECT_ROOT/docs/screenshots/$SLUG"
-```
-
-If the dev server needs isolated data (separate DB, clean state), pass that through env vars when starting it — don't point it at the user's real data dir.
-
-### 4. Drive the browser with the Playwright MCP
-
-Work one journey at a time. The core loop is: navigate → (interact) → screenshot. Use relative paths for `filename` — the MCP writes them under the working directory (`/workspace` in Moat), so `docs/screenshots/<slug>/NN-name.png` lands in the repo where you want it.
-
-**Set the viewport once per session:**
-
-```
-mcp__playwright__browser_resize(width=1400, height=860)
-```
-
-**Navigate and snap:**
-
-```
-mcp__playwright__browser_navigate(url="http://localhost:5173/")
-mcp__playwright__browser_take_screenshot(
-  type="png",
-  filename="docs/screenshots/<slug>/01-landing.png"
-)
-```
-
-**Interact, then snap the resulting state.** To click or type on a specific element, first call `mcp__playwright__browser_snapshot` to get an accessibility tree with `ref` IDs, then pass the `ref` to the action tool:
-
-```
-mcp__playwright__browser_snapshot()
-# → pick the ref for the element you want
-mcp__playwright__browser_click(element="Sign in button", ref="<ref-from-snapshot>")
-mcp__playwright__browser_take_screenshot(
-  type="png",
-  filename="docs/screenshots/<slug>/02-signed-in.png"
-)
-```
-
-**Full-page screenshots** for layouts taller than the viewport:
-
-```
-mcp__playwright__browser_take_screenshot(type="png", fullPage=true, filename="...")
-```
-
-**Dialogs** (`window.confirm`, `window.prompt`): the MCP exposes `mcp__playwright__browser_handle_dialog` — call it after the dialog appears (the action that triggered it returns with a dialog-pending state).
-
-**Seed realistic data** before snapping — empty states look stale. Use `mcp__playwright__browser_evaluate` to pre-populate localStorage, call seed endpoints via `curl` from Bash, or drive the UI to create the data.
-
-**Rules:**
-- **One numbered PNG per distinct state**, not per interaction. Snap the resulting panel/modal, not the click animation.
-- **Viewport**: 1400×860. Larger produces huge PNGs; smaller may crop chrome.
-- **Naming**: `NN-kebab-case.png` with two-digit prefix for sort order. Start each journey at its own prefix range (01-, 10-, 20-) so insertions in one journey don't renumber others.
-- **Focus rings**: if a freshly-activated control shows a focus outline you don't want in the shot, click an empty area or press Escape via `mcp__playwright__browser_press_key` to blur it before snapping.
-- **Close the browser** when done: `mcp__playwright__browser_close()`. Not strictly required (MCP cleans up on session end) but good hygiene if you plan to re-run.
-
-### 5. Spot-check
-
-Read 2–3 of the generated PNGs with the Read tool. Verify they show the intended state (not mid-transition, not hidden behind a modal). If any look wrong, re-navigate and re-capture. If total size is > 2 MB, trim or crop (see Pitfalls).
-
-### 6. Commit the screenshots
-
-**Merged-branch guard:** before committing, confirm the PR is still open.
-```bash
-gh pr view --json state,number,url -q '"\(.state) #\(.number) \(.url)"' 2>/dev/null || echo "NONE"
-```
-If state is `MERGED`/`CLOSED`, the screenshots can't reach this PR — **auto-recover, no prompt**: branch off HEAD, commit there, and (in step 7) open a new PR instead of editing the merged one.
-```bash
-default_branch=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name)
-git fetch origin "$default_branch:$default_branch" 2>/dev/null || git fetch origin "$default_branch"  # ff default; avoids a stale-base branch
-cur=$(git branch --show-current)
-new="${cur}-followup"
-git rev-parse --verify "$new" 2>/dev/null && new="${new}-$(date +%H%M%S)"
-git checkout -b "$new"
-# Independent of the merged PR (not a follow-up)? base on the fresh default instead:
-# git stash -u && git checkout -b "$new" "origin/$default_branch" && git stash pop
-```
-
-```bash
-git add docs/screenshots/<slug>/
-git commit -m "docs: add PR screenshots for <feature>"
+git add "docs/screenshots/$SLUG/web/"
+git commit -m "docs: refresh PR screenshots"
 git push
 SHA=$(git rev-parse HEAD)
 ```
 
-Capture `$SHA` — you need it to pin the `<img>` URLs.
-
-### 7. Update the PR description
-
-Resolve owner/repo and pull the current body:
+Replace the existing generated Web block from the complete current diff; do not append a second walkthrough. Preserve the iOS block and accurate hand-written content. Update the body through the REST endpoint:
 
 ```bash
 OWNER_REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
 PR=$(gh pr view --json number -q .number)
-gh pr view "$PR" --json body -q .body > /tmp/pr-body.md
+gh api --method PATCH "repos/$OWNER_REPO/pulls/$PR" \
+  -F body=@/tmp/pr-body-updated.md --jq .html_url
 ```
 
-Append a `## Walkthrough` section with one `<img>` per screenshot, grouped by journey.
+If capture is blocked, update the Web block with the warning and downgrade a ready PR with `gh pr ready --undo "$PR"`. Never promote an existing draft automatically.
 
-**URL form** (works for both public and private repos — renders via the viewer's auth cookie; raw.githubusercontent.com silently 404s for private repos from unauthenticated clients):
+Report the PR URL and screenshot count by journey.
 
-```html
-<img src="https://github.com/<owner>/<repo>/blob/<SHA>/docs/screenshots/<slug>/NN-name.png?raw=true" alt="..." width="900" />
-```
+## Antaeus web app
 
-**Why pin to `<SHA>`**: screenshots are locked to a specific commit. Future pushes to the branch won't silently change what the PR description shows.
-
-Structure:
-
-```markdown
-## Walkthrough
-
-### Journey 1 — <name>
-<img src=".../01-landing.png?raw=true" alt="Landing" width="900" />
-<brief caption>
-
-<img src=".../02-next-step.png?raw=true" alt="..." width="900" />
-<brief caption>
-
-### Journey 2 — <name>
-...
-```
-
-Apply with the REST update endpoint, not `gh pr edit`, so a body-only update does not go through `gh pr edit`'s broader GraphQL/project metadata path:
-
-```bash
-gh api --method PATCH "repos/{owner}/{repo}/pulls/<PR>" -F body=@/tmp/pr-body-updated.md --jq .html_url
-```
-
-### 8. Verify
-
-Read the returned PR URL back to the user. Don't curl the image URLs — raw endpoints return 404 without auth; the reviewer sees them in-browser via their GitHub session.
-
-## Antaeus
-
-The `antaeus-web-app` repo (`pnpm dev` → Vite on `http://localhost:5173`) needs a `.env` at the repo root before sign-in works — the Firebase web SDK fails fast on a missing API key, so without it `/login` silently can't authenticate and `/sharing` (and every other guarded route) is unreachable. The config below is the **staging** Firebase project — public client-side identifiers, safe to embed here, but kept out of the repo so production builds can override per-environment via Render.
-
-Drop this into `/workspace/.env` before starting the dev server (the staging API base URL is the default in `src/config/api.ts`, no override needed):
+The `antaeus-web-app` repository uses Vite at `http://localhost:5173`. Authenticated routes require the staging Firebase client configuration below in a repository-root `.env`; these are public client identifiers, not server credentials:
 
 ```env
 VITE_FIREBASE_API_KEY=AIzaSyCvv3DLb3Biw60q0sN1c2rLMLQJ9hh4fKk
@@ -207,17 +162,14 @@ VITE_FIREBASE_AUTH_DOMAIN=antaeus-staging-1.firebaseapp.com
 VITE_FIREBASE_PROJECT_ID=antaeus-staging-1
 ```
 
-Then sign up a fresh throwaway account (`claude-shots-<unix-ts>@example.com` / any 6+ char password) — the staging Firebase project accepts arbitrary email/password registrations and the staging Antaeus backend provisions a profile on first sign-in. Do not reuse production accounts. Tear down via API at the end of the run (delete posts, revoke grants/invites); the Firebase user itself lingers since the client can't self-delete — note it under "manual cleanup" if it matters.
+Create a fresh throwaway staging account for each capture run. Do not reuse production accounts. Clean up created posts, grants, and invites through the API afterward; note any Firebase user that the client cannot delete.
 
-If you need an Epic-linked profile to populate Record/Search/Recordings, follow the same `fhircamila` / `fhirderrick` / `epicepic1` sandbox accounts the `qa-explore` skill uses (see `/home/moatuser/.claude/skills/qa-explore/SKILL.md`). For sharing-only flows (InviteCard, /sharing, switcher), no Epic link is required.
+For Epic-linked fixtures, follow the repository-local QA skill rather than copying credentials into this global skill. Sharing-only flows do not require an Epic link.
 
-## Pitfalls
+## Common failures
 
-- **Stale screenshots after further commits.** When the branch changes after the screenshots commit, the images are out of date relative to the code. Either regenerate (new commit, update PR URLs to the new SHA) or accept the drift — don't mix.
-- **Huge PNGs balloon the repo.** Keep total under ~2 MB per PR. Use `fullPage=true` sparingly. If a single PNG is > 300 KB, crop the viewport instead.
-- **MCP output path.** `filename` is resolved relative to the MCP server's working directory — in Moat that's `/workspace`, so `docs/screenshots/<slug>/...` lands in the repo. If you ever see PNGs appearing under `.playwright-mcp/` instead, pass an absolute path via `$PROJECT_ROOT`.
-- **`.playwright-mcp/` is gitignored.** The MCP writes accessibility-tree YAML snapshots there as a side effect of navigation. Don't try to commit those — only the PNGs you explicitly saved go in the repo.
-- **Modal dialogs hang the session.** If an action opens a `window.confirm`/`window.prompt`, the triggering tool call returns with a pending dialog. Resolve it with `mcp__playwright__browser_handle_dialog` before issuing more actions, or the next call will block.
-- **Stale `ref` values.** The `ref` IDs from `mcp__playwright__browser_snapshot` are only valid for that snapshot. After any navigation or DOM change, re-snapshot before the next click.
-- **GitHub image cache.** GitHub caches image URLs heavily; overwriting a PNG at the same path and pushing may still show the old image for minutes. Pin to a new SHA to force refresh.
-- **Proxy / certificate errors inside Moat.** Chromium is launched via `scripts/playwright-mcp.sh`, which bridges Moat's authenticated HTTPS proxy and trusts the Moat CA. If navigation fails with `ERR_PROXY_AUTH_UNSUPPORTED` or a cert error, the launcher didn't run — check that `moat.yaml`'s `claude.mcp.playwright.command` points at `/tmp/setup-scripts/scripts/playwright-mcp.sh` and that `post_build` provisioned Chromium.
+- Re-snapshot after navigation or DOM changes; stale accessibility refs are invalid.
+- Resolve browser dialogs before the next action.
+- Verify where the Playwright server writes relative paths; use the absolute `$OUT` path when uncertain.
+- Regenerate URLs with the latest screenshot commit SHA to bypass GitHub's image cache.
+- If the browser cannot reach localhost or reports proxy/certificate failures inside Moat, verify that the repository's Playwright MCP uses the shared `scripts/playwright-mcp.sh` launcher. Report the launcher/configuration blocker; do not install an ad hoc browser.

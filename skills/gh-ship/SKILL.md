@@ -1,164 +1,280 @@
 ---
 name: gh-ship
-description: Commit, push, and create PR in one step.
+description: Commit, push, and create or update a pull request with consumer-visible interface changes, API contract diffs, required web or iOS walkthrough screenshots, and verification evidence. Use when shipping local changes to GitHub or updating an existing PR.
 ---
 
 # Ship
 
-Commit, push, and create PR in one step.
+Commit, push, and create or update a PR. Treat reviewer evidence as part of the change: infer changed surfaces from the diff, delegate required screenshots, describe API contract deltas, and use draft status when required evidence is incomplete.
 
 ## Hard rules
 
-- **Never push to main/master.** Always ship from a feature branch. If on main/master at start, stop and ask the user to branch. When the repo or app context provides no branch-name convention, prefix with your own agent name — `<agent>/short-desc` (e.g. `codex/short-desc`, `claude/short-desc`).
-- **Never push onto a branch whose PR is already merged.** The commit would be stranded — a squash-merge leaves the branch behind, so the commit never reaches the default branch and is effectively lost. Detect this and auto-recover onto a fresh branch (step 1.5).
-- **Never `git add .` or `git add -A`.** Stage specific paths only — guards against committing secrets or unrelated work.
-- **One commit unless changes are clearly separate concerns.** Same discipline as `/gh-commit`.
-- **If there are no diffs, stop.** Don't invent work to ship.
+- Never push to `main` or `master`. If currently there, create a feature branch yourself before continuing; when the repo has no convention, use `codex/short-desc`.
+- Never push onto a branch whose PR is merged or closed. Recover onto a fresh branch as described below.
+- Never use `git add .` or `git add -A`. Stage explicit paths only.
+- Never include unrelated working-tree changes.
+- Use one commit unless changes are clearly separate concerns.
+- If there are no branch or working-tree diffs from the PR base, stop.
+- Required screenshots and API descriptions gate **ready** status, not shipping. Incomplete evidence produces a draft PR with an explicit warning.
+- Never automatically promote an existing draft PR to ready. Automatically downgrade a ready PR when required evidence becomes incomplete.
 
-## Steps
+Read `AGENTS.md`, `CLAUDE.md`, and `CONTRIBUTING.md` when present.
 
-1. Safety check
+## 1. Establish the branch and base
+
 ```bash
 git branch --show-current
+gh pr view --json state,number,url,baseRefName,body,isDraft 2>/dev/null || echo "NONE"
 ```
-- If on `main`/`master`: stop and create a branch; when no repo-specific branch prefix is available, prefix with your own agent name: `git checkout -b <agent>/short-desc` (e.g. `codex/short-desc`, `claude/short-desc`)
 
-1.5. Merged-branch guard
+If on the default branch, create a feature branch before continuing. Choose a short kebab-case name from the requested work or current diff, prefer the repository's established branch prefix when obvious, and otherwise use `codex/<short-desc>`:
+
 ```bash
-gh pr view --json state,number,url -q '"\(.state) #\(.number) \(.url)"' 2>/dev/null || echo "NONE"
-```
-- **If state is `MERGED`** (or `CLOSED`): pushing here would strand the commit. **Auto-recover, no prompt.** First fast-forward the local default branch — a merge you just made may not be in local `main` yet, and branching off a stale base produces a PR that's "behind" and can revert files on merge:
-  ```bash
-  default_branch=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name)
-  git fetch origin "$default_branch:$default_branch" 2>/dev/null || git fetch origin "$default_branch"  # ff local default; falls back to updating the tracking ref only
-  ```
-  Then create the fresh branch and run the rest of the ship there:
-  ```bash
-  cur=$(git branch --show-current)
-  new="${cur}-followup"   # or a fresh descriptive slug for the new work
-  git rev-parse --verify "$new" 2>/dev/null && new="${new}-$(date +%H%M%S)"  # avoid collision
+default_branch=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name)
+cur=$(git branch --show-current)
+if [ "$cur" = "$default_branch" ] || [ "$cur" = "main" ] || [ "$cur" = "master" ]; then
+  new="codex/<short-desc>"
+  git rev-parse --verify "$new" 2>/dev/null && new="${new}-$(date +%H%M%S)"
   git checkout -b "$new"
-  ```
-  Branching off HEAD carries your uncommitted changes and works even when local `$default_branch` was behind, since the PR's base is the remote `origin/$default_branch`. **If the new work is independent of the merged PR** (not a follow-up that builds on it), base it on the freshly-fetched default instead so the branch isn't behind: `git stash -u && git checkout -b "$new" "origin/$default_branch" && git stash pop`.
+fi
+```
 
-  Continue with steps 2–5 on `$new`. Because the default branch already contains the merged work, the new PR's diff shows only the genuinely new commits. In step 5 this branch has no PR, so you'll **create** a new one (never reopen/edit the merged PR). Tell the user the recovery happened and link the new PR.
-- **If `OPEN` or `NONE`:** proceed normally.
+If the current branch's PR is `MERGED` or `CLOSED`, do not add commits to it. Fetch the default branch, then create a fresh branch:
 
-2. Inspect changes
+```bash
+default_branch=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name)
+git fetch origin "$default_branch:$default_branch" 2>/dev/null || git fetch origin "$default_branch"
+cur=$(git branch --show-current)
+new="${cur}-followup"
+git rev-parse --verify "$new" 2>/dev/null && new="${new}-$(date +%H%M%S)"
+git checkout -b "$new"
+```
+
+For independent work, stash only the intended paths, branch from `origin/$default_branch`, and restore them. Do not move unrelated changes.
+
+Resolve the comparison base from the open PR when one exists, otherwise from the repository default:
+
+```bash
+BASE=$(gh pr view --json baseRefName -q .baseRefName 2>/dev/null || \
+  gh repo view --json defaultBranchRef -q .defaultBranchRef.name)
+git fetch origin "$BASE"
+```
+
+## 2. Inspect and classify the complete change
+
+Inspect both committed branch work and pending changes:
+
 ```bash
 git status --porcelain
-git diff --stat
+git diff --name-status "origin/$BASE"...HEAD
+git diff --name-status
+git diff "origin/$BASE"...HEAD
+git diff
 ```
-- If no changes, stop
 
-3. Stage + commit
+Classify behavior from the diff, not merely from repository contents or file extensions.
+
+### UI surfaces
+
+Require screenshots only for consumer-visible UI changes:
+
+- **Web:** pages, routes, components, copy, styling, interactions, or responsive behavior rendered in a browser.
+- **iOS:** SwiftUI/UIKit views, navigation, copy, styling, interactions, or adaptive layout rendered by an iOS app.
+- **Both:** capture both when both surfaces changed.
+- **Neither:** tests, docs, configuration, models, and internal refactors without a visible delta do not require screenshots.
+
+Infer affected user journeys from the changed behavior. Do not ask repositories to declare path mappings or launch commands before attempting discovery.
+
+### API surfaces
+
+Treat a change as an API contract change when it alters an external or service-to-service boundary, including HTTP routes, RPC methods, GraphQL operations/schema, protobuf or message formats, exported SDK methods, request/response DTOs, authentication, status codes, or documented errors.
+
+For every changed contract, determine:
+
+- classification:
+  - `additive`: a backward-compatible new contract surface or optional capability; existing consumers continue working unchanged.
+  - `compatible behavior change`: observable behavior, side effects, validation, defaults, status timing, or documented errors changed, but existing consumers should continue working correctly.
+  - `breaking`: an existing consumer may need code, configuration, auth, data, or workflow changes to keep working correctly.
+- breaking detail, when applicable: removed, renamed, required field added, response shape changed, auth changed, status or error semantics changed incompatibly, or documented behavior removed.
+- native contract identifier, such as `PATCH /v1/orders/{id}` or `OrderService.Cancel`;
+- **Before** contract;
+- **After** contract;
+- changed request, response, auth, status, error, or behavior semantics;
+- evidence source: schema/spec, contract test, or implementation files.
+
+Use schemas and contract tests first. When none exist, infer from routes, handlers, DTOs, and consumers, and label the evidence `inferred from implementation`. If the diff appears to alter a contract but the before/after contract cannot be reconstructed confidently, mark API evidence incomplete.
+
+## 3. Capture required walkthroughs before committing
+
+Choose a kebab-case PR slug from the branch or feature. Generated files live under:
+
+```text
+docs/screenshots/<pr-slug>/web/
+docs/screenshots/<pr-slug>/ios/
+```
+
+For each changed UI surface, load and follow the corresponding skill in **capture mode**:
+
+- Web: `/pr-screenshots` or `$pr-screenshots`.
+- iOS: `/pr-screenshots-ios` or `$pr-screenshots-ios`.
+
+Pass the resolved base, slug, changed journeys, and pending diff context. Capture the resulting branch only, never a before image. Use one representative environment by default:
+
+- Web: desktop `1400x860`; add mobile/tablet only for responsive changes.
+- iOS: newest available portrait iPhone simulator; add devices/orientations only for adaptive changes.
+
+The delegated skill must remove obsolete PNGs only inside its platform directory, use isolated fixture/demo data or a fresh throwaway staging account, inspect every generated image, and return the captured paths grouped by journey or a precise blocker. If authentication or persisted server state is needed for a representative capture, create the staging account and test records yourself when the repository exposes a safe staging path; do not treat account creation as a reason to bail. Do not stage unsafe screenshots containing credentials, personal data, production records, or notifications. If representative evidence still cannot be produced safely, treat it as incomplete.
+
+Do not abort when capture is blocked. Record the missing platform and blocker for the PR warning, then continue shipping as draft.
+
+## 4. Stage and commit
+
+Review the final status after capture. Stage only the intended source, tests, screenshot-tour files, and generated screenshots by explicit path:
+
 ```bash
-git add path/to/file1 path/to/file2
+git status --short
+git add path/to/file1 path/to/file2 docs/screenshots/<pr-slug>/<platform>/
 git commit -m "type(scope): short description"
 ```
-- Never `git add .`
-- One commit unless changes are clearly separate concerns
 
-4. Push
+Include initial screenshots and any screenshot-tour test in the same logical commit as the UI change. Use one commit unless the work contains clearly separate concerns. A later standalone screenshot refresh uses its own `docs: refresh PR screenshots` commit.
 
-**Pre-flight** (Moat only): verify SSH is working before attempting push.
+## 5. Push
+
+Inside Moat, preflight SSH:
+
 ```bash
 ssh -T git@github.com 2>&1
 ```
-- If you see `Hi <user>!` → SSH works, proceed with push.
-- If you see `Permission denied (publickey)` → SSH agent has no keys.
-  **Stop and tell the user:**
-  > `git push` failed — the `ssh:github.com` grant's SSH agent has no keys loaded.
-  > This usually means your host SSH agent didn't have GitHub keys when Moat started.
-  > Fix: on your host machine, run `ssh-add` (load your key), then restart the Moat run.
 
-  **Do not** attempt to switch remotes to HTTPS, unset insteadOf rules, reconfigure
-  credentials, or push via the GitHub API. These workarounds will not work because
-  the system-level git config rewrites HTTPS→SSH and the network proxy blocks direct
-  HTTPS to github.com.
+- `Hi <user>!` means proceed.
+- `Permission denied (publickey)` means stop immediately and tell the user to run `ssh-add` on the host and restart the Moat run. Do not switch remotes, alter `insteadOf`, configure HTTPS credentials, or push through the API.
 
-**Push:**
 ```bash
 gh auth setup-git 2>/dev/null || true
-git push -u origin $(git branch --show-current)
+git push -u origin "$(git branch --show-current)"
+SHA=$(git rev-parse HEAD)
 ```
 
-5. Create or update PR
-```bash
-gh pr view --json number,state,body 2>/dev/null
-```
-- If no PR, **or the PR's `state` is `MERGED`/`CLOSED`** (the step 1.5 guard should already have moved you to a fresh branch, so this branch normally has no PR): compose the body per **PR body** below, then:
-  ```bash
-  gh pr create --title "type(scope): desc" --body-file - <<'EOF'
-  <body>
-  EOF
-  ```
-- If an **`OPEN`** PR exists:
-  1. Read the existing PR description from the `body` field above
-  2. Update it to account for the new commits — same **PR body** mental model — preserving anything still accurate
-  3. Write the revised body to a temp file, then apply it through the REST API:
-     ```bash
-     pr_number=$(gh pr view --json number -q .number)
-     gh api --method PATCH "repos/{owner}/{repo}/pulls/$pr_number" -F body=@/tmp/pr-body.md --jq .html_url
-     ```
-  4. Report the PR URL
+## 6. Compose the PR body
 
-**PR edit API rule:** for title/body/base edits, prefer `gh api --method PATCH "repos/{owner}/{repo}/pulls/$pr_number"` over `gh pr edit`. `gh pr edit` is convenient and still documented, but it has a recurring GraphQL failure mode where it fetches Projects/classic `projectCards` even when only changing the body/title, which can break in automation or with narrower tokens. The REST update endpoint is narrower and only needs Pull requests write permission. `gh pr edit` is still acceptable for labels, reviewers, assignees, milestones, or projects when you specifically need those high-level helpers.
-
-Read if present: `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`.
-
-## PR body
-
-Answer three things:
-
-- **Interface Changes** — strictly the consumer side: the change as a consumer sees it. For a service that's the API surface (new route, changed response shape); for an end-user app it's the UI / behaviour delta; for a CLI it's the new flag or output. Nothing about implementation. **May be empty for pure internal refactors** — keep the section header for structural consistency and write `none — internal refactor` (or equivalent) as the body.
-- **Implementation Changes** — non-obvious implementation choices, design notes, alternatives considered and discarded, optional follow-ups. Skip when the diff speaks for itself.
-- **Test Plan** — tests added (unit, integration), manual smoke checks, what a reviewer should look at to confirm the change is correct. **When the PR adds or updates automated tests, include a fenced `bash` code block with the exact command(s) to run them** so a reviewer (or CI) can copy-paste. **If the test plan needs multiple executable steps, give each its own fenced block** — one copy-button click per step, no manual splitting required. Skip blocks entirely when there's nothing automated to run (e.g., docs-only changes, manual-smoke-only).
-
-**Diagrams.** When the PR introduces or changes a **state machine** (entity lifecycle, status-enum transitions, workflow), include a Mermaid `flowchart LR` block in the relevant section — show **before → after** when the change is to an existing machine, not just the after. Do not use `stateDiagram-v2`; GitHub's renderer silently clips its edge labels and doesn't honor `\n`. See `AGENTS.md` for the full convention.
-
-Use these as content prompts, not a mandatory template. A one-line PR ("typo fix in README") doesn't need three sections. A non-trivial change does:
+For a non-trivial change, use this hierarchy:
 
 ````markdown
 ## Interface Changes
-<consumer-visible change — no implementation detail; for pure refactors: `none — internal refactor`>
+<strictly consumer-visible behavior; no implementation detail>
+
+### API Contract Changes
+<include only when an API changed>
+
+#### `PATCH /v1/orders/{id}` - breaking; required field added
+
+**Before**
+```http
+PATCH /v1/orders/{id}
+{ "status": "cancelled" }
+-> 200 Order
+```
+
+**After**
+```http
+PATCH /v1/orders/{id}
+{ "reason": string }
+-> 202 Cancellation
+```
+
+Changed behavior: authentication unchanged; `409 conflict` added; processing is asynchronous.
+
+Evidence: `openapi.yaml` and `tests/contracts/test_orders.py`.
+
+### Walkthrough
+<include only when web or iOS UI changed>
+
+#### Web
+##### <Journey>
+<commit-pinned images and short captions>
+
+#### iOS
+##### <Journey>
+<commit-pinned images and short captions>
 
 ## Implementation Changes
-<non-obvious implementation note — omit the section if the diff speaks for itself>
+<non-obvious implementation choices; omit prose when the diff speaks for itself>
 
 ## Test Plan
-<one-line summary: what tests were added / what was smoke-checked>
-
-```bash
-# step 1 — lint
-./test_runner.sh lint
-```
-
-```bash
-# step 2 — tests
-./test_runner.sh test
-```
+<automated and manual verification>
 ````
+
+`### API Contract Changes` and `### Walkthrough` are generated authoritatively from the complete current base-to-branch diff on every run. Replace stale generated content rather than appending fragments. Preserve hand-written Interface, Implementation, and Test content that remains accurate.
+
+Use native notation and fenced-language identifiers appropriate to each API. List every contract change, not only breaking ones.
+
+Build screenshot URLs from the final commit SHA so they work in public and private repositories:
+
+```html
+<img src="https://github.com/<owner>/<repo>/blob/<SHA>/docs/screenshots/<slug>/<platform>/NN-name.png?raw=true" alt="..." width="900" />
+```
+
+Use `width="320"` for portrait iOS screenshots. Keep screenshots grouped by platform and journey.
+
+When evidence is incomplete, keep the relevant subsection and add:
+
+```markdown
+> [!WARNING]
+> Evidence incomplete; this PR remains draft.
+> - Missing: iOS walkthrough
+> - Blocker: XcodeBuildMCP is unavailable in this environment
+```
+
+For a pure internal refactor, retain `## Interface Changes` and write `none - internal refactor`. Trivial changes may stay concise, but must not omit applicable contract or walkthrough evidence.
+
+When tests were added or changed, include exact copyable commands. Give separate executable steps separate `bash` blocks.
+
+**Diagrams.** When the PR introduces or changes a **state machine** (entity lifecycle, status-enum transitions, workflow), include a Mermaid `flowchart LR` block in the relevant section. Show **before -> after** when the change is to an existing machine, not just the after. Do not use `stateDiagram-v2`; GitHub's renderer silently clips its edge labels and does not honor `\n`. See `AGENTS.md` for the full convention.
+
+## 7. Create or update the PR
+
+Evidence is incomplete when any required platform walkthrough is blocked or any apparent API contract remains uncertain.
+
+For a new PR:
+
+```bash
+# Complete evidence: create ready (the default).
+gh pr create --title "type(scope): desc" --body-file /tmp/pr-body.md
+
+# Incomplete evidence: create draft.
+gh pr create --draft --title "type(scope): desc" --body-file /tmp/pr-body.md
+```
+
+For an existing open PR, update the description through REST:
+
+```bash
+OWNER_REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
+PR=$(gh pr view --json number -q .number)
+gh api --method PATCH "repos/$OWNER_REPO/pulls/$PR" \
+  -F body=@/tmp/pr-body.md --jq .html_url
+```
+
+If evidence is incomplete and the existing PR is ready, downgrade it:
+
+```bash
+gh pr ready --undo "$PR"
+```
+
+Never mark an existing draft ready automatically, even when all evidence is now complete; it may be draft for an unrelated reason.
+
+**PR edit API rule:** for title/body/base edits, prefer `gh api --method PATCH "repos/{owner}/{repo}/pulls/$PR"` over `gh pr edit`. `gh pr edit` is convenient and still documented, but it has a recurring GraphQL failure mode where it fetches Projects/classic `projectCards` even when only changing the body/title, which can break in automation or with narrower tokens. The REST update endpoint is narrower and only needs Pull requests write permission. `gh pr edit` is still acceptable for labels, reviewers, assignees, milestones, or projects when you specifically need those high-level helpers.
+
+Report the PR URL, readiness state, captured screenshot counts by platform/journey, API contract count, and any unresolved evidence.
 
 ## Edge cases
 
-- **Working tree has unrelated changes:** stage only the paths you intend to ship.
-- **PR already exists for the branch:** update its description with the new commits' context (step 5); don't open a duplicate.
-- **No `origin` remote:** stop — `git push` and `gh pr create` both require it.
+- **Working tree has unrelated changes:** leave them unstaged and unmentioned in the commit.
+- **No `origin`:** stop; push and PR creation require it.
+- **Capture succeeds for one platform and fails for another:** embed the successful evidence, warn for the missing platform, and ship draft.
+- **Existing screenshots are stale:** regenerate the applicable platform directory and update URLs to the new SHA.
+- **Screenshot refresh after review:** invoke the platform screenshot skill independently; it owns a separate refresh commit and updates only its generated platform block.
 
 ## Moat
 
-The `ssh:github.com` grant proxies your host machine's SSH agent into the
-container — private keys never enter the container. A system-level git config
-(`/tmp/.gitsystem-isolated`) rewrites all HTTPS GitHub URLs to SSH, so all git
-transport goes through SSH.
-
-**If SSH auth fails**: the SSH agent proxy has no keys. This means the host's
-SSH agent wasn't running or didn't have GitHub keys loaded when Moat started.
-There is no HTTPS fallback — the URL rewrite and network proxy make it
-impossible. The only fix is to load keys on the host and restart the Moat run.
-Do not attempt workarounds (switching remotes, unsetting config, API push).
-
-The `gh auth setup-git` fallback covers non-Moat environments where HTTPS with
-a credential helper is the standard path. All `gh` subcommands (`pr create`,
-`pr view`, etc.) use the `github` grant's API access.
+The `ssh:github.com` grant proxies the host SSH agent. A system Git config rewrites GitHub HTTPS URLs to SSH, so there is no HTTPS fallback. `gh` commands use the GitHub API grant.
