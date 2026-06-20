@@ -92,10 +92,10 @@ Treat a change as an API contract change when it alters an external or service-t
 For every changed contract, determine:
 
 - classification:
-  - `additive`: a new compatible contract surface or optional capability; existing consumers continue working unchanged.
-  - `behavioral`: the contract shape remains compatible, but semantics, side effects, validation, defaults, status timing, or documented errors change.
+  - `additive`: a backward-compatible new contract surface or optional capability; existing consumers continue working unchanged.
+  - `compatible behavior change`: observable behavior, side effects, validation, defaults, status timing, or documented errors changed, but existing consumers should continue working correctly.
   - `breaking`: an existing consumer may need code, configuration, auth, data, or workflow changes to keep working correctly.
-  - `removed`: a previously available contract, field, method, status, or behavior is no longer supported.
+- breaking detail, when applicable: removed, renamed, required field added, response shape changed, auth changed, status or error semantics changed incompatibly, or documented behavior removed.
 - native contract identifier, such as `PATCH /v1/orders/{id}` or `OrderService.Cancel`;
 - **Before** contract;
 - **After** contract;
@@ -167,7 +167,7 @@ For a non-trivial change, use this hierarchy:
 ### API Contract Changes
 <include only when an API changed>
 
-#### `PATCH /v1/orders/{id}` - breaking
+#### `PATCH /v1/orders/{id}` - breaking; required field added
 
 **Before**
 ```http
