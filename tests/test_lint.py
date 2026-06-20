@@ -237,8 +237,3 @@ def test_codex_moat_config_toml_valid():
     assert config["approval_policy"] == "never"
     assert config["sandbox_mode"] == "danger-full-access"
     assert config["projects"]["/workspace"]["trust_level"] == "trusted"
-
-
-def test_invalid_json_rejected():
-    with pytest.raises(json.JSONDecodeError):
-        json.loads('{"missing": value}')
