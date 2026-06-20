@@ -13,6 +13,7 @@ Commit, push, and create or update a PR. Treat reviewer evidence as part of the 
 - Never push onto a branch whose PR is merged or closed. Recover onto a fresh branch as described below.
 - Never use `git add .` or `git add -A`. Stage explicit paths only.
 - Never include unrelated working-tree changes.
+- Use one commit unless changes are clearly separate concerns.
 - If there are no branch or working-tree diffs from the PR base, stop.
 - Required screenshots and API descriptions gate **ready** status, not shipping. Incomplete evidence produces a draft PR with an explicit warning.
 - Never automatically promote an existing draft PR to ready. Automatically downgrade a ready PR when required evidence becomes incomplete.
@@ -90,7 +91,11 @@ Treat a change as an API contract change when it alters an external or service-t
 
 For every changed contract, determine:
 
-- classification: `additive`, `behavioral`, `breaking`, or `removed`;
+- classification:
+  - `additive`: a new compatible contract surface or optional capability; existing consumers continue working unchanged.
+  - `behavioral`: the contract shape remains compatible, but semantics, side effects, validation, defaults, status timing, or documented errors change.
+  - `breaking`: an existing consumer may need code, configuration, auth, data, or workflow changes to keep working correctly.
+  - `removed`: a previously available contract, field, method, status, or behavior is no longer supported.
 - native contract identifier, such as `PATCH /v1/orders/{id}` or `OrderService.Cancel`;
 - **Before** contract;
 - **After** contract;
@@ -225,7 +230,7 @@ For a pure internal refactor, retain `## Interface Changes` and write `none - in
 
 When tests were added or changed, include exact copyable commands. Give separate executable steps separate `bash` blocks.
 
-When the PR changes a state machine, include Mermaid `flowchart LR` diagrams for both before and after. Follow `AGENTS.md`; do not use `stateDiagram-v2`.
+When the PR changes a state machine, include Mermaid `flowchart LR` diagrams for both before and after. Follow `AGENTS.md`; do not use `stateDiagram-v2`, because GitHub clips long state-diagram edge labels.
 
 ## 7. Create or update the PR
 
@@ -258,7 +263,7 @@ gh pr ready --undo "$PR"
 
 Never mark an existing draft ready automatically, even when all evidence is now complete; it may be draft for an unrelated reason.
 
-Prefer the REST endpoint above for title/body/base edits. Use `gh pr edit` only for helpers such as labels, reviewers, assignees, milestones, or projects.
+**PR edit API rule:** for title/body/base edits, prefer `gh api --method PATCH "repos/{owner}/{repo}/pulls/$PR"` over `gh pr edit`. `gh pr edit` is convenient and documented, but it can fail in automation by fetching Projects/classic `projectCards` even when only changing the body or title. The REST update endpoint is narrower and only needs pull-request write permission. Use `gh pr edit` for helpers such as labels, reviewers, assignees, milestones, or projects when those high-level helpers are specifically needed.
 
 Report the PR URL, readiness state, captured screenshot counts by platform/journey, API contract count, and any unresolved evidence.
 
