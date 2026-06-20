@@ -61,7 +61,7 @@ When a tour exists, update its journeys to match the complete current diff and r
 - If no usable UI-test target or deterministic launch/fixture mechanism exists, create one only when the repository already has a safe, established way to generate or edit test targets. Otherwise return a blocker rather than making a speculative project rewrite.
 - Keep a single focused tour method so one `test_sim` call produces the complete walkthrough.
 
-The tour must launch isolated fixture/demo data. Never use personal accounts, credentials, production records, notification content, or uncontrolled remote state. Prefer launch arguments/environment and in-process fixtures over network setup.
+The tour must launch isolated fixture/demo data. Prefer launch arguments/environment and in-process fixtures over network setup, but when the changed journey genuinely requires authenticated staging state, create a fresh throwaway staging account and representative non-sensitive records through the repository's established safe setup path. Do not bail merely because no reusable account exists. Never use personal accounts, credentials, production records, notification content, or uncontrolled remote state.
 
 Use a helper equivalent to:
 
@@ -92,7 +92,8 @@ On failure:
 1. Read the test/build diagnostics returned by XcodeBuildMCP.
 2. Use `snapshot_ui` and `screenshot` when needed to diagnose the visible state.
 3. Fix deterministic tour/setup failures and retry once they are understood.
-4. If the journey still cannot be captured reliably, return incomplete evidence with the exact failing step. Do not extract screenshots from a failed tour as if they were complete.
+4. If the journey requires authenticated staging state, create or repair a fresh throwaway staging account through the repository's established safe setup path before declaring authentication blocked.
+5. If the journey still cannot be captured reliably, return incomplete evidence with the exact failing step. Do not extract screenshots from a failed tour as if they were complete.
 
 Record the `.xcresult` path returned or reported by `test_sim`. If the tool does not return one directly, locate the result bundle produced by that specific run without selecting an older ambiguous bundle.
 
@@ -120,7 +121,7 @@ Open every extracted PNG. Confirm that each image:
 - has no keyboard, system sheet, loading overlay, or stale fixture state unless that state is the subject of the change;
 - is legible and correctly oriented.
 
-Use XcodeBuildMCP `snapshot_ui` and `screenshot` for diagnosis when an attachment is suspicious. Prefer fixing fixtures/timing and rerunning the tour over editing the image. If redaction is unavoidable, disclose it in the caption. If a safe representative image cannot be produced, return incomplete evidence.
+Use XcodeBuildMCP `snapshot_ui` and `screenshot` for diagnosis when an attachment is suspicious. Prefer fixing fixtures, throwaway staging setup, or timing and rerunning the tour over editing the image. If redaction is unavoidable, disclose it in the caption. If a safe representative image cannot be produced after using available fixture or staging-account setup, return incomplete evidence.
 
 Keep a typical tour below roughly 3 MB. Remove redundant images before lowering quality; the extractor already limits the longest dimension.
 

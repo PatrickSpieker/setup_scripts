@@ -9,7 +9,7 @@ Commit, push, and create or update a PR. Treat reviewer evidence as part of the 
 
 ## Hard rules
 
-- Never push to `main` or `master`. If currently there, stop and ask the user to create a feature branch; when the repo has no convention, recommend `<agent>/short-desc`.
+- Never push to `main` or `master`. If currently there, create a feature branch yourself before continuing; when the repo has no convention, use `codex/short-desc`.
 - Never push onto a branch whose PR is merged or closed. Recover onto a fresh branch as described below.
 - Never use `git add .` or `git add -A`. Stage explicit paths only.
 - Never include unrelated working-tree changes.
@@ -26,7 +26,17 @@ git branch --show-current
 gh pr view --json state,number,url,baseRefName,body,isDraft 2>/dev/null || echo "NONE"
 ```
 
-If on the default branch, stop and ask the user to create a feature branch before continuing.
+If on the default branch, create a feature branch before continuing. Choose a short kebab-case name from the requested work or current diff, prefer the repository's established branch prefix when obvious, and otherwise use `codex/<short-desc>`:
+
+```bash
+default_branch=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name)
+cur=$(git branch --show-current)
+if [ "$cur" = "$default_branch" ] || [ "$cur" = "main" ] || [ "$cur" = "master" ]; then
+  new="codex/<short-desc>"
+  git rev-parse --verify "$new" 2>/dev/null && new="${new}-$(date +%H%M%S)"
+  git checkout -b "$new"
+fi
+```
 
 If the current branch's PR is `MERGED` or `CLOSED`, do not add commits to it. Fetch the default branch, then create a fresh branch:
 
@@ -108,7 +118,7 @@ Pass the resolved base, slug, changed journeys, and pending diff context. Captur
 - Web: desktop `1400x860`; add mobile/tablet only for responsive changes.
 - iOS: newest available portrait iPhone simulator; add devices/orientations only for adaptive changes.
 
-The delegated skill must remove obsolete PNGs only inside its platform directory, use isolated fixture/demo data, inspect every generated image, and return the captured paths grouped by journey or a precise blocker. Do not stage unsafe screenshots containing credentials, personal data, production records, or notifications. If representative evidence cannot be produced safely, treat it as incomplete.
+The delegated skill must remove obsolete PNGs only inside its platform directory, use isolated fixture/demo data or a fresh throwaway staging account, inspect every generated image, and return the captured paths grouped by journey or a precise blocker. If authentication or persisted server state is needed for a representative capture, create the staging account and test records yourself when the repository exposes a safe staging path; do not treat account creation as a reason to bail. Do not stage unsafe screenshots containing credentials, personal data, production records, or notifications. If representative evidence still cannot be produced safely, treat it as incomplete.
 
 Do not abort when capture is blocked. Record the missing platform and blocker for the PR warning, then continue shipping as draft.
 

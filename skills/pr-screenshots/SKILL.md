@@ -40,9 +40,9 @@ If no consumer-visible web UI changed, return `not required`. Do not capture mer
 
 Inspect package-manager files, workspace configuration, scripts, and contributor instructions. Prefer the repository's established dev or preview command. Do not install a second browser automation stack; use the configured Playwright MCP/browser tools.
 
-Determine the local URL from configuration or server output. Start the app with isolated fixture/demo data. Never point screenshot setup at production data or the user's personal data directory.
+Determine the local URL from configuration or server output. Start the app with isolated fixture/demo data. When the changed journey requires authentication or persisted server state and the repository exposes a safe staging environment, create a fresh throwaway staging account and representative test records for the capture; do not bail merely because no reusable account exists. Never point screenshot setup at production data or the user's personal data directory.
 
-If the app cannot start, authentication cannot be satisfied safely, Playwright is unavailable, or a required journey cannot be reached, return a precise blocker. In refresh mode, continue to the draft handling step rather than silently retaining stale evidence.
+If the app cannot start, authentication still cannot be satisfied safely after creating or attempting an allowed throwaway staging account, Playwright is unavailable, or a required journey cannot be reached, return a precise blocker. In refresh mode, continue to the draft handling step rather than silently retaining stale evidence.
 
 ## 3. Prepare scoped output
 
@@ -68,7 +68,7 @@ Add mobile/tablet viewports only when the diff changes responsive or breakpoint-
 For each journey:
 
 1. Navigate to the starting route.
-2. Seed or create representative non-sensitive data.
+2. Seed or create representative non-sensitive data, including a fresh throwaway staging account when safe staging auth is required.
 3. Use the accessibility snapshot to locate controls.
 4. Interact until the materially changed state is stable.
 5. Capture `docs/screenshots/<slug>/web/NN-kebab-case.png`.
