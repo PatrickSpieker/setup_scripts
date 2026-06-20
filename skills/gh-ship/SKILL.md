@@ -230,7 +230,7 @@ For a pure internal refactor, retain `## Interface Changes` and write `none - in
 
 When tests were added or changed, include exact copyable commands. Give separate executable steps separate `bash` blocks.
 
-When the PR changes a state machine, include Mermaid `flowchart LR` diagrams for both before and after. Follow `AGENTS.md`; do not use `stateDiagram-v2`, because GitHub clips long state-diagram edge labels.
+**Diagrams.** When the PR introduces or changes a **state machine** (entity lifecycle, status-enum transitions, workflow), include a Mermaid `flowchart LR` block in the relevant section. Show **before -> after** when the change is to an existing machine, not just the after. Do not use `stateDiagram-v2`; GitHub's renderer silently clips its edge labels and does not honor `\n`. See `AGENTS.md` for the full convention.
 
 ## 7. Create or update the PR
 
@@ -263,7 +263,7 @@ gh pr ready --undo "$PR"
 
 Never mark an existing draft ready automatically, even when all evidence is now complete; it may be draft for an unrelated reason.
 
-**PR edit API rule:** for title/body/base edits, prefer `gh api --method PATCH "repos/{owner}/{repo}/pulls/$PR"` over `gh pr edit`. `gh pr edit` is convenient and documented, but it can fail in automation by fetching Projects/classic `projectCards` even when only changing the body or title. The REST update endpoint is narrower and only needs pull-request write permission. Use `gh pr edit` for helpers such as labels, reviewers, assignees, milestones, or projects when those high-level helpers are specifically needed.
+**PR edit API rule:** for title/body/base edits, prefer `gh api --method PATCH "repos/{owner}/{repo}/pulls/$PR"` over `gh pr edit`. `gh pr edit` is convenient and still documented, but it has a recurring GraphQL failure mode where it fetches Projects/classic `projectCards` even when only changing the body/title, which can break in automation or with narrower tokens. The REST update endpoint is narrower and only needs Pull requests write permission. `gh pr edit` is still acceptable for labels, reviewers, assignees, milestones, or projects when you specifically need those high-level helpers.
 
 Report the PR URL, readiness state, captured screenshot counts by platform/journey, API contract count, and any unresolved evidence.
 
