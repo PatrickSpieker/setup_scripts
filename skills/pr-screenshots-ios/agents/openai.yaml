@@ -1,0 +1,4 @@
+interface:
+  display_name: "iOS PR Screenshots"
+  short_description: "Capture iOS walkthroughs for pull requests"
+  default_prompt: "Use $pr-screenshots-ios to capture and embed iOS screenshots for this pull request."
