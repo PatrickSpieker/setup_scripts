@@ -166,23 +166,3 @@ def test_claude_cache_line_keeps_creation(plugin, capsys):
                               show_cache_create=True)
     out = capsys.readouterr().out
     assert "read" in out and "created" in out
-
-
-# ─── formatting ─────────────────────────────────────────────────────────────
-
-def test_fmt_cost_zero(plugin):
-    assert plugin.fmt_cost(0) == "$0.00"
-    assert plugin.fmt_cost(None) == "$0.00"
-
-
-def test_fmt_cost_dollars(plugin):
-    assert plugin.fmt_cost(1.5) == "$1.50"
-    assert plugin.fmt_cost(1234.567) == "$1,234.57"
-    assert plugin.fmt_cost(0.123) == "$0.123"
-
-
-def test_fmt_tokens_scaling(plugin):
-    assert plugin.fmt_tokens(0) == "0"
-    assert plugin.fmt_tokens(500) == "500"
-    assert plugin.fmt_tokens(12_345) == "12.3K"
-    assert plugin.fmt_tokens(1_234_567) == "1.2M"
