@@ -1,0 +1,4 @@
+interface:
+  display_name: "Perfume Notes Board"
+  short_description: "Create Pinterest-first perfume notes boards"
+  default_prompt: "Use $perfume-notes-board to turn these named Pinterest boards into a top/middle/base notes board."

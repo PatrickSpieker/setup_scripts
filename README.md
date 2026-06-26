@@ -64,6 +64,7 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 | `tdd` | Test-driven development with red-green-refactor loop |
 | `de-slop` | Remove AI artifacts and cleanup noise before a PR |
 | `explore-repo` | Structured codebase exploration before planning or building |
+| `obo` | Focus a sprawling conversation down to the precise task by asking one question at a time |
 | `vscode-review` | Open every changed file on the current branch in a new VS Code window — a `--diff` tab and a live-file tab per file. Use to review local Claude/Codex output before committing |
 | `local-review` | Address inline `//r <thought>` review markers left in the working tree — apply the change and remove the marker, or rewrite as `//c <reply>` to push back. Pairs with `vscode-review` |
 | `zoom-out` | Get a higher-level map of an unfamiliar area of code, using the language in CONTEXT.md |
@@ -75,6 +76,7 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 | `new-skill` | Create a new skill from conversation history |
 | `youtube-extractor` | Extract transcripts, titles, and thumbnails from YouTube videos |
 | `pdf-viewing` | OCR PDFs with page tracking and rasterize to images |
+| `perfume-notes-board` | Create Pinterest-first top/middle/base perfume notes boards from a visual corpus |
 | `cc-llms` | Load context on the Claude Developer Platform from a bundled llms.txt reference |
 | `codex-llms-full` | Load context on OpenAI Codex (CLI, IDE, cloud, SDK) from a bundled llms.txt reference |
 | `linear-llms` | Load context on Linear (issues, GraphQL API, SDK) from a bundled llms.txt index |
