@@ -28,6 +28,22 @@
         font-weight: 700;
         box-shadow: inset 0 -4px #1d9bf0;
       }
+
+      [role="menu"] {
+        width: 220px;
+        margin-top: 24px;
+        border: 1px solid #d0d7de;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgb(140 149 159 / 20%);
+      }
+
+      [role="menuitemradio"] {
+        display: flex;
+        justify-content: space-between;
+        padding: 18px 24px;
+        font-size: 18px;
+        font-weight: 700;
+      }
     </style>
   </head>
   <body>
@@ -36,6 +52,16 @@
       <div role="tablist" aria-label="Home timeline">
         <a role="tab" aria-selected="true" href="/home">For you</a>
         <a role="tab" aria-selected="false" href="/home?f=live">Following</a>
+      </div>
+      <div role="menu" aria-label="Sort by">
+        <div>Sort by</div>
+        <div role="menuitemradio" aria-checked="true" tabindex="0">
+          <span>Popular</span>
+          <span>selected</span>
+        </div>
+        <div role="menuitemradio" aria-checked="false" tabindex="0">
+          <span>Recent</span>
+        </div>
       </div>
     </main>
   </body>
