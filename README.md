@@ -42,6 +42,7 @@ setup_scripts/
 │   ├── moat.yaml            # Template moat config for Claude Code projects (used by `mcl`)
 │   └── moat-codex.yaml      # Template moat config for Codex projects (used by `mco`)
 ├── skills/                  # AI agent skills (Claude Code + Codex CLI) — see Skills table below
+├── chrome-extensions/       # Tiny unpacked Chrome extensions
 └── swiftbar_plugins/
     ├── ai_token_usage.1m.py # Menu bar token usage tracker (Claude + Codex, 1-min refresh)
     └── moat_orphans.5m.py   # Menu bar warning for stale Moat containers (5-min refresh)
