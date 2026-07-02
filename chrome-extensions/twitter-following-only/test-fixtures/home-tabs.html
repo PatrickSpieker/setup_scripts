@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Twitter Following Only Fixture</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        margin: 40px;
+      }
+
+      [role="tablist"] {
+        display: flex;
+        width: 520px;
+        border: 1px solid #d0d7de;
+      }
+
+      [role="tab"] {
+        flex: 1;
+        padding: 18px;
+        color: #536471;
+        text-align: center;
+        text-decoration: none;
+      }
+
+      [aria-selected="true"] {
+        color: #0f1419;
+        font-weight: 700;
+        box-shadow: inset 0 -4px #1d9bf0;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Home</h1>
+      <div role="tablist" aria-label="Home timeline">
+        <a role="tab" aria-selected="true" href="/home">For you</a>
+        <a role="tab" aria-selected="false" href="/home?f=live">Following</a>
+      </div>
+    </main>
+  </body>
+</html>

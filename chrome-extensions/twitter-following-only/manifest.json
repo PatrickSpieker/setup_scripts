@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Twitter Following Only",
+  "version": "0.1.0",
+  "description": "Hides the For you home timeline tab on X/Twitter and switches to Following when needed.",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://x.com/*",
+        "https://twitter.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
