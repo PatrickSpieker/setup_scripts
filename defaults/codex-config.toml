@@ -6,7 +6,7 @@ notify = ["/Users/patrickspieker/.codex/computer-use/Codex Computer Use.app/Cont
 service_tier = "default"
 
 [marketplaces.openai-bundled]
-last_updated = "2026-07-02T14:50:57Z"
+last_updated = "2026-07-05T19:49:05Z"
 source_type = "local"
 source = "/Users/patrickspieker/.codex/.tmp/bundled-marketplaces/openai-bundled"
 
@@ -81,6 +81,21 @@ trust_level = "trusted"
 [projects."/Users/patrickspieker/Documents/Codex/2026-07-01/add"]
 trust_level = "trusted"
 
+[projects."/Users/patrickspieker/Documents/Codex/2026-07-03/have"]
+trust_level = "trusted"
+
+[projects."/Users/patrickspieker/Documents/Codex/2026-07-05/read"]
+trust_level = "trusted"
+
+[projects."/Users/patrickspieker/Documents/Westport House"]
+trust_level = "trusted"
+
+[projects."/Users/patrickspieker/Documents/Codex/2026-07-06/which-of-the-big-four-sports"]
+trust_level = "trusted"
+
+[projects."/Users/patrickspieker/Documents/Codex/2026-07-06/l"]
+trust_level = "trusted"
+
 [mcp_servers.xcode]
 command = "xcrun"
 args = ["mcpbridge"]
@@ -108,12 +123,12 @@ NODE_REPL_NODE_MODULE_DIRS = "/Applications/Codex.app/Contents/Resources/cua_nod
 NODE_REPL_NODE_PATH = "/Applications/Codex.app/Contents/Resources/cua_node/bin/node"
 NODE_REPL_TRUSTED_CODE_PATHS = "/Users/patrickspieker/.codex"
 CODEX_HOME = "/Users/patrickspieker/.codex"
-NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "cb79053fda6deb0f3b5d6f0d90d4257305ebdbd1e378a12e8fbc5bde782eb59b"
+NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "60e4902788f207f88fd09344dfeafe07769488bdb2924bbb12b322c3b9d2b999"
 BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
 NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
 NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = "Control the Chrome browser in conjunction with the Chrome Plugin. Prefer this method of controlling Chrome over alternatives (such as Computer Use) unless the user explicitly mentions an alternative."
 BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
-BROWSER_USE_CODEX_APP_VERSION = "26.623.81905"
+BROWSER_USE_CODEX_APP_VERSION = "26.623.101652"
 CODEX_CLI_PATH = "/Applications/Codex.app/Contents/Resources/codex"
 
 [mcp_servers.XcodeBuildMCP]
@@ -133,6 +148,7 @@ global = "vscode"
 [desktop.open-in-target-preferences.perPath]
 "/Users/patrickspieker/code/hdw/HDW" = "vscode"
 "/Users/patrickspieker/.codex/worktrees/275b/web-app" = "vscode"
+"/Users/patrickspieker/.codex/worktrees/2aa3/web-app" = "vscode"
 
 [features]
 js_repl = false
