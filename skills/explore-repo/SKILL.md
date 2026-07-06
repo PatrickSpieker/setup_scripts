@@ -78,6 +78,23 @@ Report findings to the user at each phase before moving on. Be explicit about wh
 
 **Report:** Targeted findings with file paths, prior art, and approach trade-offs.
 
+### Phase 5: Fresh Branch Handoff
+
+**Goal:** Leave the user in a clean, newly named branch so the next planning or implementation step has a unique branch checked out.
+
+After producing the final exploration summary:
+
+1. Check the current branch state with `git status --short --branch`.
+2. Create and check out a fresh timestamp branch from the current `HEAD`:
+
+   ```bash
+   git switch -c "codex/$(date +%Y%m%d-%H%M%S)"
+   ```
+
+3. Report the new branch name to the user.
+
+This is intentionally worktree-compatible: Git forbids checking out the same existing branch in multiple worktrees, but a newly created timestamp branch is unique and therefore not already checked out elsewhere. Do not reuse an existing branch name for this handoff.
+
 ## Output Format
 
 At the end of exploration, produce a structured summary for use as planning input:
@@ -121,11 +138,13 @@ At the end of exploration, produce a structured summary for use as planning inpu
 
 Hand this summary to `/spec-it` to start grilling the user about implementation intent.
 
+After the summary, create the fresh timestamp branch described in Phase 5 and include the branch name in the final response.
+
 ## Rules
 
 1. **Never skip exploration to jump to building.** Skipping leads to code that fights existing patterns, reinvents utilities, or gets the architecture wrong.
 2. **Every exploration is fresh.** Do not assume cached summaries are current. If the README says one thing and the code says another, the code wins.
-3. **Do not change any files.** Read, do not write. You may run existing tests or build commands to test understanding, but do not edit source files.
+3. **Do not change any files.** Read, do not write. You may run existing tests or build commands to test understanding, but do not edit source files. The only allowed repository mutation is the final timestamp branch creation in Phase 5.
 4. **Flag uncertainty and ask questions.** If multiple patterns exist and you don't know which is preferred, say so. Unexpressed uncertainty is the enemy.
 5. **Prefer pointing over caching.** Give file paths the agent can read later rather than pasting large code blocks. The summary is a map, not a copy of the territory.
 6. **Use diagrams.** ASCII and Mermaid diagrams are high-value for communicating architecture. Generate them and ask the user to verify.
