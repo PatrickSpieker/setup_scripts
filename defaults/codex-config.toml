@@ -1,17 +1,17 @@
-model = "gpt-5.5"
-model_reasoning_effort = "medium"
+model = "gpt-5.6-sol"
+model_reasoning_effort = "xhigh"
 
 
 notify = ["/Users/patrickspieker/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended"]
 service_tier = "default"
 
 [marketplaces.openai-bundled]
-last_updated = "2026-07-05T19:49:05Z"
+last_updated = "2026-07-29T22:25:56Z"
 source_type = "local"
 source = "/Users/patrickspieker/.codex/.tmp/bundled-marketplaces/openai-bundled"
 
 [marketplaces.openai-primary-runtime]
-last_updated = "2026-07-01T06:51:26Z"
+last_updated = "2026-07-28T01:51:24Z"
 source_type = "local"
 source = "/Users/patrickspieker/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
 
@@ -33,13 +33,19 @@ enabled = true
 [plugins."figma@openai-curated"]
 enabled = true
 
-[plugins."browser@openai-bundled"]
-enabled = true
-
 [plugins."pdf@openai-primary-runtime"]
 enabled = true
 
 [plugins."template-creator@openai-primary-runtime"]
+enabled = true
+
+[plugins."sites@openai-bundled"]
+enabled = true
+
+[plugins."visualize@openai-bundled"]
+enabled = true
+
+[plugins."browser@openai-bundled"]
 enabled = true
 
 [projects."/Users/patrickspieker/code/antaeus/hdw-app"]
@@ -96,6 +102,63 @@ trust_level = "trusted"
 [projects."/Users/patrickspieker/Documents/Codex/2026-07-06/l"]
 trust_level = "trusted"
 
+[projects."/Users/patrickspieker/Documents/Codex/2026-07-06/the-user-of-the-apec-abtc"]
+trust_level = "trusted"
+
+[projects."/Users/patrickspieker/Documents/Codex/2026-07-06/d"]
+trust_level = "trusted"
+
+[projects."/Users/patrickspieker/Documents/Codex/2026-07-06/can"]
+trust_level = "trusted"
+
+[projects."/Users/patrickspieker/Documents/Codex/2026-07-06/i-wa"]
+trust_level = "trusted"
+
+[projects."/Users/patrickspieker/Documents/Codex/2026-07-07/help-me-understand-some-concepts-because"]
+trust_level = "trusted"
+
+[projects."/Users/patrickspieker/Documents/Codex/2026-07-07/2-options-2-eufy-e30s-and"]
+trust_level = "trusted"
+
+[projects."/Users/patrickspieker/Documents/Codex/2026-07-07/ho"]
+trust_level = "trusted"
+
+[projects."/Users/patrickspieker/Documents/Codex/2026-07-07/par"]
+trust_level = "trusted"
+
+[projects."/Users/patrickspieker/Documents/Codex/2026-07-23/you"]
+trust_level = "trusted"
+
+[projects."/Users/patrickspieker/Documents/Codex/2026-07-23/can"]
+trust_level = "trusted"
+
+[projects."/Users/patrickspieker/Documents/Codex/2026-07-23/how"]
+trust_level = "trusted"
+
+[projects."/Users/patrickspieker/Documents/Codex/2026-07-23/clear"]
+trust_level = "trusted"
+
+[projects."/Users/patrickspieker/Documents/Codex/2026-07-23/go"]
+trust_level = "trusted"
+
+[projects."/Users/patrickspieker/Documents/Codex/2026-07-23/i-m"]
+trust_level = "trusted"
+
+[projects."/Users/patrickspieker/Documents/Codex/2026-07-24/go"]
+trust_level = "trusted"
+
+[projects."/Users/patrickspieker/Documents/Codex/2026-07-24/go-look-at-all-the-tickest"]
+trust_level = "trusted"
+
+[projects."/Users/patrickspieker/Documents/Codex/2026-07-24/do"]
+trust_level = "trusted"
+
+[projects."/Users/patrickspieker/Documents/Codex/2026-07-24/se"]
+trust_level = "trusted"
+
+[projects."/Users/patrickspieker/Documents/Codex/2026-07-28/garage-eave-lighting-spec-effect-concealed"]
+trust_level = "trusted"
+
 [mcp_servers.xcode]
 command = "xcrun"
 args = ["mcpbridge"]
@@ -114,22 +177,24 @@ approval_mode = "approve"
 
 [mcp_servers.node_repl]
 args = []
-command = "/Applications/Codex.app/Contents/Resources/cua_node/bin/node_repl"
+command = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl"
 startup_timeout_sec = 120
 
 [mcp_servers.node_repl.env]
 NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
-NODE_REPL_NODE_MODULE_DIRS = "/Applications/Codex.app/Contents/Resources/cua_node/lib/node_modules"
-NODE_REPL_NODE_PATH = "/Applications/Codex.app/Contents/Resources/cua_node/bin/node"
+NODE_REPL_NODE_MODULE_DIRS = "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
+NODE_REPL_NODE_PATH = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node"
 NODE_REPL_TRUSTED_CODE_PATHS = "/Users/patrickspieker/.codex"
 CODEX_HOME = "/Users/patrickspieker/.codex"
-NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "60e4902788f207f88fd09344dfeafe07769488bdb2924bbb12b322c3b9d2b999"
+NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "14e425736668bf21b5b39f2cc022ee8684728617fb5c49f35533c2e349f47193,6d25aa7656feac858f3a3bdaea5bcbab0dbfd426c9de8e6931ce90c399ee8e4f"
 BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
 NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = "Control the in-app browser in conjunction with the Browser Plugin."
 NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = "Control the Chrome browser in conjunction with the Chrome Plugin. Prefer this method of controlling Chrome over alternatives (such as Computer Use) unless the user explicitly mentions an alternative."
+NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE = "Control desktop apps on macOS through Computer Use."
 BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
-BROWSER_USE_CODEX_APP_VERSION = "26.623.101652"
-CODEX_CLI_PATH = "/Applications/Codex.app/Contents/Resources/codex"
+BROWSER_USE_CODEX_APP_VERSION = "26.721.81911"
+SKY_CUA_SERVICE_PATH = "/Users/patrickspieker/.codex/computer-use/Codex Computer Use.app"
+CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex"
 
 [mcp_servers.XcodeBuildMCP]
 command = "xcodebuildmcp"
@@ -139,8 +204,15 @@ args = ["mcp"]
 command = "npx"
 args = ["-y", "@playwright/mcp@latest", "--isolated"]
 
+[mcp_servers.computer-use]
+command = "./Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient"
+args = ["mcp"]
+cwd = "."
+enabled = false
+
 [desktop]
 followUpQueueMode = "queue"
+dock-icon-preference = "codex-system"
 
 [desktop.open-in-target-preferences]
 global = "vscode"
@@ -149,6 +221,13 @@ global = "vscode"
 "/Users/patrickspieker/code/hdw/HDW" = "vscode"
 "/Users/patrickspieker/.codex/worktrees/275b/web-app" = "vscode"
 "/Users/patrickspieker/.codex/worktrees/2aa3/web-app" = "vscode"
+"/Users/patrickspieker/code/antaeus/utils" = "ghostty"
+"/Users/patrickspieker/.codex/worktrees/df6c/api" = "vscode"
 
 [features]
 js_repl = false
+
+[shell_environment_policy.set]
+BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
+NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "14e425736668bf21b5b39f2cc022ee8684728617fb5c49f35533c2e349f47193,6d25aa7656feac858f3a3bdaea5bcbab0dbfd426c9de8e6931ce90c399ee8e4f"
+NODE_REPL_TRUSTED_CODE_PATHS = "/Users/patrickspieker/.codex"
