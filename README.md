@@ -82,9 +82,6 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 | `codex-llms-full` | Load context on OpenAI Codex (CLI, IDE, cloud, SDK) from a bundled llms.txt reference |
 | `linear-llms` | Load context on Linear (issues, GraphQL API, SDK) from a bundled llms.txt index |
 | `moat-llms-full` | Load context on Moat (container runtime for AI agents) from a bundled llms.txt reference |
-| `render-llms-full` | Load context on Render (cloud platform) from a bundled llms.txt reference |
-| `render-debug` | Debug failed Render deployments by analyzing logs, metrics, and database state |
-| `render-monitor` | Monitor Render services in real-time — health, metrics, logs, deployment verification |
 | `firebase-basics` | Firebase CLI setup and project management (install check, login, active project, web SDK) |
 | `firebase-auth-basics` | Set up and use Firebase Authentication (provisioning, sign-in flows, security rules) |
 
