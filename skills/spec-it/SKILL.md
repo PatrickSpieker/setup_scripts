@@ -5,7 +5,7 @@ description: Grill the user one question at a time to extract a complete impleme
 
 # Spec It
 
-Pull a full implementation plan out of the user's head and into the conversation, then ship it as a GitHub PR. Combines the grilling discipline of the old `grill-with-docs` skill with the PR-as-plan shipping flow of the old `ship-plan` skill.
+Pull a full implementation plan out of the user's head and into the conversation, then ship it as a GitHub PR.
 
 ## Pipeline this fits into
 
@@ -31,6 +31,7 @@ The skill trusts the user — no check that exploration has happened. If the use
 - **Cross-reference the code.** When the user makes a claim about how the system works, verify it before letting it shape the plan. If the code disagrees, surface the contradiction inline.
 - **Branch off main, never push to main.** Always a fresh `spec/<slug>` branch from `origin/main` (or whatever the repo's default branch is).
 - **Don't invent the plan.** If the user says "ship it" within the first couple of turns and the conversation has nothing concrete in it, refuse — the skill needs a real spec to ship.
+- **Maximum of 20 questions.** If there's not enough context at that point, flag to the user for explicit permission to continue, but generally 20 questions should be the upper bound.
 
 ## During grilling
 
