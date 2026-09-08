@@ -327,6 +327,34 @@ moat-init() {
 # ===== END MOAT =====
 
 
+# ===== TYPESCRIPT =====
+# Scratch TypeScript playground: ~/code/tmp/ts-<timestamp>/ with main.ts +
+# tsconfig.json, then cd in and open main.ts. Assumes tsc and nvim on PATH.
+tsplay() {
+  local dir="$HOME/code/tmp/ts-$(date +%Y%m%d-%H%M%S)"
+  mkdir -p "$dir" || return 1
+  cat > "$dir/main.ts" <<'EOF'
+// Compile + run:
+//   tsc && node main.js
+console.log("hello");
+EOF
+  cat > "$dir/tsconfig.json" <<'EOF'
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "es2022",
+    "module": "nodenext"
+  },
+  "include": ["main.ts"]
+}
+EOF
+  cd "$dir" || return 1
+  echo "$dir"
+  nvim main.ts
+}
+# ===== END TYPESCRIPT =====
+
+
 # ===== GIT =====
 alias gs="git status -uno"
 alias gc="git commit -am"
