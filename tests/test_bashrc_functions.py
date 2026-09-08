@@ -559,3 +559,26 @@ def test_mcl_no_warning_when_moat_list_errors(repo_dir, mock_bin, fake_home, git
     )
     assert r.returncode == 0
     assert r.stdout.strip() == ""
+
+
+# ===========================================================================
+# tsplay
+# ===========================================================================
+
+def test_tsplay_creates_playground_and_opens_editor(repo_dir, mock_bin, fake_home):
+    """tsplay should scaffold ~/code/tmp/ts-<ts>/ with main.ts + tsconfig.json,
+    cd into it, and open main.ts in nvim."""
+    _setup_sourcing_mocks(mock_bin)
+    mock_bin.create("nvim")
+
+    r = run_bash_function("tsplay", repo_dir=repo_dir, mock_bin=mock_bin, fake_home=fake_home)
+    assert r.returncode == 0
+
+    dirs = list((fake_home / "code/tmp").glob("ts-*"))
+    assert len(dirs) == 1
+    playground = dirs[0]
+    assert (playground / "main.ts").exists()
+    assert (playground / "tsconfig.json").exists()
+    assert "tsc && node main.js" in (playground / "main.ts").read_text()
+    assert r.stdout.strip() == str(playground)
+    mock_bin.assert_called_with("nvim main.ts")
