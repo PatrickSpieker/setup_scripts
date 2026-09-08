@@ -1,9 +1,11 @@
 {
+  "model": "fable",
   "enabledPlugins": {},
   "extraKnownMarketplaces": {},
   "effortLevel": "xhigh",
   "skipDangerousModePermissionPrompt": true,
   "theme": "auto",
   "verbose": true,
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "agentPushNotifEnabled": true
 }
