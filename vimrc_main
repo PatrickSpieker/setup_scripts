@@ -120,7 +120,7 @@ vnoremap yy "+yy
 " Workflow:
 "   - open with :te or :terminal
 "   - jj to switch from terminal mode to vim mode
-"   - <Leader>w to navigate between windows
+"   - <Leader>w (then hjkl) to navigate between windows
 "   - i or a to switch back to terminal mode
 "   - exit (shell command) to close the terminal
 tnoremap jj <C-\><C-n>
