@@ -1,4 +1,0 @@
-interface:
-  display_name: "Test FHIR Vendor Integrations"
-  short_description: "Test every discovered FHIR vendor integration"
-  default_prompt: "Use $test-fhir-vendor-integrations to run the complete staging integration test workflow."
