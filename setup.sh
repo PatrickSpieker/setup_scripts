@@ -66,6 +66,11 @@ brew bundle --file="$REPO_DIR/Brewfile"
 
 
 
+# ===== PDF TO EPUB =====
+"$REPO_DIR/scripts/install-pdf-to-epub.sh"
+
+
+
 # ===== GIT =====
 git config --global user.email "patrick@patrickspieker.com"
 git config --global user.name "pspieker"

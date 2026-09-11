@@ -54,6 +54,7 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 
 | Skill | Description |
 |-------|-------------|
+| `convert-pdf-to-epub` | Configure and run deterministic PDF-to-EPUB conversion |
 | `gh-commit` | Create small, logical commits with conventional commit messages |
 | `gh-ship` | Commit, push, and create PR in one step |
 | `gh-review-pr` | Review a GitHub PR focusing on correctness, tests, and risk |
@@ -150,3 +151,7 @@ Both are installed by `setup.sh` via a single symlink of `swiftbar_plugins/` to 
 - Git aliases: `gs` (status), `gc` (commit -am), `gacp` (add + commit + push), `gpoh` (push origin HEAD)
 - Moat + Claude: `mcl` (new worktree session), `mclpr <pr>` (resume PR branch), `mclb <branch>` (resume any remote branch). Pass `-r`/`--rebuild` to any of these (and `mco`) to force rebuild of the container image.
 - Docker: `sd` (open Docker), `sac` (start container system)
+
+## PDF to EPUB
+
+Run `scripts/install-pdf-to-epub.sh` to install the `pdf-to-epub` command. See [conversion documentation](scripts/pdf_to_epub/README.md) for usage, supported PDFs, and YAML configuration.
