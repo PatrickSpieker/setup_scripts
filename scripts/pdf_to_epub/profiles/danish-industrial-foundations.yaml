@@ -1,0 +1,1779 @@
+version: 1
+source_sha256: c596e24f8791037ec520d24dc30611dddcd6b3024dfcdee54c2e30a27daa3eb6
+metadata:
+  title: The Danish Industrial Foundations
+  author: Steen Thomsen
+  publisher: Djøf Publishing
+  language: en
+layout:
+  top: 70
+  bottom: 600
+  body_font: Palatino-Roman
+  body_size: 10
+  left: 137.5
+  right: 458
+  indent: 150.3
+  line_height: 13.5
+headings:
+  h1_size: 19
+  h2_size: 12
+  font: FrankfurtGothicPlain
+  chapter_pattern: ^CHAPTER\s+\d+$
+notes:
+  font: Palatino
+  size: 8.5
+pages:
+  1:
+    role: jacket
+    panels:
+    - title: About the author
+      box:
+      - 108
+      - 245
+      - 290
+      - 520
+    - title: About the book
+      box:
+      - 390
+      - 245
+      - 740
+      - 520
+    - title: Center for Corporate Governance
+      box:
+      - 1294
+      - 245
+      - 1504
+      - 472
+    - title: ISBN
+      box:
+      - 610
+      - 650
+      - 715
+      - 675
+  2:
+    role: duplicate
+    duplicate_of: 3
+  3:
+    role: frontmatter
+  4:
+    role: frontmatter
+  5:
+    role: contents
+  6:
+    role: contents
+  7:
+    role: contents
+  8:
+    role: contents
+  203:
+    role: references
+  204:
+    role: references
+  205:
+    role: references
+  206:
+    role: references
+  207:
+    role: references
+  208:
+    role: references
+  209:
+    role: references
+  210:
+    role: duplicate
+    duplicate_of: 1
+hyphenation:
+  keep:
+  - Foundation-Owned
+  - Foundations-and
+  - Know-about
+  - Novo-Nordisk
+  - Report-Digital
+  - erhvervsdrivende-fonde_rapport
+  - family-owned
+  - family-related
+  - foundation-owned
+  - foundation-ownership
+  - full-time
+  - in-Foundation
+  - investor-owned
+  - knowledge-intensive
+  - long-run
+  - long-term
+  - low-powered
+  - non-compliance
+  - non-family
+  - non-founder
+  - non-industrial
+  - non-profit
+  - non-profits
+  - non-selfish
+  - of-Danish
+  - of-Industrial
+  - one-third
+  - self-elected
+  - so-called
+  - swiss-army
+  - well-consolidated
+  - wp-content
+  join:
+  - 547-566
+  - 769-798
+  - Ac-cording
+  - Admin-istratiekantoor
+  - Af-fairs
+  - Alt-hough
+  - An-swering
+  - Associ-ation
+  - Associa-tion
+  - Au-thority
+  - Bertels-mann
+  - Bloom-berg
+  - Cam-bridge
+  - Carls-berg
+  - Chi-cago
+  - Co-penhagen
+  - Com-pany
+  - Con-solidating
+  - Corpo-rate
+  - Court-room
+  - Dan-ish
+  - Den-mark
+  - Depend-ing
+  - Di-rectory
+  - EUR-FORI
+  - Econo-mist
+  - Econo-my
+  - Econom-ics
+  - Erhvervs-fondudvalget
+  - Esto-nia
+  - Esto-nian
+  - Eupho-ria
+  - Europe-an
+  - Ex-amples
+  - Ex-pectations
+  - Fi-nally
+  - Fi-nancial
+  - Foun-dation
+  - Foun-dations
+  - Founda-tion
+  - Founda-tions
+  - Func-tionally
+  - Ger-man
+  - Ger-many
+  - Gov-ernance
+  - Hans-mann
+  - How-ever
+  - Howev-er
+  - Hy-pothesis
+  - In-dustrial
+  - In-side
+  - Indianopo-lis
+  - Interna-tional
+  - Inves-tor
+  - Jour-nal
+  - KE-MA
+  - Landeun-dersøgelse
+  - Like-wise
+  - Minis-try
+  - Moreo-ver
+  - Møller-Mærsk
+  - Nei-ther
+  - Nether-lands
+  - Neverthe-less
+  - Niel-sen
+  - No-vember
+  - North-western
+  - Numeri-cally
+  - Organi-zations
+  - Organiza-tions
+  - Oth-ers
+  - Owner-ship
+  - Pa-per
+  - Paradox-ically
+  - Perfor-mance
+  - Plas-tics
+  - Presuma-bly
+  - Psy-chology
+  - Pub-lic
+  - Publish-ing
+  - Ra-ther
+  - Re-marks
+  - Re-search
+  - Re-view
+  - Reconcil-ing
+  - Rela-tions
+  - Septem-ber
+  - Skatte-ministeriet
+  - Socio-biology
+  - Sticht-ing
+  - Stiftel-ser
+  - Swe-dish
+  - Swit-zerland
+  - Sys-tems
+  - Ta-ta
+  - Thom-sen
+  - Uni-versity
+  - Univer-sity
+  - Unlist-ed
+  - Unterneh-mensträgerstiftungen
+  - Us-ing
+  - Val-ue
+  - Wallen-berg
+  - Wil-liam
+  - World-scope
+  - ac-cording
+  - ac-count
+  - ac-counted
+  - ac-counting
+  - ac-quire
+  - ac-quired
+  - ac-quisitions
+  - ac-tivities
+  - ac-tivity
+  - accord-ing
+  - account-ing
+  - accu-mulated
+  - accu-mulation
+  - acqui-sitions
+  - ad-ditional
+  - ad-dress
+  - ad-ministration
+  - ad-vantage
+  - ad-vantages
+  - administra-tive
+  - affilia-tion
+  - afford-able
+  - ag-gregate
+  - agricul-tural
+  - al-lowed
+  - al-lows
+  - al-most
+  - al-ready
+  - al-so
+  - al-ternative
+  - al-ternatively
+  - all-important
+  - all-powerful
+  - allo-cate
+  - allocat-ing
+  - alter-natives
+  - altruis-tic
+  - an-other
+  - ana-lyse
+  - annual-ly
+  - any-thing
+  - ap-parently
+  - ap-pear
+  - ap-pears
+  - ap-proved
+  - appoint-ment
+  - approx-imately
+  - ar-gument
+  - architec-ture
+  - arrange-ments
+  - as-sistance
+  - as-sumes
+  - asso-ciations
+  - associa-tions
+  - at-tached
+  - at-tempts
+  - at-tention
+  - attrac-tive
+  - au-thorities
+  - au-thority
+  - au-tonomy
+  - author-ity
+  - authori-ty
+  - av-erage
+  - aver-age
+  - bal-ance
+  - be-cause
+  - be-comes
+  - be-have
+  - be-haviour
+  - be-lieved
+  - be-long
+  - be-low
+  - be-tween
+  - bench-mark
+  - bene-ficiaries
+  - bene-fits
+  - bet-ter
+  - bi-as
+  - bi-ological
+  - bo-nus
+  - buff-ers
+  - bureaucra-cy
+  - busi-ness
+  - busi-nesses
+  - business-es
+  - can-not
+  - cap-ital
+  - capi-tal
+  - care-fully
+  - cate-gory
+  - chal-lenge
+  - char-ter
+  - char-ters
+  - charac-terized
+  - character-istic
+  - chari-table
+  - charita-ble
+  - chem-icals
+  - chil-dren
+  - cir-cumstances
+  - clar-ity
+  - clear-ly
+  - cli-mate
+  - co-administration
+  - co-variance
+  - com-bine
+  - com-panies
+  - com-pany
+  - com-pare
+  - com-pared
+  - com-paring
+  - com-petitors
+  - com-pliance
+  - com-ply
+  - com-ponents
+  - com-posed
+  - com-pound
+  - commer-cial
+  - common-ly
+  - commu-nication
+  - commu-nity
+  - communi-cating
+  - compa-nies
+  - compa-ny
+  - compa-rable
+  - compen-sating
+  - competen-cies
+  - competi-tiveness
+  - compli-cates
+  - con-cepts
+  - con-glomerate
+  - con-servatism
+  - con-servative
+  - con-siderations
+  - con-stant
+  - con-sumption
+  - con-tain
+  - con-tinuity
+  - con-trol
+  - con-trolled
+  - con-trolling
+  - consid-ered
+  - consid-ering
+  - consist-ing
+  - contin-uing
+  - continu-ing
+  - contra-ry
+  - contribu-tion
+  - control-ling
+  - conven-tional
+  - coopera-tives
+  - cor-porate
+  - cor-ruption
+  - corpo-rate
+  - corpora-tions
+  - corre-spond
+  - corre-sponds
+  - coun-tries
+  - cre-ation
+  - cri-sis
+  - cul-tural
+  - cur-rently
+  - de-ciding
+  - de-cisions
+  - de-ductions
+  - de-fined
+  - de-fining
+  - de-listed
+  - de-mocracy
+  - de-pendent
+  - de-pends
+  - de-rive
+  - de-scendants
+  - de-scribes
+  - de-signed
+  - de-sirable
+  - de-velopment
+  - deci-sions
+  - deduc-tions
+  - defi-nition
+  - defin-ing
+  - defini-tion
+  - delega-tion
+  - demo-graphic
+  - deter-mines
+  - devel-opment
+  - devia-tion
+  - di-lution
+  - di-rected
+  - di-rection
+  - di-rectors
+  - di-versification
+  - di-vest
+  - dif-ferent
+  - differ-ence
+  - differ-ences
+  - differ-ent
+  - diffi-cult
+  - direc-tors
+  - dis-closure
+  - dis-misses
+  - dis-persed
+  - dis-solution
+  - disa-greements
+  - disad-vantages
+  - distin-guishes
+  - distri-bution
+  - distri-butions
+  - distribut-ed
+  - diver-sification
+  - diver-sifying
+  - divesti-ture
+  - divi-dends
+  - do-mestic
+  - do-nate
+  - do-nates
+  - do-nations
+  - do-nor
+  - doc-ument
+  - dom-inant
+  - dona-tions
+  - dur-ing
+  - earn-ings
+  - eco-nomic
+  - eco-nomically
+  - econ-omy
+  - econo-my
+  - edu-cation
+  - ef-fectively
+  - ef-fects
+  - ef-fort
+  - effec-tively
+  - effective-ly
+  - ele-ments
+  - elim-inated
+  - em-ployee
+  - em-ployees
+  - em-ployment
+  - empha-sized
+  - employ-ees
+  - employ-ment
+  - en-dowment
+  - en-gage
+  - en-sure
+  - en-ter
+  - en-terprise
+  - en-trepreneur
+  - encour-agement
+  - enter-prise
+  - enti-ties
+  - enti-ty
+  - entitle-ments
+  - entrepre-neurial
+  - environ-ment
+  - eq-uity
+  - equiva-lent
+  - erhvervsfond-sudvalget
+  - es-pecially
+  - es-tablished
+  - essen-tially
+  - estab-lish
+  - estab-lished
+  - eva-sion
+  - ex-amined
+  - ex-ample
+  - ex-changes
+  - ex-ercise
+  - ex-its
+  - ex-pansion
+  - ex-pect
+  - ex-pense
+  - ex-plain
+  - exam-ine
+  - exam-ple
+  - exam-ples
+  - examina-tion
+  - execu-tives
+  - exer-cise
+  - expe-rience
+  - expend-itures
+  - expendi-ture
+  - expla-nations
+  - explic-itly
+  - exter-nal
+  - extraor-dinary
+  - fa-voured
+  - fac-tual
+  - facil-itate
+  - fam-ily
+  - fi-nance
+  - fi-nancial
+  - fig-ures
+  - fluctua-tions
+  - fo-cus
+  - foun-dation
+  - foun-dations
+  - found-ed
+  - found-ing
+  - founda-tion
+  - founda-tions
+  - fre-quently
+  - fu-ture
+  - ful-filled
+  - ful-ly
+  - fur-ther
+  - gen-eral
+  - gen-erated
+  - ger-mane
+  - gov-ernance
+  - gov-ernment
+  - govern-ance
+  - govern-ment
+  - gratifi-cation
+  - great-er
+  - head-quarters
+  - high-er
+  - high-ly
+  - hold-ing
+  - hold-ings
+  - hom-age
+  - homoge-nous
+  - hospi-tals
+  - how-ever
+  - hy-potheses
+  - iden-tical
+  - identi-fy
+  - ill-suited
+  - im-mediate
+  - im-plicit
+  - im-plied
+  - im-plies
+  - im-portant
+  - in-centive
+  - in-centives
+  - in-cluding
+  - in-come
+  - in-consistent
+  - in-creased
+  - in-creases
+  - in-creasing
+  - in-creasingly
+  - in-cumbent
+  - in-dependent
+  - in-dicate
+  - in-dicates
+  - in-dustrial
+  - in-dustry
+  - in-formation
+  - in-struments
+  - in-terest
+  - in-vest
+  - in-vested
+  - in-vestment
+  - in-vestments
+  - in-vestor
+  - in-volves
+  - incen-tives
+  - increas-ingly
+  - inde-pendent
+  - independ-ence
+  - indi-cate
+  - indi-rect
+  - individ-uals
+  - indus-trial
+  - indus-tries
+  - industri-al
+  - ines-capable
+  - inexpe-rienced
+  - influ-ence
+  - infor-mation
+  - inher-itance
+  - innocu-ous
+  - innova-tion
+  - insti-tutions
+  - institu-tions
+  - inter-est
+  - inter-ests
+  - inter-locks
+  - internationaliza-tion
+  - intro-duce
+  - irration-al
+  - la-bour
+  - larg-est
+  - leg-islation
+  - let-ting
+  - lev-el
+  - like-ly
+  - limita-tions
+  - loco-motives
+  - long-termism
+  - longitu-dinal
+  - ma-jor
+  - ma-jority
+  - main-tained
+  - majority-controlled
+  - man-agement
+  - man-datory
+  - manage-ment
+  - manifest-ed
+  - manufactur-ing
+  - mar-kets
+  - max-imize
+  - maxi-mizing
+  - mean-ing
+  - mecha-nism
+  - mecha-nisms
+  - meet-ings
+  - mem-bers
+  - member-ship
+  - mi-nority
+  - mil-lion
+  - mind-sets
+  - mini-mum
+  - minor-ity
+  - mon-ey
+  - my-opically
+  - na-tional
+  - nationaliza-tion
+  - nec-essary
+  - neces-sary
+  - neces-sity
+  - neg-ative
+  - neu-trality
+  - news-paper
+  - newspa-pers
+  - newspaper-man
+  - non-financial
+  - nor-mal
+  - ob-ject
+  - ob-jectives
+  - objec-tions
+  - obli-gated
+  - official-ly
+  - on-ly
+  - op-erating
+  - oper-ating
+  - operat-ing
+  - opportuni-ties
+  - or-ganic
+  - or-ganizational
+  - or-ganizations
+  - organ-izations
+  - organ-ize
+  - organi-zation
+  - oth-er
+  - oth-ers
+  - oth-erwise
+  - out-going
+  - out-standing
+  - over-all
+  - overin-vestment
+  - own-ership
+  - owner-managed
+  - owner-ship
+  - pa-tient
+  - par-ticipate
+  - par-ticular
+  - par-ticularly
+  - par-ties
+  - para-digm
+  - parame-ters
+  - particular-ly
+  - passen-ger
+  - per-cent
+  - per-centage
+  - per-formance
+  - per-sonal
+  - percent-age
+  - perfor-mance
+  - perfor-ming
+  - peri-od
+  - perpe-tuities
+  - phenome-non
+  - phi-lanthropy
+  - phil-anthropic
+  - philan-thropic
+  - philan-thropy
+  - philanthro-py
+  - plan-ners
+  - plau-sible
+  - po-litical
+  - popu-lated
+  - popu-lation
+  - portfo-lio
+  - pos-sible
+  - pos-sibly
+  - posi-tive
+  - possi-ble
+  - possi-bly
+  - possibil-ity
+  - prac-tice
+  - pre-cisely
+  - pre-ferred
+  - pre-sent
+  - pre-sented
+  - pre-venting
+  - predic-tion
+  - prefera-ble
+  - presuma-bly
+  - preven-tion
+  - pri-vate
+  - primari-ly
+  - princi-ple
+  - pro-cessed
+  - pro-fessional
+  - pro-fessors
+  - pro-hibited
+  - pro-nounced
+  - pro-visions
+  - prob-lems
+  - profit-ability
+  - prohibit-ed
+  - prov-ince
+  - provi-sions
+  - pur-pose
+  - quali-ty
+  - quasi-governmental
+  - ra-tional
+  - rati-os
+  - re-cruit
+  - re-duced
+  - re-gard
+  - re-garded
+  - re-lies
+  - re-named
+  - re-newal
+  - re-place
+  - re-placed
+  - re-placement
+  - re-port
+  - re-quire
+  - re-quired
+  - re-search
+  - re-searchers
+  - re-sent
+  - re-spects
+  - re-strictions
+  - re-turn
+  - re-turns
+  - re-view
+  - rec-ommendation
+  - recog-nize
+  - recogni-tion
+  - recruit-ed
+  - ref-erences
+  - reg-ulated
+  - rein-vested
+  - rein-vestment
+  - relat-ed
+  - relation-ship
+  - rem-nant
+  - repeat-edly
+  - repre-sented
+  - representa-tives
+  - repu-tation
+  - repu-tations
+  - reputa-tions
+  - research-ers
+  - respon-sible
+  - respond-ents
+  - responsi-bility
+  - reten-tion
+  - rev-enue
+  - reve-nue
+  - rough-ly
+  - run-ning
+  - sam-pling
+  - schol-ars
+  - schol-arship
+  - se-curing
+  - se-lecting
+  - sec-ondary
+  - sec-retariat
+  - sec-tor
+  - secretari-at
+  - self-owned
+  - separa-tion
+  - ser-vices
+  - sharehold-ers
+  - ship-ping
+  - short-termist
+  - signif-icant
+  - signifi-cant
+  - signifi-cantly
+  - significant-ly
+  - situa-tion
+  - sizea-ble
+  - sol-vency
+  - some-body
+  - spe-cial
+  - sta-ble
+  - stake-holders
+  - stakehold-ers
+  - stand-ards
+  - start-ed
+  - stat-utes
+  - statistical-ly
+  - struc-ture
+  - struc-tures
+  - su-pervision
+  - sub-ject
+  - sub-scribed
+  - sub-sequent
+  - sub-sidiaries
+  - sub-sidiary
+  - sub-stantial
+  - sub-stantially
+  - subse-quent
+  - subsi-dies
+  - subsi-dization
+  - subsid-iaries
+  - subsid-iary
+  - substi-tute
+  - suffi-ciently
+  - super-vised
+  - supervi-sion
+  - sur-vival
+  - sys-tem
+  - sys-tematically
+  - systematical-ly
+  - ta-ble
+  - tan-tamount
+  - taxa-tion
+  - tenden-cy
+  - theo-ry
+  - there-fore
+  - think-ing
+  - to-tal
+  - trans-actions
+  - trans-parency
+  - transpar-ent
+  - trig-gered
+  - ulti-mate
+  - un-der
+  - un-derperform
+  - un-derstandable
+  - un-less
+  - un-til
+  - uncomforta-ble
+  - under-mined
+  - under-standable
+  - underperfor-mance
+  - uni-versities
+  - unrelat-ed
+  - usual-ly
+  - val-ues
+  - var-ious
+  - vola-tile
+  - vola-tility
+  - winso-rization
+illustrations:
+- page: 18
+  box:
+  - 132
+  - 301.759
+  - 464
+  - 434.2911799999999
+  caption: Figure 1.1
+- page: 19
+  box:
+  - 132
+  - 72.25900000000001
+  - 464
+  - 204.09259999999995
+  caption: Figure 1.2
+- page: 20
+  box:
+  - 132
+  - 247.75900000000001
+  - 464
+  - 434.2789399999999
+  caption: Figure 1.3
+- page: 30
+  box:
+  - 132
+  - 220.75900000000001
+  - 464
+  - 393.7819999999999
+  caption: Figure 2.1
+- page: 69
+  box:
+  - 132
+  - 180.25900000000001
+  - 464
+  - 427.47259999999994
+  caption: Figure 4.1. Foundation Formations and Wealth Taxes
+- page: 71
+  box:
+  - 132
+  - 139.75900000000001
+  - 464
+  - 336.8156599999999
+  caption: Figure 4.2 Taxation on transfer to a foundation
+- page: 72
+  box:
+  - 132
+  - 153.25900000000001
+  - 464
+  - 339.7789399999999
+  caption: Figure 4.3. Schematic Tax Comparison
+- page: 74
+  box:
+  - 131.3501
+  - 72.25900000000001
+  - 464
+  - 340.29565999999994
+  caption: Figure 4.4. Foundation Profits and Taxes (1000 DKK)
+- page: 75
+  box:
+  - 132
+  - 72.25900000000001
+  - 464
+  - 350.3156599999999
+  caption: Figure 4.5. Effective Tax Rates Foundation-Owned Companies
+- page: 86
+  box:
+  - 132
+  - 436.75899999999996
+  - 464
+  - 590.7241799999999
+  caption: Table 5.1. Performance in 164 German Foundation-owned Companies Compared
+    to Control Firms matched by Size and Industry
+- page: 96
+  box:
+  - 132
+  - 93
+  - 464
+  - 586
+  caption: Figure 5.1
+  rotate: 90
+- page: 101
+  box:
+  - 132
+  - 168.73900000000003
+  - 464
+  - 552.759
+  caption: Figure 5.2
+- page: 107
+  box:
+  - 132
+  - 72.25900000000001
+  - 464
+  - 283.73900000000003
+  caption: Figure 6.1. Number of Enterprise Foundations
+- page: 107
+  box:
+  - 131.73666
+  - 285.73900000000003
+  - 464
+  - 550.6133
+  caption: Figure 6.2. Entry and Exit of Enterprise Foundations (According to the
+    Foundation Register)
+- page: 108
+  box:
+  - 132
+  - 139.75900000000001
+  - 464
+  - 353.2758799999999
+  caption: Figure 6.3. Largest Foundations share (%) of Total Equity Capital
+- page: 109
+  box:
+  - 132
+  - 153.25900000000001
+  - 464
+  - 571.7671082999999
+  caption: Figure 6.4. Size Distribution of Danish Enterprise Foundations 2011
+- page: 110
+  box:
+  - 132
+  - 328.75899999999996
+  - 464
+  - 448.11259999999993
+  caption: Table 6.1. Enterprise Foundations’ failure rates
+- page: 111
+  box:
+  - 132
+  - 315.259
+  - 464
+  - 541.53116
+  caption: Figure 6.5. Foundation-owned Companies Share of Danish private sector
+- page: 113
+  box:
+  - 132
+  - 72.25900000000001
+  - 464
+  - 297.23900000000003
+  caption: Figure 6.6. Foundation-owned companies’ % of Total Market Value CSE
+- page: 113
+  box:
+  - 132
+  - 299.23900000000003
+  - 464
+  - 541.83566
+  caption: Figure 6.7. Foundation-owned companies’ % of Total Market Value CSE
+- page: 114
+  box:
+  - 132
+  - 396.25899999999996
+  - 464
+  - 596.8998999999999
+  caption: Figure 6.8. 120 largest foundation-owned companies. Total employment
+  retain_text:
+  - p0114-l0024
+- page: 115
+  box:
+  - 132
+  - 328.75899999999996
+  - 464
+  - 408.21259999999995
+  caption: Table 6.2. Employment in 19 large foundation-owned firms 2012
+- page: 116
+  box:
+  - 132
+  - 112.75900000000001
+  - 464
+  - 353.2666999999999
+  caption: Figure 6.9. 100 largest foundation-owned companies. Total sales and value-added
+- page: 116
+  box:
+  - 132
+  - 488.239
+  - 464
+  - 578.70732
+  caption: Table 6.3. Sales of 18 large foundation-owned companies inside and outside
+    Denmark 2011
+- page: 118
+  box:
+  - 132
+  - 72.25900000000001
+  - 464
+  - 310.2497599999998
+  caption: Figure 6.10. 100 largest foundation-owned companies compared to the overall
+    Da- nish economy
+- page: 119
+  box:
+  - 132
+  - 72.25900000000001
+  - 464
+  - 267.3059599999999
+  caption: Figure 6.11. 100 largest foundation-owned companies. Share of domestic
+    profits
+- page: 119
+  box:
+  - 132
+  - 442.75899999999996
+  - 464
+  - 598
+  caption: Table 6.4. The growth of large foundation-owned firms (balanced panel)
+- page: 120
+  box:
+  - 132
+  - 315.259
+  - 464
+  - 436.29565999999994
+  caption: Table 6.5. Growth of the 100 largest foundation-owned companies 2004 to
+    2010
+- page: 121
+  box:
+  - 132
+  - 436.75899999999996
+  - 464
+  - 556.40418
+  caption: Table 6.6. Probability (frequency) of job losses, negative sales growth
+    and negative earnings
+- page: 123
+  box:
+  - 132
+  - 315.259
+  - 464
+  - 542.79566
+  caption: Figure 6.12. Separation Rates %
+- page: 124
+  box:
+  - 132
+  - 153.25900000000001
+  - 464
+  - 218.91259999999988
+  caption: Table 6.7. R&D in 19 large foundation-owned firms
+- page: 124
+  box:
+  - 132
+  - 367.33899999999994
+  - 464
+  - 446.3125999999999
+  caption: Table 6.8. R&D breakdown in 5 large foundation-owned firms
+- page: 128
+  box:
+  - 132
+  - 274.759
+  - 464
+  - 407.56681999999995
+  caption: Table 7.1. Theoretical arguments on the Costs and Benefits of Foundation
+    Ownership
+- page: 134
+  box:
+  - 132
+  - 72.25900000000001
+  - 464
+  - 272.97565999999995
+  caption: Table 7.2. Profitability (ROA) by size and foundation ownership 2000-2012
+- page: 135
+  box:
+  - 132
+  - 463.75899999999996
+  - 464
+  - 596.7241799999999
+  caption: Table 7.3. Profitability (ROA) of foundation-owned companies based on sum
+    totals
+- page: 140
+  box:
+  - 132
+  - 72.25900000000001
+  - 464
+  - 328.23565999999994
+  caption: Table 7.4. Foundation Ownership and Return on Assets (ROA) (t-tests for
+    differ- ences in means)
+- page: 142
+  box:
+  - 131.34584
+  - 72.25900000000001
+  - 464
+  - 333.33565999999996
+  caption: 'Figure 7.1. Danish Companies: Return on Outgoing Foreign Direct Investment'
+- page: 143
+  box:
+  - 132
+  - 112.75900000000001
+  - 464
+  - 296.19566
+  caption: Table 7.5 Characteristics of High and Low Performing Firms (Foundation-owned
+    and others)
+- page: 145
+  box:
+  - 132
+  - 355.75899999999996
+  - 464
+  - 563.8273199999999
+  caption: Table 7.6. Image components
+- page: 146
+  box:
+  - 132
+  - 139.75900000000001
+  - 464
+  - 353.2728199999999
+  caption: Figure 7.2. Image Rank of Foundation-Owned and Other Firms
+- page: 147
+  box:
+  - 132
+  - 72.25900000000001
+  - 464
+  - 299.0994199999999
+  caption: Figure 7.3. Corporate Responsibility Ratings
+- page: 148
+  box:
+  - 131.3498
+  - 72.25900000000001
+  - 464
+  - 366.7544599999999
+  caption: Figure 7.4. Image Drivers in Foundation-Owned Companies
+- page: 149
+  box:
+  - 131.3498
+  - 72.25900000000001
+  - 464
+  - 353.2575199999999
+  caption: Figure 7.5. Image Drivers in Other Companies
+- page: 152
+  box:
+  - 132
+  - 261.259
+  - 464
+  - 542.2575199999999
+  caption: Figure 8.1
+- page: 157
+  box:
+  - 132
+  - 72.25900000000001
+  - 464
+  - 272.7956599999999
+  caption: Figure 8.2. Danish Industrial Foundations Average Board Fee (US $)
+- page: 158
+  box:
+  - 132
+  - 220.75900000000001
+  - 464
+  - 552.51116
+  caption: Table 8.1. Board members in foundation-owned firms
+- page: 160
+  box:
+  - 132
+  - 112.75900000000001
+  - 464
+  - 360.33565999999996
+  caption: Figure 8.3. Average Director Income (US$)
+- page: 161
+  box:
+  - 132
+  - 72.25900000000001
+  - 464
+  - 299.7956599999999
+  caption: Figure 8.4. Average Director Wealth (mill US$)
+- page: 165
+  box:
+  - 132
+  - 72.25900000000001
+  - 464
+  - 350.44681999999995
+  caption: Figure 8.5. Stylized Survival Curve
+- page: 173
+  box:
+  - 132
+  - 72.25900000000001
+  - 464
+  - 561.7725
+  caption: Table 9.1. Classification of Charter Provisions
+- page: 176
+  box:
+  - 132
+  - 166.75900000000001
+  - 464
+  - 598
+  caption: Table 9.2. Charter Provisions in Danish Foundation Charters 2010 and 2014
+- page: 183
+  box:
+  - 132
+  - 72.25900000000001
+  - 464
+  - 598
+  caption: Table 9.3. Long-run changes in 26 foundation charters
+- page: 189
+  box:
+  - 132
+  - 328.75899999999996
+  - 464
+  - 552.51116
+  caption: Figure 10.1. Donation by Danish Industrial Foundations (BILL DKK)
+- page: 190
+  box:
+  - 132
+  - 247.75900000000001
+  - 464
+  - 351.6956599999999
+  caption: Table 10.1. Foundation Donations 2006-2010%
+- page: 191
+  box:
+  - 132
+  - 72.25900000000001
+  - 464
+  - 268.7989399999999
+  caption: Figure 10.2. Industrial Foundation Donations by Area 2006-2010
+- page: 191
+  box:
+  - 132
+  - 417.25899999999996
+  - 464
+  - 602.1807799999999
+  caption: Figure 10.3. Administration Costs (% of Donations)
+- page: 192
+  box:
+  - 132
+  - 193.75900000000001
+  - 464
+  - 393.7758799999999
+  caption: Figure 10.4. Administration Costs (% of Donations)
+- page: 193
+  box:
+  - 132
+  - 112.75900000000001
+  - 464
+  - 312.7758799999999
+  caption: Figure 10.5. Administration Costs (% of equity)
+- page: 194
+  box:
+  - 132
+  - 396.25899999999996
+  - 464
+  - 597.08098
+  caption: Figure 10.6. All Donations and Research Donations. Industrial Foundations
+- page: 195
+  box:
+  - 132
+  - 180.25900000000001
+  - 464
+  - 339.5156599999999
+  caption: Table 10.2. Foundation R&D Donations 2006-2010 %
+- page: 198
+  box:
+  - 132
+  - 112.75900000000001
+  - 464
+  - 364.83565999999996
+  caption: Figure 10.7. Total Research and Innovation Expenditure by Foundations 2012
+    (€ per capita)
+- page: 199
+  box:
+  - 132
+  - 112.75900000000001
+  - 464
+  - 292.83565999999996
+  caption: Figure 10.8. Partial donations
+- page: 200
+  box:
+  - 132
+  - 72.25900000000001
+  - 464
+  - 259.2956599999999
+  caption: Figure 10.9. Systemic donation
+- page: 1
+  box:
+  - 125
+  - 100
+  - 260
+  - 224
+  caption: Portrait of Steen Thomsen
+- page: 3
+  box:
+  - 135
+  - 470
+  - 162
+  - 545
+  caption: Publisher logo
+duplicates:
+- line: p0009-l0003
+  of:
+  - p0009-l0001
+- line: p0009-l0003
+  of:
+  - p0009-l0001
+- line: p0011-l0003
+  of:
+  - p0011-l0001
+  - p0011-l0002
+- line: p0011-l0005
+  of:
+  - p0011-l0001
+  - p0011-l0002
+  - p0011-l0004
+- line: p0011-l0021
+  of:
+  - p0011-l0001
+  - p0011-l0002
+  - p0011-l0004
+  - p0011-l0020
+- line: p0013-l0025
+  of:
+  - p0013-l0024
+- line: p0020-l0009
+  of:
+  - p0020-l0008
+- line: p0021-l0003
+  of:
+  - p0021-l0002
+- line: p0023-l0023
+  of:
+  - p0023-l0022
+- line: p0025-l0003
+  of:
+  - p0025-l0001
+  - p0025-l0002
+- line: p0025-l0005
+  of:
+  - p0025-l0001
+  - p0025-l0002
+  - p0025-l0004
+- line: p0025-l0017
+  of:
+  - p0025-l0001
+  - p0025-l0002
+  - p0025-l0004
+  - p0025-l0016
+- line: p0027-l0028
+  of:
+  - p0027-l0027
+- line: p0031-l0016
+  of:
+  - p0031-l0015
+- line: p0034-l0018
+  of:
+  - p0034-l0017
+- line: p0036-l0020
+  of:
+  - p0036-l0019
+- line: p0039-l0006
+  of:
+  - p0039-l0005
+- line: p0041-l0012
+  of:
+  - p0041-l0011
+- line: p0045-l0004
+  of:
+  - p0045-l0001
+  - p0045-l0002
+  - p0045-l0003
+- line: p0045-l0006
+  of:
+  - p0045-l0001
+  - p0045-l0002
+  - p0045-l0003
+  - p0045-l0005
+- line: p0045-l0023
+  of:
+  - p0045-l0001
+  - p0045-l0002
+  - p0045-l0003
+  - p0045-l0005
+  - p0045-l0022
+- line: p0047-l0022
+  of:
+  - p0047-l0021
+- line: p0058-l0012
+  of:
+  - p0058-l0011
+- line: p0060-l0009
+  of:
+  - p0060-l0007
+  - p0060-l0008
+- line: p0065-l0014
+  of:
+  - p0065-l0013
+- line: p0067-l0003
+  of:
+  - p0067-l0001
+  - p0067-l0002
+- line: p0067-l0005
+  of:
+  - p0067-l0001
+  - p0067-l0002
+  - p0067-l0004
+- line: p0067-l0022
+  of:
+  - p0067-l0001
+  - p0067-l0002
+  - p0067-l0004
+  - p0067-l0021
+- line: p0068-l0019
+  of:
+  - p0068-l0018
+- line: p0071-l0048
+  of:
+  - p0071-l0047
+- line: p0073-l0025
+  of:
+  - p0073-l0024
+- line: p0075-l0017
+  of:
+  - p0075-l0016
+- line: p0079-l0004
+  of:
+  - p0079-l0001
+  - p0079-l0002
+  - p0079-l0003
+- line: p0079-l0006
+  of:
+  - p0079-l0001
+  - p0079-l0002
+  - p0079-l0003
+  - p0079-l0005
+- line: p0080-l0003
+  of:
+  - p0080-l0002
+- line: p0083-l0020
+  of:
+  - p0083-l0019
+- line: p0085-l0003
+  of:
+  - p0085-l0002
+- line: p0090-l0003
+  of:
+  - p0090-l0002
+- line: p0090-l0019
+  of:
+  - p0090-l0002
+  - p0090-l0018
+- line: p0091-l0003
+  of:
+  - p0091-l0002
+- line: p0092-l0030
+  of:
+  - p0092-l0029
+- line: p0093-l0025
+  of:
+  - p0093-l0024
+- line: p0094-l0018
+  of:
+  - p0094-l0017
+- line: p0098-l0017
+  of:
+  - p0098-l0016
+- line: p0100-l0005
+  of:
+  - p0100-l0004
+- line: p0102-l0030
+  of:
+  - p0102-l0029
+- line: p0103-l0010
+  of:
+  - p0103-l0009
+- line: p0105-l0004
+  of:
+  - p0105-l0001
+  - p0105-l0002
+  - p0105-l0003
+- line: p0105-l0006
+  of:
+  - p0105-l0001
+  - p0105-l0002
+  - p0105-l0003
+  - p0105-l0005
+- line: p0105-l0018
+  of:
+  - p0105-l0001
+  - p0105-l0002
+  - p0105-l0003
+  - p0105-l0005
+  - p0105-l0017
+- line: p0111-l0005
+  of:
+  - p0111-l0004
+- line: p0112-l0013
+  of:
+  - p0112-l0012
+- line: p0114-l0009
+  of:
+  - p0114-l0008
+- line: p0114-l0017
+  of:
+  - p0114-l0008
+  - p0114-l0016
+- line: p0115-l0036
+  of:
+  - p0115-l0035
+- line: p0117-l0007
+  of:
+  - p0117-l0006
+- line: p0120-l0005
+  of:
+  - p0120-l0004
+- line: p0121-l0005
+  of:
+  - p0121-l0004
+- line: p0123-l0008
+  of:
+  - p0123-l0007
+- line: p0124-l0003
+  of:
+  - p0124-l0002
+- line: p0124-l0036
+  of:
+  - p0124-l0002
+  - p0124-l0035
+- line: p0125-l0007
+  of:
+  - p0125-l0006
+- line: p0127-l0004
+  of:
+  - p0127-l0001
+  - p0127-l0002
+  - p0127-l0003
+- line: p0127-l0006
+  of:
+  - p0127-l0001
+  - p0127-l0002
+  - p0127-l0003
+  - p0127-l0005
+- line: p0127-l0024
+  of:
+  - p0127-l0001
+  - p0127-l0002
+  - p0127-l0003
+  - p0127-l0005
+  - p0127-l0023
+- line: p0128-l0032
+  of:
+  - p0128-l0031
+- line: p0130-l0009
+  of:
+  - p0130-l0008
+- line: p0131-l0009
+  of:
+  - p0131-l0008
+- line: p0131-l0018
+  of:
+  - p0131-l0008
+  - p0131-l0017
+- line: p0133-l0022
+  of:
+  - p0133-l0021
+- line: p0135-l0021
+  of:
+  - p0135-l0020
+- line: p0136-l0016
+  of:
+  - p0136-l0015
+- line: p0137-l0006
+  of:
+  - p0137-l0004
+  - p0137-l0005
+- line: p0139-l0016
+  of:
+  - p0139-l0015
+- line: p0141-l0005
+  of:
+  - p0141-l0004
+- line: p0141-l0019
+  of:
+  - p0141-l0004
+  - p0141-l0018
+- line: p0142-l0026
+  of:
+  - p0142-l0025
+- line: p0144-l0007
+  of:
+  - p0144-l0006
+- line: p0144-l0026
+  of:
+  - p0144-l0006
+  - p0144-l0025
+- line: p0149-l0028
+  of:
+  - p0149-l0027
+- line: p0151-l0004
+  of:
+  - p0151-l0001
+  - p0151-l0002
+  - p0151-l0003
+- line: p0151-l0006
+  of:
+  - p0151-l0001
+  - p0151-l0002
+  - p0151-l0003
+  - p0151-l0005
+- line: p0152-l0008
+  of:
+  - p0152-l0007
+- line: p0155-l0021
+  of:
+  - p0155-l0020
+- line: p0158-l0003
+  of:
+  - p0158-l0002
+- line: p0161-l0019
+  of:
+  - p0161-l0018
+- line: p0163-l0003
+  of:
+  - p0163-l0002
+- line: p0165-l0005
+  of:
+  - p0165-l0004
+- line: p0167-l0004
+  of:
+  - p0167-l0001
+  - p0167-l0002
+  - p0167-l0003
+- line: p0167-l0006
+  of:
+  - p0167-l0001
+  - p0167-l0002
+  - p0167-l0003
+  - p0167-l0005
+- line: p0167-l0007
+  of:
+  - p0167-l0001
+  - p0167-l0002
+  - p0167-l0003
+- line: p0168-l0009
+  of:
+  - p0168-l0008
+- line: p0169-l0014
+  of:
+  - p0169-l0013
+- line: p0170-l0003
+  of:
+  - p0170-l0002
+- line: p0172-l0003
+  of:
+  - p0172-l0002
+- line: p0176-l0003
+  of:
+  - p0176-l0002
+- line: p0179-l0010
+  of:
+  - p0179-l0009
+- line: p0182-l0022
+  of:
+  - p0182-l0021
+- line: p0184-l0032
+  of:
+  - p0184-l0031
+- line: p0187-l0004
+  of:
+  - p0187-l0001
+  - p0187-l0002
+  - p0187-l0003
+- line: p0187-l0006
+  of:
+  - p0187-l0001
+  - p0187-l0002
+  - p0187-l0003
+  - p0187-l0005
+- line: p0188-l0011
+  of:
+  - p0188-l0010
+- line: p0189-l0009
+  of:
+  - p0189-l0008
+- line: p0192-l0003
+  of:
+  - p0192-l0002
+- line: p0193-l0032
+  of:
+  - p0193-l0031
+- line: p0201-l0018
+  of:
+  - p0201-l0017
+- line: p0203-l0003
+  of:
+  - p0203-l0001
+- line: p0203-l0003
+  of:
+  - p0203-l0001
+- line: p0001-l0001
+  of:
+  - p0001-l0002
+- line: p0001-l0003
+  of:
+  - p0001-l0002
+- line: p0001-l0010
+  of:
+  - p0001-l0004
+- line: p0001-l0019
+  of:
+  - p0001-l0004
+- line: p0001-l0034
+  of:
+  - p0001-l0005
+- line: p0001-l0055
+  of:
+  - p0001-l0006
+artifacts:
+- line: p0001-l0066
+  kind: printer_mark
+- line: p0001-l0067
+  kind: printer_mark
+line_overrides:
+  p0096-l0002: paragraph
+cover:
+  page: 1
+  box:
+  - 819
+  - 58
+  - 1256
+  - 717
+render_dpi: 240
