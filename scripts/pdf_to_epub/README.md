@@ -22,8 +22,8 @@ Unknown keys and duplicate YAML keys fail. Omitted fields use inspection default
 | `metadata` | `title`, `author`, `publisher`, `language: en` |
 | `layout` | `top`, `bottom`, `body_font`, `body_size`, `left`, `right`, `indent`, `line_height`. Null values are inferred. |
 | `headings` | `font`, `h1_size`, `h2_size`, `chapter_pattern` |
-| `notes` | `font` prefix and exact `size`; numbered footnotes restart per chapter |
-| `pages` | Mapping of page numbers to `role`, optional `top`/`bottom`. Roles: `body`, `frontmatter`, `references`, `contents`, `jacket`, `duplicate`. Duplicate pages require `duplicate_of`; text must verify against a retained page. Jackets have `panels: [{title: …, box: […]}]`. |
+| `notes` | `font` prefix and exact `size`; numbered footnotes restart per chapter. `start_pattern` has one capture group for the number (default `^(\d+)\.\s`). `sections` maps endnote section heading line IDs to their body chapter heading line IDs. |
+| `pages` | Mapping of page numbers to `role`, optional `top`/`bottom`. Roles: `body`, `frontmatter`, `references`, `contents`, `jacket`, `duplicate`, `endnotes`. Duplicate pages require `duplicate_of`; text must verify against a retained page. Jackets have `panels: [{title: …, box: […]}]`. Endnotes remain at their source position and link back to their body references. |
 | `illustrations` | List of `{page, box, rotate, caption, retain_text}`. Rotation is clockwise 0/90/180/270. `retain_text` names source lines overlapping a graphic that must also remain reflowable. |
 | `duplicates` | List of `{line: ID, of: [IDs]}`. Exclusion requires matching retained text. |
 | `artifacts` | List of `{line: ID, kind: page_number\|printer_mark}`; recognized patterns are verified. |
@@ -33,5 +33,9 @@ Unknown keys and duplicate YAML keys fail. Omitted fields use inspection default
 | `render_dpi` | Illustration resolution, 144–600; default 240 |
 
 Margins alone never authorize dropping text. Running matter requires repeated margin text; explicit exclusions require evidence. Reports expose each source line's destination, exclusions, unresolved issues, normalized joins, and dependency versions.
+
+Image-only title/illustration pages are supported when explicit crops preserve all visible raster content. Unconfigured scans still fail. Crops must contain the whole visible image, not merely overlap it. Body prose cannot be replaced by a page image.
+
+`profiles/house-of-rothschild-vol1.yaml` demonstrates chapter-specific endnotes, explicit chapter headings, image crops, and reviewed hyphenation. Run converter regression tests with `~/.local/share/pdf-to-epub/venv/bin/python tests/test_pdf_conversion.py` from the repository root.
 
 Packaging uses a fresh Calibre configuration, no user plugins, and structural validation. EPUB identifiers, dates, ZIP metadata and entry order are normalized. With the same input bytes, effective profile, and dependency/toolchain versions, output bytes must match. Updating Calibre, Python, or dependencies can change output; retain the report alongside a reusable profile.

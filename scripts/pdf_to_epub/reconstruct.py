@@ -17,6 +17,8 @@ class Builder:
         self.previous = None
         self.chapter = 'frontmatter'
         self.notes = {}
+        self.endnote_chapter = None
+        self.endnotes = set()
         self.words = Counter(re.findall(r'[\w]+(?:-[\w]+)*', ' '.join(l.text for p in pages for l in p.lines).casefold()))
         self.dictionary = set(cmudict.words())
         self.joins = []
@@ -84,14 +86,15 @@ class Builder:
         if self.previous and self.current:
             prev = self.previous
             cross = prev.page != line.page
-            full = prev.x1 > lay['right'] - lay['body_size'] * 1.8
             gap = line.top - prev.top
             indent = abs(line.x0 - lay['indent']) <= lay['body_size'] * .4
             text = ''.join(r.text for r in self.current.runs)
             if role == 'references':
                 new = line.x0 < lay['left'] + lay['body_size'] * .55
             else:
-                new = (not cross and gap > lay['line_height'] * 1.4) or not full
+                # Ragged-right lines are not paragraph boundaries. Use vertical
+                # spacing and first-line indentation, including across pages.
+                new = not cross and gap > lay['line_height'] * 1.4
                 if indent and (cross or prev.x0 < lay['left'] + lay['body_size'] * .7):
                     new = True
                 if re.match(r'^(?:[•●–]|\d{1,2}[.)])\s', line.text):
@@ -123,15 +126,20 @@ class Builder:
         self.previous = line
 
     def note(self, line):
-        match = re.match(r'^(\d+)\.\s', line.text)
+        match = re.match(self.config['notes']['start_pattern'], line.text)
+        chapter = self.endnote_chapter or self.chapter
         if match:
-            key = (self.chapter, match[1])
+            key = (chapter, match[1])
             if key in self.notes:
                 self.ledger.fail('duplicate-note', 'Duplicate footnote number in this chapter.', line)
                 return
-            self.notes[key] = Block('note', self.chapter, [line], deepcopy(line.runs), id=f'note-{self.chapter}-{match[1]}', note=match[1])
+            self.notes[key] = Block('note', chapter, [line], deepcopy(line.runs), id=f'note-{chapter}-{match[1]}', note=match[1])
+            if self.endnote_chapter:
+                self.flush()
+                self.blocks.append(self.notes[key])
+                self.endnotes.add(key)
         else:
-            candidates = [key for key in self.notes if key[0] == self.chapter]
+            candidates = [key for key in self.notes if key[0] == chapter]
             if not candidates:
                 self.ledger.fail('orphan-note', 'Note continuation has no numbered start.', line)
                 return
@@ -145,19 +153,20 @@ class Builder:
         for page in self.pages:
             rule = self.config['pages'].get(page.number, {})
             role = rule.get('role', 'body')
+            if role != 'endnotes':
+                self.endnote_chapter = None
             if role in ('frontmatter', 'contents', 'jacket'):
                 self.flush()
             regions = [r for r in self.config['illustrations'] if r['page'] == page.number]
-            image_lines, images = {}, {}
+            image_lines, images, pending_images = {}, {}, []
             for index, region in enumerate(regions):
                 selected = [l for l in page.lines if contains(region['box'], l) and l.id not in self.excluded and l.id not in region.get('retain_text', [])]
                 if not selected:
                     if not any(overlaps(region['box'], box) for box in page.raster_images + page.marks):
                         self.ledger.fail('empty-illustration', 'Illustration crop has no visible source content.', page=page.number)
                         continue
-                    self.flush()
-                    self.blocks.append(Block('image', self.chapter, [], id=f'image-{page.number}-{index}',
-                                             image=f'images/p{page.number:04}-{index:03}.png', caption=region.get('caption', 'Illustration')))
+                    pending_images.append((region['box'][1], Block('image', self.chapter, [], id=f'image-{page.number}-{index}',
+                                             image=f'images/p{page.number:04}-{index:03}.png', caption=region.get('caption', 'Illustration'))))
                     continue
                 for line in selected:
                     if line.font == lay['body_font'] and line.size >= lay['body_size'] * .95 and len(line.text) > 40:
@@ -169,7 +178,8 @@ class Builder:
                 image_lines.update({l.id: block for l in selected})
             cover = self.config['cover']
             cover_lines = [l for l in page.lines if cover and cover['page'] == page.number and contains(cover['box'], l) and l.id not in self.excluded]
-            if cover_lines:
+            if cover and cover['page'] == page.number:
+                self.flush()
                 cover_block = Block('image', 'cover', cover_lines, id='source-cover', image='images/cover.png', caption='Cover')
                 self.blocks.append(cover_block)
             active = [l for l in page.lines if l.id not in self.excluded and l not in cover_lines]
@@ -179,7 +189,13 @@ class Builder:
             if role == 'jacket':
                 panels = rule.get('panels', [])
                 ordered = sorted(page.lines, key=lambda line: (next((i for i, panel in enumerate(panels) if contains(panel['box'], line)), -1), line.top, line.x0))
+            pending_images.sort(key=lambda item: item[0])
             for line in ordered:
+                while pending_images and pending_images[0][0] <= line.top:
+                    self.flush()
+                    block = pending_images.pop(0)[1]
+                    block.chapter = self.chapter
+                    self.blocks.append(block)
                 if line.id in self.excluded:
                     self.ledger.claim(line, 'excluded', self.excluded[line.id])
                     continue
@@ -204,7 +220,13 @@ class Builder:
                 if not line.upright:
                     self.ledger.fail('rotated-text', 'Rotated text needs an illustration crop; prose cannot be rasterized.', line)
                 override = self.config['line_overrides'].get(line.id)
-                if override in ('heading1', 'heading2'):
+                section = self.config['notes']['sections'].get(line.id)
+                if section:
+                    self.heading(line, 'h2')
+                    self.endnote_chapter = section
+                elif role == 'endnotes' and self.endnote_chapter and not override and line.size < heads['h2_size']:
+                    self.note(line)
+                elif override in ('heading1', 'heading2'):
                     self.heading(line, 'h1' if override == 'heading1' else 'h2')
                 elif role in ('body', 'references') and (re.match(heads['chapter_pattern'], line.text) or (line.font == heads['font'] and line.size >= heads['h2_size'])):
                     self.heading(line, 'h1' if line.size >= heads['h1_size'] or re.match(heads['chapter_pattern'], line.text) else 'h2')
@@ -214,6 +236,10 @@ class Builder:
                     if not override and re.match(r'^(Figure|Table)\s+\d+[.\d]*', line.text) and line.font != lay['body_font']:
                         self.ledger.fail('uncropped-illustration', 'Figure/table caption requires a whole illustration crop.', line)
                     self.body(line, role, override)
+            for _, block in pending_images:
+                self.flush()
+                block.chapter = self.chapter
+                self.blocks.append(block)
             # Two independent lines sharing a baseline indicate multiple columns.
             if role == 'body':
                 prose = [l for l in active if l.id not in image_lines and l.size >= lay['body_size'] * .95 and l.font == lay['body_font']]
@@ -225,7 +251,10 @@ class Builder:
                 if (box[2] - box[0]) * (box[3] - box[1]) < 1000:
                     continue
                 crops = [r['box'] for r in regions] + ([cover['box']] if cover and cover['page'] == page.number else [])
-                if role != 'duplicate' and not any(overlaps(box, crop) for crop in crops):
+                if role != 'duplicate' and not any(
+                    crop[0] <= max(0, box[0]) + 1 and crop[1] <= max(0, box[1]) + 1
+                    and crop[2] >= min(page.width, box[2]) - 1 and crop[3] >= min(page.height, box[3]) - 1
+                    for crop in crops):
                     self.ledger.fail('uncropped-image', 'Raster image has no configured crop.', page=page.number)
         self.flush()
         # Put notes at the end of their chapter, preserving their source order.
@@ -233,7 +262,7 @@ class Builder:
         for i, block in enumerate(self.blocks):
             output.append(block)
             if i == len(self.blocks) - 1 or self.blocks[i + 1].chapter != block.chapter:
-                output.extend(note for (ch, _), note in self.notes.items() if ch == block.chapter)
+                output.extend(note for key, note in self.notes.items() if key[0] == block.chapter and key not in self.endnotes)
         # Only source superscripts with a matching note become links.
         refs = Counter()
         for block in output:

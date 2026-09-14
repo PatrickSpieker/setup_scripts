@@ -1,0 +1,749 @@
+version: 1
+source_sha256: c23c6f0fefb1dcc7fffc3be3ce9cc1048c42210fbbf913a6559ed9dc4edf7ab4
+metadata:
+  title: 'The House of Rothschild: Money’s Prophets, 1798–1848'
+  author: Niall Ferguson
+  publisher: Penguin Books
+  language: en
+layout:
+  top: 50
+  bottom: 740
+  body_font: null
+  body_size: null
+  left: null
+  right: 550
+  indent: 72.4
+  line_height: 13.8
+headings:
+  h1_size: 30
+  h2_size: 18
+  font: TimesNewRomanPS-BoldItalicMT
+  chapter_pattern: (?!)
+notes:
+  font: null
+  size: null
+  start_pattern: ^(\d{1,2})\s
+  sections:
+    p0421-l0005: p0013-l0002
+    p0422-l0001: p0039-l0016
+    p0423-l0021: p0060-l0043
+    p0424-l0018: p0078-l0004
+    p0425-l0005: p0101-l0023
+    p0427-l0015: p0126-l0012
+    p0428-l0012: p0147-l0017
+    p0429-l0008: p0169-l0038
+    p0430-l0008: p0186-l0027
+    p0431-l0010: p0205-l0018
+    p0432-l0003: p0228-l0008
+    p0432-l0031: p0260-l0002
+    p0433-l0016: p0281-l0003
+    p0433-l0030: p0310-l0022
+    p0434-l0028: p0331-l0014
+    p0435-l0003: p0353-l0044
+    p0435-l0024: p0380-l0006
+pages:
+  1:
+    role: frontmatter
+  2:
+    role: frontmatter
+  6:
+    role: frontmatter
+  7:
+    role: frontmatter
+  3:
+    role: contents
+  421:
+    role: endnotes
+  422:
+    role: endnotes
+  423:
+    role: endnotes
+  424:
+    role: endnotes
+  425:
+    role: endnotes
+  426:
+    role: endnotes
+  427:
+    role: endnotes
+  428:
+    role: endnotes
+  429:
+    role: endnotes
+  430:
+    role: endnotes
+  431:
+    role: endnotes
+  432:
+    role: endnotes
+  433:
+    role: endnotes
+  434:
+    role: endnotes
+  435:
+    role: endnotes
+  436:
+    role: endnotes
+  438:
+    role: references
+  439:
+    role: references
+  440:
+    role: references
+  441:
+    role: references
+  442:
+    role: references
+  443:
+    role: references
+  444:
+    role: references
+  445:
+    role: references
+  446:
+    role: references
+  447:
+    role: references
+  448:
+    role: references
+  449:
+    role: references
+  450:
+    role: references
+  451:
+    role: references
+  452:
+    role: references
+  453:
+    role: references
+  454:
+    role: references
+  455:
+    role: references
+  456:
+    role: references
+  457:
+    role: references
+  458:
+    role: references
+  459:
+    role: references
+  460:
+    role: references
+  461:
+    role: references
+  462:
+    role: references
+  463:
+    role: references
+  464:
+    role: references
+  465:
+    role: references
+  466:
+    role: references
+  467:
+    role: references
+  468:
+    role: references
+  469:
+    role: references
+  470:
+    role: references
+  471:
+    role: references
+  472:
+    role: references
+  473:
+    role: references
+  474:
+    role: references
+  475:
+    role: references
+  476:
+    role: references
+  477:
+    role: references
+  478:
+    role: references
+  479:
+    role: references
+  480:
+    role: references
+  481:
+    role: references
+  482:
+    role: references
+  483:
+    role: references
+  484:
+    role: references
+  485:
+    role: references
+  486:
+    role: references
+  487:
+    role: references
+  488:
+    role: references
+  489:
+    role: references
+  490:
+    role: references
+  491:
+    role: references
+  492:
+    role: references
+  493:
+    role: references
+  494:
+    role: references
+  495:
+    role: references
+  496:
+    role: references
+  497:
+    role: references
+  498:
+    role: references
+  499:
+    role: references
+  500:
+    role: references
+  501:
+    role: references
+  502:
+    role: references
+  503:
+    role: references
+  504:
+    role: references
+  505:
+    role: references
+  506:
+    role: references
+  507:
+    role: references
+  508:
+    role: references
+  509:
+    role: references
+  510:
+    role: references
+  511:
+    role: references
+  512:
+    role: references
+  513:
+    role: references
+  514:
+    role: references
+  515:
+    role: references
+  516:
+    role: references
+  517:
+    role: references
+  518:
+    role: references
+  519:
+    role: references
+  520:
+    role: references
+  521:
+    role: references
+  522:
+    role: references
+  523:
+    role: references
+  524:
+    role: references
+  525:
+    role: references
+  526:
+    role: references
+hyphenation:
+  keep:
+  - Harcourt-Williams
+  - high-street
+  - Saint-Simonian
+  - interest-servitude
+  - All-Seeing
+  - twenty-room
+  - mid-eighteenth
+  - money-changer
+  - import-export
+  - age-old
+  - brothers-in
+  - Anglo-Hanseatic
+  - post-war
+  - Ultra-Tory
+  - R-child
+  - pro-Russian
+  - of-pearl
+  - self-defeating
+  - native-born
+  - 1812-15
+  - pre-eminently
+  - belly-button
+  - waiting-room
+  - three-sixteenths
+  - profit-sharing
+  - inter-Rothschild
+  - re-minted
+  - would-be
+  - heaven-appointed
+  - quasi-regal
+  - good-looking
+  - one-sided
+  - state-of
+  - Paris-trained
+  - best-documented
+  - foullez-vû
+  - voulez-vous
+  - Balzac-like
+  - thaler-denominated
+  - Austrian-controlled
+  - well-researched
+  - Leipzig-Frankfurt
+  - Saint-Simonians
+  - fine-tuning
+  - half-empty
+  - open-handed
+  - semi-independent
+  - three-pointed
+  - watering-places
+  - and-underlings
+  join: []
+illustrations:
+- page: 2
+  box:
+  - 56.7
+  - 56.7
+  - 565.7
+  - 735.3
+  caption: Illustration on source page 2
+- page: 6
+  box:
+  - 180.8
+  - 56.7
+  - 431.3
+  - 792.0
+  caption: Illustration on source page 6
+- page: 11
+  box:
+  - 100.5
+  - 56.7
+  - 511.5
+  - 660.5
+  caption: Illustration on source page 11
+  rotate: 90
+- page: 12
+  box:
+  - 98.3
+  - 56.7
+  - 513.8
+  - 595.2
+  caption: Illustration on source page 12
+  rotate: 90
+- page: 13
+  box:
+  - 93.8
+  - 56.7
+  - 518.3
+  - 545.0
+  caption: Illustration on source page 13
+- page: 40
+  box:
+  - 194.7
+  - 294.8
+  - 417.4
+  - 605.3
+  caption: Illustration on source page 40
+- page: 59
+  box:
+  - 117.8
+  - 56.7
+  - 494.3
+  - 650.7
+  caption: Illustration on source page 59
+- page: 110
+  box:
+  - 134.3
+  - 56.7
+  - 477.8
+  - 675.5
+  caption: Illustration on source page 110
+- page: 131
+  box:
+  - 127.2
+  - 84.9
+  - 484.9
+  - 359.4
+  caption: Illustration on source page 131
+- page: 133
+  box:
+  - 126.0
+  - 405.2
+  - 486.0
+  - 673.0
+  caption: Illustration on source page 133
+- page: 134
+  box:
+  - 126.4
+  - 56.7
+  - 485.7
+  - 324.5
+  caption: Illustration on source page 134
+- page: 135
+  box:
+  - 125.3
+  - 56.7
+  - 486.8
+  - 323.7
+  caption: Illustration on source page 135
+- page: 138
+  box:
+  - 124.9
+  - 292.5
+  - 487.2
+  - 534.8
+  caption: Illustration on source page 138
+- page: 154
+  box:
+  - 127.9
+  - 126.3
+  - 484.2
+  - 397.8
+  caption: Illustration on source page 154
+- page: 162
+  box:
+  - 193.5
+  - 195.3
+  - 418.5
+  - 496.1
+  caption: Illustration on source page 162
+- page: 163
+  box:
+  - 122.7
+  - 140.1
+  - 489.4
+  - 387.6
+  caption: Illustration on source page 163
+- page: 179
+  box:
+  - 123.8
+  - 222.9
+  - 488.3
+  - 475.7
+  caption: Illustration on source page 179
+- page: 197
+  box:
+  - 56.7
+  - 236.7
+  - 556.7
+  - 542.2
+  caption: Illustration on source page 197
+- page: 198
+  box:
+  - 56.7
+  - 140.7
+  - 591.2
+  - 575.0
+  caption: Illustration on source page 198
+- page: 199
+  box:
+  - 56.7
+  - 237.3
+  - 573.2
+  - 574.1
+  caption: Illustration on source page 199
+- page: 204
+  box:
+  - 56.7
+  - 56.7
+  - 561.9
+  - 545.1
+  caption: Illustration on source page 204
+- page: 224
+  box:
+  - 80.1
+  - 56.7
+  - 532.0
+  - 452.5
+  caption: Illustration on source page 224
+- page: 225
+  box:
+  - 56.7
+  - 56.7
+  - 566.5
+  - 367.0
+  caption: Illustration on source page 225
+- page: 230
+  box:
+  - 73.7
+  - 56.7
+  - 538.4
+  - 357.4
+  caption: Illustration on source page 230
+- page: 230
+  box:
+  - 66.2
+  - 400.0
+  - 545.9
+  - 675.4
+  caption: Illustration on source page 230
+- page: 232
+  box:
+  - 134.9
+  - 56.7
+  - 477.2
+  - 335.0
+  caption: Illustration on source page 232
+- page: 232
+  box:
+  - 99.6
+  - 377.6
+  - 512.4
+  - 653.7
+  caption: Illustration on source page 232
+- page: 234
+  box:
+  - 56.7
+  - 56.7
+  - 556.7
+  - 522.7
+  caption: Illustration on source page 234
+- page: 241
+  box:
+  - 60.2
+  - 154.5
+  - 551.9
+  - 324.2
+  caption: Illustration on source page 241
+- page: 243
+  box:
+  - 81.9
+  - 56.7
+  - 530.1
+  - 461.7
+  caption: Illustration on source page 243
+- page: 243
+  box:
+  - 68.4
+  - 504.3
+  - 543.6
+  - 653.6
+  caption: Illustration on source page 243
+- page: 244
+  box:
+  - 84.6
+  - 334.5
+  - 527.5
+  - 444.8
+  caption: Illustration on source page 244
+- page: 245
+  box:
+  - 80.4
+  - 56.7
+  - 531.6
+  - 244.1
+  caption: Illustration on source page 245
+- page: 249
+  box:
+  - 115.4
+  - 56.7
+  - 496.7
+  - 307.7
+  caption: Illustration on source page 249
+- page: 250
+  box:
+  - 62.4
+  - 223.5
+  - 549.7
+  - 563.1
+  caption: Illustration on source page 250
+- page: 260
+  box:
+  - 155.8
+  - 56.7
+  - 456.3
+  - 327.4
+  caption: Illustration on source page 260
+- page: 269
+  box:
+  - 56.7
+  - 265.5
+  - 113.3
+  - 293.8
+  caption: Illustration on source page 269
+- page: 269
+  box:
+  - 150.1
+  - 447.4
+  - 462.0
+  - 723.7
+  caption: Illustration on source page 269
+- page: 270
+  box:
+  - 189.2
+  - 98.7
+  - 422.9
+  - 293.4
+  caption: Illustration on source page 270
+- page: 316
+  box:
+  - 138.7
+  - 56.7
+  - 473.4
+  - 360.2
+  caption: Illustration on source page 316
+- page: 316
+  box:
+  - 158.3
+  - 416.6
+  - 453.7
+  - 686.4
+  caption: Illustration on source page 316
+- page: 381
+  box:
+  - 124.9
+  - 264.3
+  - 487.2
+  - 556.8
+  caption: Illustration on source page 381
+- page: 382
+  box:
+  - 125.7
+  - 403.5
+  - 486.4
+  - 702.8
+  caption: Illustration on source page 382
+- page: 396
+  box:
+  - 195.4
+  - 236.7
+  - 416.7
+  - 509.7
+  caption: Illustration on source page 396
+- page: 400
+  box:
+  - 192.4
+  - 209.1
+  - 419.7
+  - 433.4
+  caption: Illustration on source page 400
+- page: 401
+  box:
+  - 56.7
+  - 514.5
+  - 434.0
+  - 609.8
+  caption: Illustration on source page 401
+- page: 402
+  box:
+  - 140.2
+  - 347.7
+  - 471.9
+  - 551.5
+  caption: Illustration on source page 402
+- page: 420
+  box:
+  - 56.7
+  - 349.5
+  - 437.7
+  - 427.5
+  caption: Illustration on source page 420
+- page: 421
+  box:
+  - 67.6
+  - 56.7
+  - 544.5
+  - 315.2
+  caption: Illustration on source page 421
+duplicates: []
+artifacts: []
+line_overrides:
+  p0008-l0002: heading1
+  p0013-l0002: heading1
+  p0013-l0004: heading2
+  p0016-l0006: heading2
+  p0021-l0040: heading2
+  p0035-l0033: heading2
+  p0038-l0001: heading2
+  p0039-l0016: heading1
+  p0039-l0017: heading1
+  p0060-l0043: heading1
+  p0078-l0004: heading1
+  p0078-l0005: heading1
+  p0101-l0023: heading1
+  p0101-l0024: heading1
+  p0126-l0012: heading1
+  p0126-l0013: heading1
+  p0147-l0017: heading1
+  p0147-l0018: heading1
+  p0169-l0038: heading1
+  p0169-l0039: heading1
+  p0186-l0027: heading1
+  p0186-l0028: heading1
+  p0205-l0018: heading1
+  p0205-l0019: heading1
+  p0228-l0008: heading1
+  p0228-l0009: heading1
+  p0260-l0002: heading1
+  p0260-l0003: heading1
+  p0281-l0003: heading1
+  p0281-l0004: heading1
+  p0310-l0022: heading1
+  p0310-l0023: heading1
+  p0331-l0014: heading1
+  p0331-l0015: heading1
+  p0353-l0044: heading1
+  p0380-l0006: heading1
+  p0380-l0007: heading1
+  p0417-l0035: heading1
+  p0417-l0036: heading1
+  p0420-l0001: heading1
+  p0420-l0002: heading1
+  p0421-l0002: heading1
+  p0438-l0001: heading1
+  p0354-l0001: heading2
+  p0421-l0005: heading2
+  p0422-l0001: heading2
+  p0423-l0021: heading2
+  p0424-l0018: heading2
+  p0424-l0019: heading2
+  p0425-l0005: heading2
+  p0425-l0006: heading2
+  p0427-l0015: heading2
+  p0428-l0012: heading2
+  p0429-l0008: heading2
+  p0430-l0008: heading2
+  p0431-l0010: heading2
+  p0432-l0003: heading2
+  p0432-l0031: heading2
+  p0433-l0016: heading2
+  p0433-l0030: heading2
+  p0433-l0031: heading2
+  p0434-l0028: heading2
+  p0434-l0029: heading2
+  p0435-l0003: heading2
+  p0435-l0004: heading2
+  p0435-l0024: heading2
+  p0003-l0001: paragraph
+  p0241-l0005: paragraph
+  p0243-l0001: paragraph
+  p0244-l0016: paragraph
+  p0244-l0028: paragraph
+  p0401-l0029: paragraph
+  p0420-l0016: paragraph
+  p0420-l0028: paragraph
+  p0013-l0003: heading1
+cover:
+  page: 1
+  box:
+  - 189.4
+  - 56.7
+  - 422.7
+  - 413.0
+render_dpi: 240
