@@ -17,7 +17,7 @@ DEFAULT = {
                'left': None, 'right': None, 'indent': None, 'line_height': None},
     'headings': {'h1_size': None, 'h2_size': None, 'font': None,
                  'chapter_pattern': r'^CHAPTER\s+\d+$'},
-    'notes': {'font': None, 'size': None, 'start_pattern': r'^(\d+)\.\s', 'sections': {}},
+    'notes': {'font': None, 'size': None, 'start_pattern': r'^(\d+)\.\s', 'sections': {}, 'mode': 'linked'},
     'pages': {},
     'hyphenation': {'keep': [], 'join': []},
     'illustrations': [],
@@ -28,7 +28,7 @@ DEFAULT = {
     'render_dpi': 240,
 }
 
-PAGE_KEYS = {'role', 'duplicate_of', 'top', 'bottom', 'panels'}
+PAGE_KEYS = {'role', 'duplicate_of', 'top', 'bottom', 'panels', 'reading_regions', 'text_y_tolerance'}
 ROLES = {'body', 'frontmatter', 'references', 'contents', 'jacket', 'duplicate', 'endnotes'}
 
 
@@ -102,6 +102,8 @@ def validate(config):
         raise ConversionError(f'Invalid chapter pattern: {e}') from e
     if config['notes']['size'] is not None:
         number(config['notes']['size'], 'notes.size', 1, 200)
+    if config['notes']['mode'] not in ('linked', 'preserve'):
+        raise ConversionError('notes.mode must be linked or preserve.')
     if config['notes']['font'] is not None and not isinstance(config['notes']['font'], str):
         raise ConversionError('notes.font must be text.')
     try:
@@ -128,9 +130,14 @@ def validate(config):
         mapping(rule, PAGE_KEYS, f'pages.{page}')
         if rule.get('role', 'body') not in ROLES:
             raise ConversionError(f'Unsupported page role on page {page}; full-page image fallback is forbidden.')
-        for key in ('top', 'bottom'):
+        for key in ('top', 'bottom', 'text_y_tolerance'):
             if key in rule:
                 number(rule[key], f'pages.{page}.{key}')
+        if 'reading_regions' in rule:
+            if not isinstance(rule['reading_regions'], list) or not rule['reading_regions']:
+                raise ConversionError('reading_regions must be a nonempty list of boxes in reading order.')
+            for region in rule['reading_regions']:
+                box(region, f'pages.{page}.reading_regions')
         if rule.get('role') == 'duplicate' and (type(rule.get('duplicate_of')) is not int or rule['duplicate_of'] == page or rule['duplicate_of'] < 1):
             raise ConversionError('Duplicate pages must name a different duplicate_of page.')
         if 'panels' in rule:
@@ -142,7 +149,7 @@ def validate(config):
                 if not isinstance(panel.get('title'), str):
                     raise ConversionError('Panel title must be text.')
     for name, keys in [('illustrations', {'page', 'box', 'rotate', 'caption', 'retain_text'}),
-                       ('duplicates', {'line', 'of'}), ('artifacts', {'line', 'kind'})]:
+                       ('duplicates', {'line', 'of'}), ('artifacts', {'line', 'kind', 'reviewed_text'})]:
         if not isinstance(config[name], list):
             raise ConversionError(f'{name} must be a list.')
         for rule in config[name]:
@@ -162,8 +169,11 @@ def validate(config):
                     raise ConversionError(f'{name}.line must be a source line ID.')
                 if name == 'duplicates' and (not isinstance(rule.get('of'), list) or not all(isinstance(s, str) for s in rule['of'])):
                     raise ConversionError('duplicates.of must list source line IDs.')
-                if name == 'artifacts' and rule.get('kind') not in ('page_number', 'printer_mark'):
-                    raise ConversionError('Artifact exclusions support only verified page_number and printer_mark rules.')
+                if name == 'artifacts':
+                    if rule.get('kind') not in ('page_number', 'printer_mark', 'running_header'):
+                        raise ConversionError('Unknown print artifact kind.')
+                    if 'reviewed_text' in rule and not isinstance(rule['reviewed_text'], str):
+                        raise ConversionError('reviewed_text must be the exact visually reviewed margin text.')
     mapping(config['line_overrides'], set(config['line_overrides']) if isinstance(config['line_overrides'], dict) else set(), 'line_overrides')
     for key, value in config['line_overrides'].items():
         if not isinstance(key, str) or value not in ('paragraph', 'continue', 'heading1', 'heading2', 'note'):

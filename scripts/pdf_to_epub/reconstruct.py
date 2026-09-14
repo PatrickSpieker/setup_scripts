@@ -25,13 +25,15 @@ class Builder:
 
     def join(self, runs, new, line):
         left, right = ''.join(r.text for r in runs), ''.join(r.text for r in new)
-        a, b = re.search(r'(\w+)-$', left), re.match(r'(\w+)', right)
+        a, b = re.search(r'(\w+)[-\u00ad]$', left), re.match(r'(\w+)', right)
         separator = ' '
         if a and b:
             split = a[1] + '-' + b[1]
             compound, joined = split.casefold(), (a[1] + b[1]).casefold()
             decisions = self.config['hyphenation']
-            if split in decisions['keep']:
+            if left.endswith('\u00ad') and split not in decisions['keep']:
+                keep = False
+            elif split in decisions['keep']:
                 keep = True
             elif split in decisions['join']:
                 keep = False
@@ -47,6 +49,11 @@ class Builder:
                 for run in reversed(runs):
                     if run.text:
                         run.text = run.text[:-1]
+                        break
+            elif left.endswith('\u00ad'):
+                for run in reversed(runs):
+                    if run.text:
+                        run.text = run.text[:-1] + '-'
                         break
             separator = ''
             self.joins.append({'line': line.id, 'split': split, 'kept': keep})
@@ -69,7 +76,7 @@ class Builder:
         # Consecutive heading lines remain one semantic heading.
         if self.blocks and self.blocks[-1].kind == level and self.blocks[-1].lines[-1].page == line.page:
             previous = self.blocks[-1].lines[-1]
-            if line.top - previous.top < 34:
+            if line.top - previous.top < max(34, previous.size * 2.6):
                 block = self.blocks[-1]
                 self.chapter = block.chapter
                 self.join(block.runs, line.runs, line)
@@ -90,7 +97,12 @@ class Builder:
             indent = abs(line.x0 - lay['indent']) <= lay['body_size'] * .4
             text = ''.join(r.text for r in self.current.runs)
             if role == 'references':
-                new = line.x0 < lay['left'] + lay['body_size'] * .55
+                left = lay['left']
+                regions = self.config['pages'].get(line.page, {}).get('reading_regions', [])
+                region = next((box for box in regions if contains(box, line)), None)
+                if region:
+                    left = min(l.x0 for l in self.pages[line.page - 1].lines if contains(region, l))
+                new = line.x0 < left + lay['body_size'] * .55
             else:
                 # Ragged-right lines are not paragraph boundaries. Use vertical
                 # spacing and first-line indentation, including across pages.
@@ -230,7 +242,7 @@ class Builder:
                     self.heading(line, 'h1' if override == 'heading1' else 'h2')
                 elif role in ('body', 'references') and (re.match(heads['chapter_pattern'], line.text) or (line.font == heads['font'] and line.size >= heads['h2_size'])):
                     self.heading(line, 'h1' if line.size >= heads['h1_size'] or re.match(heads['chapter_pattern'], line.text) else 'h2')
-                elif override == 'note' or (role == 'body' and self.config['notes']['size'] == line.size and (not self.config['notes']['font'] or line.font.startswith(self.config['notes']['font']))):
+                elif override == 'note' or (self.config['notes']['mode'] == 'linked' and role == 'body' and self.config['notes']['size'] == line.size and (not self.config['notes']['font'] or line.font.startswith(self.config['notes']['font']))):
                     self.note(line)
                 else:
                     if not override and re.match(r'^(Figure|Table)\s+\d+[.\d]*', line.text) and line.font != lay['body_font']:
@@ -266,6 +278,8 @@ class Builder:
         # Only source superscripts with a matching note become links.
         refs = Counter()
         for block in output:
+            if self.config['notes']['mode'] == 'preserve':
+                continue
             if block.kind == 'note':
                 continue
             for run in block.runs:

@@ -15,7 +15,7 @@ except ModuleNotFoundError as error:
 from pdf_to_epub.config import load
 from pdf_to_epub.extract import extract
 from pdf_to_epub.layout import infer, preflight
-from pdf_to_epub.model import Block, Ledger, Line, Page, Run
+from pdf_to_epub.model import Block, ConversionError, Ledger, Line, Page, Run
 from pdf_to_epub.reconstruct import Builder
 from pdf_to_epub.package import source_html
 
@@ -122,6 +122,71 @@ class ConversionTests(unittest.TestCase):
         ledger = Ledger([p])
         Builder([p], c, ledger, {}).build()
         self.assertIn('missing-note', [i.code for i in ledger.issues])
+
+    def test_preserved_notes_do_not_create_broken_links(self):
+        c = config()
+        c['notes']['mode'] = 'preserve'
+        p = Page(1, 612, 792, [line(1, 'Text1', 50, runs=[Run('Text'), Run('1', superscript=True)])], [], [])
+        ledger = Ledger([p])
+        blocks = Builder([p], c, ledger, {}).build()
+        self.assertFalse(ledger.issues)
+        self.assertIn('<sup>1</sup>', source_html(blocks, c))
+        self.assertNotIn('<a ', source_html(blocks, c))
+
+    def test_soft_hyphen_reflows_without_word_space(self):
+        p = Page(1, 612, 792, [line(1, 'A trans\u00ad', 50), line(2, 'formation.', 64)], [], [])
+        ledger = Ledger([p])
+        blocks = Builder([p], config(), ledger, {}).build()
+        self.assertFalse(ledger.issues)
+        self.assertEqual(''.join(r.text for r in blocks[0].runs), 'A transformation.')
+
+    def test_index_second_column_has_separate_entries(self):
+        c = config()
+        c['pages'][1] = {'role': 'references', 'reading_regions': [[0, 0, 300, 792], [300, 0, 612, 792]]}
+        lines = [line(1, 'Alpha, 1', 50), line(2, 'Beta, 2', 50), line(3, 'Gamma, 3', 64)]
+        lines[0].box = (50, 50, 200, 62)
+        lines[1].box = (350, 50, 500, 62)
+        lines[2].box = (350, 64, 500, 76)
+        p = Page(1, 612, 792, lines, [], [])
+        ledger = Ledger([p])
+        blocks = Builder([p], c, ledger, {}).build()
+        self.assertEqual(len(blocks), 3)
+        self.assertFalse(ledger.issues)
+
+    def test_reviewed_artifact_cannot_exclude_body_text(self):
+        c = config()
+        z = line(1, 'Ordinary prose', 200)
+        c['artifacts'] = [{'line': z.id, 'kind': 'running_header', 'reviewed_text': z.text}]
+        page = Page(1, 612, 792, [z], [], [])
+        ledger = Ledger([page])
+        self.assertNotIn(z.id, preflight([page], c, ledger))
+        self.assertIn('unverified-exclusion', [i.code for i in ledger.issues])
+
+    def test_reading_regions_preserve_columns_and_reject_missing_glyphs(self):
+        class FakePage:
+            width, height = 612, 792
+            lines, rects, curves, images = [], [], [], []
+            def __init__(self, chars):
+                self.chars = chars
+            def within_bbox(self, box):
+                return FakePage([c for c in self.chars if c['x0'] >= box[0] and c['x1'] <= box[2]])
+            def extract_text_lines(self):
+                return [dict(c, chars=[c]) for c in sorted(self.chars, key=lambda c: (c['top'], c['x0']))]
+            def close(self):
+                pass
+        chars = [dict(text=t, x0=x, x1=x+80, top=y, bottom=y+12,
+                      size=12, fontname='Body', upright=True)
+                 for t, x, y in [('Alpha', 50, 50), ('Beta', 50, 64), ('Gamma', 350, 50), ('Delta', 350, 64)]]
+        c = config()
+        c['pages'][1] = {'reading_regions': [[0, 0, 300, 792], [300, 0, 612, 792]]}
+        with patch('pdf_to_epub.extract.pdfplumber.open') as mocked:
+            mocked.return_value.__enter__.return_value.pages = [FakePage(chars)]
+            mocked.return_value.__enter__.return_value.metadata = {}
+            pages, _ = extract('unused.pdf', c)
+            self.assertEqual([l.text for l in pages[0].lines], ['Alpha', 'Beta', 'Gamma', 'Delta'])
+            c['pages'][1]['reading_regions'].pop()
+            with self.assertRaises(ConversionError):
+                extract('unused.pdf', c)
 
 
 if __name__ == '__main__':
