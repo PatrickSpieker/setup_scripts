@@ -9,7 +9,7 @@ pdf-to-epub convert book.pdf --output book.epub --profile book.yaml
 
 Inspection writes `book.effective.yaml` and `book.report.html`. Review the self-contained report and save an edited profile before converting. `--output` on inspection changes artifact placement. Conversion writes the same artifacts beside the requested EPUB. Generated files overwrite automatically; there is no force flag. Input PDF/profile aliases are rejected. A failing conversion preserves any existing EPUB and emits no draft.
 
-Only English, single-column PDFs with real text layers are supported. Scans, unresolved layouts, unaccounted content, uncertain word joins, broken notes, and invalid EPUBs fail. There is no OCR or full-page-image fallback. Tables/diagrams use whole image crops; body prose remains reflowable. Automatic checks cannot certify visual quality.
+English PDFs with real text layers are supported. Single-column layout is the default; explicit reading regions support multi-column pages. Scans, unresolved layouts, unaccounted content, uncertain word joins, broken notes, and invalid EPUBs fail. There is no OCR or full-page-image fallback. Tables/diagrams use whole image crops; body prose remains reflowable. Automatic checks cannot certify visual quality.
 
 ## Profile version 1
 
@@ -22,11 +22,11 @@ Unknown keys and duplicate YAML keys fail. Omitted fields use inspection default
 | `metadata` | `title`, `author`, `publisher`, `language: en` |
 | `layout` | `top`, `bottom`, `body_font`, `body_size`, `left`, `right`, `indent`, `line_height`. Null values are inferred. |
 | `headings` | `font`, `h1_size`, `h2_size`, `chapter_pattern` |
-| `notes` | `font` prefix and exact `size`; numbered footnotes restart per chapter. `start_pattern` has one capture group for the number (default `^(\d+)\.\s`). `sections` maps endnote section heading line IDs to their body chapter heading line IDs. |
-| `pages` | Mapping of page numbers to `role`, optional `top`/`bottom`. Roles: `body`, `frontmatter`, `references`, `contents`, `jacket`, `duplicate`, `endnotes`. Duplicate pages require `duplicate_of`; text must verify against a retained page. Jackets have `panels: [{title: …, box: […]}]`. Endnotes remain at their source position and link back to their body references. |
+| `notes` | `font` prefix and exact `size`; numbered footnotes restart per chapter. `mode: preserve` retains source note text and superscripts without inferred links, for unreliable OCR numbering; the default `linked` mode requires verified references. `start_pattern` has one capture group for the number (default `^(\d+)\.\s`). `sections` maps endnote section heading line IDs to their body chapter heading line IDs. |
+| `pages` | Mapping of page numbers to `role`, optional `top`/`bottom`, `text_y_tolerance`, and `reading_regions` (boxes in reading order). Reading regions must cover every glyph exactly once; use separate header/footer boxes around columns. Roles: `body`, `frontmatter`, `references`, `contents`, `jacket`, `duplicate`, `endnotes`. Duplicate pages require `duplicate_of`; text must verify against a retained page. Jackets have `panels: [{title: …, box: […]}]`. Endnotes remain at their source position and link back to their body references. |
 | `illustrations` | List of `{page, box, rotate, caption, retain_text}`. Rotation is clockwise 0/90/180/270. `retain_text` names source lines overlapping a graphic that must also remain reflowable. |
 | `duplicates` | List of `{line: ID, of: [IDs]}`. Exclusion requires matching retained text. |
-| `artifacts` | List of `{line: ID, kind: page_number\|printer_mark}`; recognized patterns are verified. |
+| `artifacts` | List of `{line: ID, kind: page_number\|printer_mark\|running_header}`; recognized patterns are verified. Optional `reviewed_text` must match the exact visually reviewed OCR text and requires an outer-margin location. |
 | `line_overrides` | Mapping of IDs to `paragraph`, `continue`, `heading1`, `heading2`, or `note` |
 | `hyphenation` | `keep`/`join` lists of case-sensitive split words, e.g. `foun-dation`. Ambiguous joins fail instead of guessing. |
 | `cover` | Optional `{page, box}` for the cover panel |
@@ -39,3 +39,5 @@ Image-only title/illustration pages are supported when explicit crops preserve a
 `profiles/house-of-rothschild-vol1.yaml` demonstrates chapter-specific endnotes, explicit chapter headings, image crops, and reviewed hyphenation. Run converter regression tests with `~/.local/share/pdf-to-epub/venv/bin/python tests/test_pdf_conversion.py` from the repository root.
 
 Packaging uses a fresh Calibre configuration, no user plugins, and structural validation. EPUB identifiers, dates, ZIP metadata and entry order are normalized. With the same input bytes, effective profile, and dependency/toolchain versions, output bytes must match. Updating Calibre, Python, or dependencies can change output; retain the report alongside a reusable profile.
+
+`profiles/just-unjust-wars.yaml` preserves a two-column index and unlinked OCR notes. Explicit `text_y_tolerance` changes extraction line IDs; reinspect before adding line rules. Soft hyphens rejoin by default; use `hyphenation.keep` for source compounds or dashes encoded as soft hyphens.

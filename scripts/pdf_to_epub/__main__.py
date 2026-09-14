@@ -61,7 +61,7 @@ def main():
         config['source_sha256'] = sha
         versions = {name: package_version(name) for name in ('pdfplumber', 'pdfminer.six', 'pypdfium2', 'Pillow', 'lxml', 'PyYAML', 'cmudict')}
         versions.update({'python': platform.python_version(), 'platform': platform.platform()})
-        pages, metadata = extract(source)
+        pages, metadata = extract(source, config)
         ledger = Ledger(pages)
         infer(pages, config, metadata)
         excluded = preflight(pages, config, ledger)

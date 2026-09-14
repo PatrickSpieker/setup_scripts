@@ -8,14 +8,25 @@ import pdfplumber
 from .model import Line, Page, Run, ConversionError, normalized
 
 
-def extract(path):
+def extract(path, config=None):
     pages = []
     with pdfplumber.open(path) as pdf:
         metadata = dict(pdf.metadata or {})
         for n, page in enumerate(pdf.pages, 1):
             lines = []
             raw_lines = []
-            original_lines = page.extract_text_lines()
+            rule = (config or {}).get('pages', {}).get(n, {})
+            regions = rule.get('reading_regions')
+            text_options = {'y_tolerance': rule['text_y_tolerance']} if 'text_y_tolerance' in rule else {}
+            if regions:
+                crops = [page.within_bbox(tuple(box)) for box in regions]
+                source_chars = Counter((c['text'], c['x0'], c['top']) for c in page.chars)
+                selected_chars = Counter((c['text'], c['x0'], c['top']) for crop in crops for c in crop.chars)
+                if source_chars != selected_chars:
+                    raise ConversionError(f'Reading regions must contain every glyph exactly once on page {n}.')
+                original_lines = [line for crop in crops for line in crop.extract_text_lines(**text_options)]
+            else:
+                original_lines = page.extract_text_lines(**text_options)
             for raw in original_lines:
                 # A wide gutter is a column boundary, never a prose space.
                 groups = [[]]
@@ -51,7 +62,8 @@ def extract(path):
             after = Counter(normalized(''.join(l['text'] for l in raw_lines)))
             if before != after:
                 raise ConversionError(f'Column separation changed source characters on page {n}.')
-            for i, raw in enumerate(sorted(raw_lines, key=lambda l: (l['top'], l['x0'])), 1):
+            ordered_lines = raw_lines if regions else sorted(raw_lines, key=lambda l: (l['top'], l['x0']))
+            for i, raw in enumerate(ordered_lines, 1):
                 chars = [c for c in raw['chars'] if c['text'].strip()]
                 if not chars:
                     continue

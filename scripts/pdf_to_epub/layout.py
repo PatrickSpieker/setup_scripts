@@ -114,9 +114,9 @@ def preflight(pages, config, ledger):
             outside = l.top < top or l.top >= bottom
             if outside and l.top < top and normalized(l.text) in heading_texts:
                 excluded[l.id] = 'Running header matches retained heading'
-            elif outside and len(repeats[signature(l)]) >= max(3, count * .03):
+            elif outside and len(repeats[signature(l)]) >= 3:
                 excluded[l.id] = 'Repeated running header/footer outside content bounds'
-            elif outside and re.fullmatch(r'\d{1,4}', l.text.replace(' ', '')) and (l.top > .7 * p.height or l.top < .12 * p.height):
+            elif outside and re.fullmatch(r'(?:\d{1,4}|[ivxlcdm]+)', l.text.replace(' ', '')) and (l.top > .7 * p.height or l.top < .12 * p.height):
                 excluded[l.id] = 'Margin page number'
         crops = [r['box'] for r in config['illustrations'] if r['page'] == p.number]
         if config['cover'] and config['cover']['page'] == p.number:
@@ -131,6 +131,10 @@ def preflight(pages, config, ledger):
     for item in config['artifacts']:
         line = ledger.source[item['line']]
         valid = re.fullmatch(r'\d{1,4}', line.text.strip()) if item['kind'] == 'page_number' else re.search(r'\.indd\s+\d+|^\d{2}/\d{2}/\d{4}\s+\d{2}[.:]\d{2}$', line.text)
+        if 'reviewed_text' in item:
+            height = pages[line.page - 1].height
+            margin = line.bottom < height * .05 if item['kind'] == 'running_header' else line.top > height * .9
+            valid = margin and line.text == item['reviewed_text']
         if not valid:
             ledger.fail('unverified-exclusion', 'Artifact rule does not match a recognized print artifact.', line)
         else:

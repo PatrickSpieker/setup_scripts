@@ -36,7 +36,7 @@ def command(args, root):
     with (root / 'calibre.log').open('a') as log:
         log.write(result.stdout)
     if result.returncode:
-        raise ConversionError(f'Calibre failed ({result.returncode}): {result.stdout[-6000:]}')
+        raise ConversionError(f'{Path(args[0]).name} failed ({result.returncode}): {result.stdout[-6000:]}')
     return result.stdout
 
 
@@ -75,7 +75,7 @@ def source_html(blocks, config):
         for run in block.runs:
             text = html.escape(run.text)
             if run.superscript:
-                if block.kind != 'note' and run.text.strip().isdigit():
+                if config['notes']['mode'] == 'linked' and block.kind != 'note' and run.text.strip().isdigit():
                     text = link(block.chapter, run.text.strip())
                 text = '<sup>' + text + '</sup>'
             if run.italic:
