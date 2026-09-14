@@ -56,7 +56,10 @@ def extract(path):
                 if not chars:
                     continue
                 font, size = Counter((c['fontname'].split('+')[-1], round(c['size'], 1)) for c in chars).most_common(1)[0][0]
-                glyphs = [(t, 'Bold' in c['fontname'], 'Italic' in c['fontname'], c['size'] < size * .8 and t.isdigit())
+                baseline = max(c['bottom'] for c in chars if round(c['size'], 1) == size)
+                glyphs = [(t, 'Bold' in c['fontname'], 'Italic' in c['fontname'],
+                           round(c['size'], 1) <= round(size * .8, 1)
+                           and c['bottom'] < baseline - size * .15 and t.isdigit())
                           for c in sorted(chars, key=lambda c: c['x0'])
                           for t in unicodedata.normalize('NFKC', c['text']) if not t.isspace()]
                 target = unicodedata.normalize('NFKC', raw['text']).strip()

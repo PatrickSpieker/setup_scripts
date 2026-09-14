@@ -16,7 +16,9 @@ def infer(pages, config, metadata):
     if not lines:
         raise ConversionError('No usable text layer; scanned PDFs are unsupported.')
     font, size = Counter((l.font, l.size) for l in lines).most_common(1)[0][0]
-    body = [l for l in lines if (l.font, l.size) == (font, size)]
+    # The central sample identifies the font, not the content boundaries.
+    body = [l for p in pages for l in p.lines
+            if (l.font, l.size) == (font, size) and len(l.text) > 35]
     lay = config['layout']
     defaults = {'body_font': font, 'body_size': size,
                 'left': statistics.median(l.x0 for l in body), 'right': statistics.median(l.x1 for l in body),
@@ -59,6 +61,11 @@ def preflight(pages, config, ledger):
     for key in config['line_overrides']:
         if key not in ledger.source:
             raise ConversionError(f'Unknown line override: {key}')
+    for section, chapter in config['notes']['sections'].items():
+        if section not in ledger.source or chapter not in ledger.source:
+            raise ConversionError(f'Unknown endnote section or chapter: {section} -> {chapter}')
+        if config['pages'].get(ledger.source[section].page, {}).get('role') != 'endnotes':
+            raise ConversionError(f'Endnote section {section} requires the endnotes page role.')
     for item in config['duplicates'] + config['artifacts']:
         for key in [item['line']] + item.get('of', []):
             if key not in ledger.source:
@@ -111,7 +118,15 @@ def preflight(pages, config, ledger):
                 excluded[l.id] = 'Repeated running header/footer outside content bounds'
             elif outside and re.fullmatch(r'\d{1,4}', l.text.replace(' ', '')) and (l.top > .7 * p.height or l.top < .12 * p.height):
                 excluded[l.id] = 'Margin page number'
-        if not p.lines and (p.raster_images or p.marks):
+        crops = [r['box'] for r in config['illustrations'] if r['page'] == p.number]
+        if config['cover'] and config['cover']['page'] == p.number:
+            crops.append(config['cover']['box'])
+        graphics = p.raster_images or p.marks
+        preserved = graphics and all(any(
+            crop[0] <= max(0, b[0]) + 1 and crop[1] <= max(0, b[1]) + 1
+            and crop[2] >= min(p.width, b[2]) - 1 and crop[3] >= min(p.height, b[3]) - 1
+            for crop in crops) for b in graphics)
+        if not p.lines and graphics and not preserved:
             ledger.fail('scan', 'Page has graphics but no extractable text; no OCR fallback.', page=p.number)
     for item in config['artifacts']:
         line = ledger.source[item['line']]

@@ -17,7 +17,7 @@ DEFAULT = {
                'left': None, 'right': None, 'indent': None, 'line_height': None},
     'headings': {'h1_size': None, 'h2_size': None, 'font': None,
                  'chapter_pattern': r'^CHAPTER\s+\d+$'},
-    'notes': {'font': None, 'size': None},
+    'notes': {'font': None, 'size': None, 'start_pattern': r'^(\d+)\.\s', 'sections': {}},
     'pages': {},
     'hyphenation': {'keep': [], 'join': []},
     'illustrations': [],
@@ -29,7 +29,7 @@ DEFAULT = {
 }
 
 PAGE_KEYS = {'role', 'duplicate_of', 'top', 'bottom', 'panels'}
-ROLES = {'body', 'frontmatter', 'references', 'contents', 'jacket', 'duplicate'}
+ROLES = {'body', 'frontmatter', 'references', 'contents', 'jacket', 'duplicate', 'endnotes'}
 
 
 class UniqueLoader(yaml.SafeLoader):
@@ -104,6 +104,15 @@ def validate(config):
         number(config['notes']['size'], 'notes.size', 1, 200)
     if config['notes']['font'] is not None and not isinstance(config['notes']['font'], str):
         raise ConversionError('notes.font must be text.')
+    try:
+        pattern = re.compile(config['notes']['start_pattern'])
+        if pattern.groups != 1:
+            raise ValueError('exactly one capture group is required for the note number')
+    except (re.error, TypeError, ValueError) as e:
+        raise ConversionError(f'Invalid notes.start_pattern: {e}') from e
+    sections = config['notes']['sections']
+    if not isinstance(sections, dict) or not all(isinstance(k, str) and isinstance(v, str) for k, v in sections.items()):
+        raise ConversionError('notes.sections must map endnote heading line IDs to body chapter heading line IDs.')
     if config['source_sha256'] is not None and not re.fullmatch('[a-f0-9]{64}', str(config['source_sha256'])):
         raise ConversionError('source_sha256 must be a lowercase SHA-256 digest.')
     number(config['render_dpi'], 'render_dpi', 144, 600)
