@@ -19,7 +19,7 @@ The skill trusts the user — no check that exploration has happened. If the use
 
 1. **Grills.** One question at a time, walks the design tree, resolves dependencies before moving on, recommends an answer for each question, cross-references the code when claims are made.
 2. **Updates docs inline.** As domain terms resolve, edits `CONTEXT.md`. As irreversible decisions crystallise, sparingly offers ADRs in `docs/adr/`.
-3. **Writes up the plan.** When the user signals done, synthesises the conversation into a 3-section plan (Interface Changes / Implementation Changes / Test Plan).
+3. **Writes up the plan.** When grilling ends, synthesises the conversation into a 3-section plan (Interface Changes / Implementation Changes / Test Plan).
 4. **Ships.** Branches off main as `spec/<slug>`, empty marker commit `plan: <slug>`, one commit per doc file changed during grilling, push, open PR with the plan as the description.
 5. **Optionally builds.** Asks the user whether to implement the spec now. If yes, implementation commits land on the same `spec/<slug>` branch and the same PR — the plan in the PR description stays as the record of intent.
 
@@ -31,7 +31,7 @@ The skill trusts the user — no check that exploration has happened. If the use
 - **Cross-reference the code.** When the user makes a claim about how the system works, verify it before letting it shape the plan. If the code disagrees, surface the contradiction inline.
 - **Branch off main, never push to main.** Always a fresh `spec/<slug>` branch from `origin/main` (or whatever the repo's default branch is).
 - **Don't invent the plan.** If the user says "ship it" within the first couple of turns and the conversation has nothing concrete in it, refuse — the skill needs a real spec to ship.
-- **Maximum of 20 questions.** If there's not enough context at that point, flag to the user for explicit permission to continue, but generally 20 questions should be the upper bound.
+- **Maximum of 30 questions.** After question 20, assess whether you have enough context to write the plan. If so, end grilling. Otherwise, continue without asking permission, reassessing after each answer and stopping once you have enough context or reach 30 questions.
 
 ## During grilling
 
@@ -69,11 +69,11 @@ If any of the three is missing, skip. See [ADR-FORMAT.md](./ADR-FORMAT.md).
 
 ## Termination
 
-Grilling ends when the user signals it: _"that's enough,"_ _"ship it,"_ _"we're done,"_ _"go,"_ etc. Don't propose ending it yourself — keep going until the user calls it. (If the user signals done before any real grilling has happened, refuse and ask for a starting point.)
+Grilling ends when the user signals it: _"that's enough,"_ _"ship it,"_ _"we're done,"_ _"go,"_ etc.; when you determine you have enough context after 20–29 questions; or at the hard cap of 30 questions. At the cap, record any unresolved context as open questions in the plan rather than inventing answers or asking more questions. (If the user signals done before any real grilling has happened, refuse and ask for a starting point.)
 
 ## Plan write-up
 
-After the user signals done, synthesise the conversation into a markdown plan with **exactly these three sections**:
+After grilling ends, synthesise the conversation into a markdown plan with **exactly these three sections**:
 
 ````markdown
 ## Interface Changes
@@ -232,7 +232,7 @@ If they want to build now:
 - If implementation surfaces a real decision that changes the plan, write the revised description to `/tmp/pr-body.md` and update it with `gh api --method PATCH "repos/{owner}/{repo}/pulls/$pr_number" -F body=@/tmp/pr-body.md` so the description and the commits stay in sync. Don't let the plan rot. Prefer this REST update path over `gh pr edit` for title/body/base edits; `gh pr edit` can hit unrelated Projects/classic GraphQL failures even when only changing a PR body.
 - When implementation is done, the same PR is what gets reviewed — no second PR, no separate planning artifact.
 
-Don't propose ending implementation yourself. Keep going until the user calls it, the same way grilling ends.
+Don't propose ending implementation yourself. Keep going until the user calls it.
 
 ## Edge cases
 
