@@ -203,6 +203,9 @@ Evidence: `openapi.yaml` and `tests/contracts/test_orders.py`.
 
 ## Test Plan
 <automated and manual verification>
+
+## Rollout Steps
+<concise numbered actions in execution order, including merge and promotion when applicable>
 ````
 
 `### API Contract Changes` and `### Walkthrough` are generated authoritatively from the complete current base-to-branch diff on every run. Replace stale generated content rather than appending fragments. Preserve hand-written Interface, Implementation, and Test content that remains accurate.
@@ -227,6 +230,19 @@ When evidence is incomplete, keep the relevant subsection and add:
 ```
 
 For a pure internal refactor, retain `## Interface Changes` and write `none - internal refactor`. Trivial changes may stay concise, but must not omit applicable contract or walkthrough evidence.
+
+### Rollout steps
+
+Every PR, including trivial changes, must include `## Rollout Steps`. Read the repository's deployment instructions and relevant workflows, deployment configuration, environment examples, and migration scripts; reconcile them with the complete PR diff. Write a concise numbered sequence specific to this change:
+
+- Always include **Merge the PR**, naming the target branch and any automatic deployment it triggers. Include **Promote to production** when the repo has a promotion workflow, with the exact command or UI action and artifact/ref to promote.
+- Put prerequisites before the action that needs them, even when that means before merge. Order environment changes, migrations, merge, deployment, and promotion by actual dependencies; do not assume merge comes first.
+- For each required environment-variable change, name the variable, whether to create/update/remove it, the target service and environment, the non-secret value or secret source, and any required restart/redeploy. Never put secret values in the PR.
+- For migrations, backfills, or other manual operations, provide exact copyable commands, where to run them, and the target environment/database. Distinguish automatic deploy hooks from manual commands so operators do not run them twice. Include required waits or checks before advancing to the next step.
+- Use one short action per step, with separate `bash` blocks for commands when needed. Include concrete console navigation for UI-only actions. Link the relevant repo deployment instructions; a link alone is not a substitute for the steps.
+- If merge/promotion are the only actions, say so briefly. If instructions or required values cannot be established, identify the specific unresolved item at the affected step instead of inventing a command or assuming no manual work.
+
+Refresh this section on every PR update, preserving accurate operator-supplied details and removing stale steps. These are instructions for the operator; creating the PR does not itself authorize executing the rollout.
 
 When tests were added or changed, include exact copyable commands. Give separate executable steps separate `bash` blocks.
 
