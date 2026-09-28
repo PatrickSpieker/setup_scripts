@@ -21,7 +21,7 @@ The skill trusts the user — no check that exploration has happened. If the use
 2. **Updates docs inline.** As domain terms resolve, edits `CONTEXT.md`. As irreversible decisions crystallise, sparingly offers ADRs in `docs/adr/`.
 3. **Writes up the plan.** When grilling ends, synthesises the conversation into a 3-section plan (Interface Changes / Implementation Changes / Test Plan).
 4. **Ships.** Branches off main as `spec/<slug>`, empty marker commit `plan: <slug>`, one commit per doc file changed during grilling, push, open PR with the plan as the description.
-5. **Optionally builds.** Asks the user whether to implement the spec now. If yes, implementation commits land on the same `spec/<slug>` branch and the same PR — the plan in the PR description stays as the record of intent.
+5. **Builds only when requested.** “Create the spec” ends at the planning PR. “Implement the spec” authorizes implementation on the same `spec/<slug>` branch and PR — the plan in the PR description stays as the record of intent.
 
 ## Hard rules
 
@@ -31,7 +31,8 @@ The skill trusts the user — no check that exploration has happened. If the use
 - **Cross-reference the code.** When the user makes a claim about how the system works, verify it before letting it shape the plan. If the code disagrees, surface the contradiction inline.
 - **Branch off main, never push to main.** Always a fresh `spec/<slug>` branch from `origin/main` (or whatever the repo's default branch is).
 - **Don't invent the plan.** If the user says "ship it" within the first couple of turns and the conversation has nothing concrete in it, refuse — the skill needs a real spec to ship.
-- **Maximum of 30 questions.** After question 20, assess whether you have enough context to write the plan. If so, end grilling. Otherwise, continue without asking permission, reassessing after each answer and stopping once you have enough context or reach 30 questions.
+- **Stop after 20 questions.** Track the question count. After the answer to question 20, do not ask question 21 without explicit approval. If more questions would materially improve this task's spec, recommend a bounded extension, explain which decisions remain, and ask permission (for example: “I recommend up to 5 more questions to resolve retries and failure recovery. Continue?”). Wait for an explicit yes; silence, an answer to question 20, or general encouragement is not approval. Stop again at the approved limit and require fresh approval for another extension. Otherwise recommend creating the spec.
+- **Planning and implementation are separate requests.** “Create the spec” authorizes the plan and planning PR only. “Implement the spec” explicitly authorizes building it. Generic signals such as “ship it” or “go” during grilling end questioning and create the planning PR; they do not authorize implementation.
 
 ## During grilling
 
@@ -69,7 +70,7 @@ If any of the three is missing, skip. See [ADR-FORMAT.md](./ADR-FORMAT.md).
 
 ## Termination
 
-Grilling ends when the user signals it: _"that's enough,"_ _"ship it,"_ _"we're done,"_ _"go,"_ etc.; when you determine you have enough context after 20–29 questions; or at the hard cap of 30 questions. At the cap, record any unresolved context as open questions in the plan rather than inventing answers or asking more questions. (If the user signals done before any real grilling has happened, refuse and ask for a starting point.)
+Grilling ends when the user signals it: _"create the spec,"_ _"that's enough,"_ _"ship it,"_ _"we're done,"_ _"go,"_ etc. Otherwise keep going until the 20-question gate (or an explicitly approved extension limit), then pause as required above. A request to create the spec ends questioning even if more questions were recommended. Record unresolved decisions in the plan rather than silently deciding them. (If the conversation contains no concrete scope, ask for a starting point.)
 
 ## Plan write-up
 
@@ -211,20 +212,20 @@ gh pr create \
 EOF
 ```
 
-Print the PR URL. The PR description (the plan) stays as the historical record of intent — implementation commits land on the same branch, either now (see "Build it" below) or later. If the plan changes during implementation, update the PR description through the REST API:
+Print the PR URL. The PR description (the plan) stays as the historical record of intent — implementation commits land on the same branch, when explicitly requested (see "Implement the spec" below). If the plan changes during implementation, update the PR description through the REST API:
 
 ```bash
 pr_number=$(gh pr view --json number -q .number)
 gh api --method PATCH "repos/{owner}/{repo}/pulls/$pr_number" -F body=@/tmp/pr-body.md --jq .html_url
 ```
 
-## Build it (optional)
+## Implement the spec (explicit request only)
 
-After the PR is open, ask the user one question: _"Build the spec now, or stop here?"_
+After “create the spec,” report the planning PR URL and stop. Do not automatically start implementation or ask “Build now?” as another required step.
 
-If they want to stop, the skill is done. The plan is on the PR; the user (or another agent, in a future session) can pick it up later.
+When the user explicitly says “implement the spec” (or an equivalent direct request to build it), implement it. If that authorization was already given, proceed after creating the planning PR without asking again. For an existing spec, read its PR description and use its branch.
 
-If they want to build now:
+During implementation:
 
 - Stay on the `spec/<slug>` branch — implementation commits push to the same PR.
 - The plan in the PR description is the spec. Work from it; don't re-derive decisions that grilling already resolved.
@@ -232,12 +233,12 @@ If they want to build now:
 - If implementation surfaces a real decision that changes the plan, write the revised description to `/tmp/pr-body.md` and update it with `gh api --method PATCH "repos/{owner}/{repo}/pulls/$pr_number" -F body=@/tmp/pr-body.md` so the description and the commits stay in sync. Don't let the plan rot. Prefer this REST update path over `gh pr edit` for title/body/base edits; `gh pr edit` can hit unrelated Projects/classic GraphQL failures even when only changing a PR body.
 - When implementation is done, the same PR is what gets reviewed — no second PR, no separate planning artifact.
 
-Don't propose ending implementation yourself. Keep going until the user calls it.
+Continue until the spec is implemented and verified, or a blocker requires user input. Report the result and any remaining limitations.
 
 ## Edge cases
 
 - **User invokes spec-it with no idea yet:** start by asking _"What's the rough goal?"_ — don't refuse. The skill's job is to extract intent, including the first formulation of it.
-- **User signals done after one or two questions:** refuse and explain — the plan would be too thin to be useful in a PR. Push back: _"What about the X dimension?"_
+- **User signals done after one or two questions:** create the planning PR if the conversation already contains concrete scope; otherwise ask for the missing starting point. Question count alone does not determine whether a spec is useful.
 - **Slug collision (`spec/<slug>` exists locally or remotely):** stop and ask for a new slug. Don't silently append `-2`.
 - **Working tree dirty before grilling starts:** OK if the dirty files are unrelated. The skill will only stash/move CONTEXT.md and ADR files. If unrelated changes are large, warn but proceed.
 - **No `origin` remote:** stop — `gh pr create` would fail anyway.
