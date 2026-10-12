@@ -301,6 +301,7 @@ def normalize(tid, records, items, diagnostics):
         source="",
         identity=None,
         completed=False,
+        cached=False,
     ):
         f = fields(item)
         raw_id = str(identity or f.get("id") or f.get("callid") or source)
@@ -333,9 +334,12 @@ def normalize(tid, records, items, diagnostics):
         if f.get("server") and not action.name.startswith(str(f["server"]) + "."):
             action.name = str(f["server"]) + "." + action.name
         action.turn = str(turn or action.turn)
-        action.status = str(
-            f.get("status") or ("completed" if completed else action.status)
-        )
+        status = str(f.get("status") or ("completed" if completed else action.status))
+        if cached and action.status != "completion unknown":
+            if status != action.status:
+                action.notes.append("conflicting cached status; retained rollout status")
+        else:
+            action.status = status
         parent_id = f.get("parentitemid") or f.get("parentcallid")
         if parent_id:
             action.parent = f"{tid}/{parent_id}"
@@ -394,6 +398,7 @@ def normalize(tid, records, items, diagnostics):
                 row.get("turn_id", ""),
                 "history:" + str(row["item_id"]),
                 identity=row["item_id"],
+                cached=True,
             )
         except (ValueError, TypeError):
             diagnostics.append(

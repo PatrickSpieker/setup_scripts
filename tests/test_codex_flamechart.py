@@ -622,3 +622,24 @@ def test_injected_context_is_not_a_prompt(home):
     r = snapshot(home.path, ROOT)
     assert len(r["actions"]) == 1
     assert "submission order" in r["actions"][0]["timing"]
+
+
+@pytest.mark.parametrize("status", ["completed", "failed", "cancelled"])
+def test_rollout_status_wins_over_lagging_history(status):
+    record = item("cmd", status=status)
+    cached = {
+        "item_id": "cmd",
+        "turn_id": "turn",
+        "item_json": json.dumps({
+            "id": "cmd", "type": "commandExecution", "status": "inProgress"
+        }),
+        "started_at_ms": BASE,
+    }
+    actions, _ = normalize(ROOT, [(1, record)], [cached], [])
+    action = actions[0].export()
+    assert action["status"] == status
+    assert action["duration_ms"] == 100
+    assert action["details"]["history:cmd"]["status"] == "inProgress"
+    assert "conflicting cached status; retained rollout status" in action["notes"]
+    history_only, _ = normalize(ROOT, [], [cached], [])
+    assert history_only[0].status == "inProgress"
