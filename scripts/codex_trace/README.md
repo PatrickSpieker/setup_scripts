@@ -46,6 +46,7 @@ Reports open around the longest displayed action interval (including observation
 - Bars show recorded intervals. Diamonds show point records, zero-duration records, or unfinished actions. Click either, or select an action from the searchable list, for full recorded details.
 - Elapsed seconds appear on the axis; absolute timestamps use UTC. Observation-only bars represent call/output record arrival, **not measured execution duration**. Their execution duration stays unknown.
 - Nesting requires explicit parent IDs. An overlapping call without parent evidence gets another row at the same depth; no relationship is inferred from time containment. Missing and conflicting timestamps remain visible in details.
+- Tooltips and action details show recorded duration in minutes and seconds (for example, `6m 19.211s`) alongside raw milliseconds. Unknown durations remain labeled `Unknown`.
 - Unfinished actions have no fabricated duration. Untimed actions remain searchable and are labeled `[untimed]`. Long details are expandable; the action list is paginated without truncating the data.
 - Incomplete-data notices identify missing sources, malformed records, unsupported formats, and unresolved descendants. The report contains raw conversation text and tool output; choose its destination accordingly.
 
