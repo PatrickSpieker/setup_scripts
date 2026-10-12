@@ -108,13 +108,15 @@
     updateList();
   };
   updateList();
-  async function draw() {
+  async function draw(focusLongest = true) {
     if (view) view.finalize();
     const result = await vegaEmbed("#chart", spec, {
       actions: false,
       renderer: "canvas",
     });
     view = result.view;
+    if (focusLongest)
+      await view.signal("time_window_start", spec.usermeta.initial_window).runAsync();
     view.addEventListener("click", (_, item) => {
       if (item && item.datum && item.datum.id) selectAction(item.datum.id);
     });
@@ -147,7 +149,7 @@
     window.chartReady = true;
   }
   $("reset").onclick = () =>
-    draw().catch((e) => {
+    draw(false).catch((e) => {
       $("error").textContent = e.message;
     });
   draw().catch((e) => {

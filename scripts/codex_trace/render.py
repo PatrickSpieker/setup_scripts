@@ -79,6 +79,14 @@ def chart_spec(report):
             }
         )
     extent = max((d["end"] for d in data), default=1) or 1
+    intervals = [d for d in data if d["end"] > d["start"]]
+    initial_window = [0, extent]
+    if intervals:
+        longest = min(
+            intervals, key=lambda d: (-(d["end"] - d["start"]), d["start"], d["id"])
+        )
+        padding = max(0.5, (longest["end"] - longest["start"]) * 0.1)
+        initial_window = [max(0, longest["start"] - padding), longest["end"] + padding]
     categories = sorted({a["category"] for a in report["actions"]})
     chosen = alt.param(
         name="category",
@@ -141,13 +149,19 @@ def chart_spec(report):
     chart = (
         alt.layer(bars, points, labels)
         .add_params(chosen, zoom)
-        .properties(width=1050, height=max(130, report["rows"] * 26))
+        .properties(
+            width="container",
+            height=max(130, report["rows"] * 26),
+            autosize=alt.AutoSizeParams(type="fit-x", contains="padding", resize=True),
+        )
         .configure_view(stroke=None)
         .configure_axis(
             labelFont="sans-serif", titleFont="sans-serif", gridColor="#e8ecf2"
         )
     )
-    return chart.to_dict(), origin
+    spec = chart.to_dict()
+    spec["usermeta"] = {"initial_window": initial_window}
+    return spec, origin
 
 
 def render(report):
