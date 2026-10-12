@@ -643,3 +643,33 @@ def test_rollout_status_wins_over_lagging_history(status):
     assert "conflicting cached status; retained rollout status" in action["notes"]
     history_only, _ = normalize(ROOT, [], [cached], [])
     assert history_only[0].status == "inProgress"
+
+
+@pytest.mark.parametrize("receivers", [42, CHILD, {"id": CHILD}, False])
+def test_malformed_spawn_receivers_produce_partial_report(home, receivers):
+    home.put(ROOT, [
+        item("bad", "collabAgentToolCall", tool="spawnAgent", receiverThreadIds=receivers),
+        item("good", command="echo ok"),
+    ])
+    report = snapshot(home.path, ROOT)
+    assert len(report["agents"]) == 1
+    assert len(report["actions"]) == 2
+    bad = next(a for a in report["actions"] if a["id"].endswith("/bad"))
+    assert bad["details"]["rollout:1"]["receiverThreadIds"] == receivers
+    assert any("receiverThreadIds must be a list" in d for d in report["diagnostics"])
+    assert "Incomplete data" in render(report)
+
+
+def test_malformed_spawn_members_preserve_valid_descendants(home):
+    home.put(ROOT, [item(
+        "spawn", "collabAgentToolCall", tool="spawnAgent",
+        receiverThreadIds=[CHILD, 42, None, {}, [], ""],
+    )])
+    child_record = item("child")
+    child_record["payload"]["thread_id"] = CHILD
+    home.put(CHILD, [child_record])
+    report = snapshot(home.path, ROOT)
+    assert [a["id"] for a in report["agents"]] == [ROOT, CHILD]
+    assert len(report["actions"]) == 2
+    assert len(report["diagnostics"]) == 5
+    assert all("receiverThreadIds[" in d for d in report["diagnostics"])

@@ -329,8 +329,21 @@ def normalize(tid, records, items, diagnostics):
             "spawn",
             "spawnagent",
         ):
-            for child in f.get("receiverthreadids") or []:
-                children[str(child)] = milliseconds(start) or milliseconds(observed)
+            receivers = f.get("receiverthreadids")
+            if receivers is None:
+                receivers = []
+            if not isinstance(receivers, list):
+                diagnostics.append(
+                    f"{tid}: malformed spawn at {source}: receiverThreadIds must be a list; raw payload retained"
+                )
+                receivers = []
+            for index, child in enumerate(receivers):
+                if not isinstance(child, str) or not child.strip():
+                    diagnostics.append(
+                        f"{tid}: malformed spawn at {source}: receiverThreadIds[{index}] must be a nonempty string; descendant omitted"
+                    )
+                    continue
+                children[child] = milliseconds(start) or milliseconds(observed)
         if f.get("server") and not action.name.startswith(str(f["server"]) + "."):
             action.name = str(f["server"]) + "." + action.name
         action.turn = str(turn or action.turn)
