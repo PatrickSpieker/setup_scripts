@@ -80,6 +80,7 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 | `pdf-viewing` | OCR PDFs with page tracking and rasterize to images |
 | `perfume-notes-board` | Create Pinterest-first top/middle/base perfume notes boards from a visual corpus |
 | `cc-llms` | Load context on the Claude Developer Platform from a bundled llms.txt reference |
+| `codex-flamechart` | Generate an offline conversation flame chart from a Codex thread deep link |
 | `codex-llms-full` | Load context on OpenAI Codex (CLI, IDE, cloud, SDK) from a bundled llms.txt reference |
 | `linear-llms` | Load context on Linear (issues, GraphQL API, SDK) from a bundled llms.txt index |
 | `moat-llms-full` | Load context on Moat (container runtime for AI agents) from a bundled llms.txt reference |
