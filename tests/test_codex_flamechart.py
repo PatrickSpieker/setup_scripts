@@ -418,6 +418,7 @@ def test_offline_browser_interactions(home, tmp_path):
             ),
             item("b", "userMessage", start=BASE + 200, end=BASE + 200),
             item("untimed", start=None, end=None),
+            item("later", "agentMessage", start=BASE + 3600000, end=BASE + 3600000),
         ],
     )
     home.edge(ROOT, MISSING)
@@ -443,6 +444,7 @@ def test_offline_browser_interactions(home, tmp_path):
         assert "echo example" in page.locator("#details h2").inner_text()
         assert page.evaluate("window.PWNED") is None
         initial_domain = page.evaluate('chartView.scale("x").domain()')
+        assert initial_domain == [0, 1.5]
         page.get_by_role("button", name="Zoom to action").click()
         page.wait_for_function('chartView.scale("x").domain()[0] < 0')
         assert page.evaluate('chartView.scale("x").domain()') != initial_domain
@@ -455,6 +457,7 @@ def test_offline_browser_interactions(home, tmp_path):
         page.locator("#reset").click()
         page.wait_for_function('window.chartView.signal("category") === "All"')
         before = page.evaluate('window.chartView.scale("x").domain()')
+        assert before == [0, 3600]
         page.locator("canvas").hover(position={"x": 500, "y": 70})
         page.mouse.wheel(0, -200)
         page.wait_for_timeout(200)
@@ -673,3 +676,22 @@ def test_malformed_spawn_members_preserve_valid_descendants(home):
     assert len(report["actions"]) == 2
     assert len(report["diagnostics"]) == 5
     assert all("receiverThreadIds[" in d for d in report["diagnostics"])
+
+
+@pytest.mark.parametrize("actions,expected", [
+    ([], [0, 1]),
+    ([Action(id="point", thread=ROOT, start=BASE, end=BASE)], [0, 1]),
+    ([Action(id="point", thread=ROOT, start=BASE),
+      Action(id="long", thread=ROOT, start=BASE + 10000, end=BASE + 30000),
+      Action(id="late", thread=ROOT, start=BASE + 3600000)], [8, 32]),
+    ([Action(id="point", thread=ROOT, start=BASE),
+      Action(id="observed", thread=ROOT, observed_start=BASE + 10000, observed_end=BASE + 30000),
+      Action(id="tie", thread=ROOT, start=BASE + 40000, end=BASE + 60000),
+      Action(id="inverted", thread=ROOT, start=BASE + 100000, end=BASE)], [8, 32]),
+])
+def test_initial_zoom_window(actions, expected):
+    from codex_trace.render import chart_spec
+
+    report = {"actions": [a.export() for a in actions], "rows": 1}
+    spec, _ = chart_spec(report)
+    assert spec["usermeta"]["initial_window"] == expected

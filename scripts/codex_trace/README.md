@@ -40,6 +40,8 @@ The skill's `scripts/run.py` resolves symlinks to this repository and uses the e
 
 ## Reading the report
 
+Reports open around the longest displayed action interval (including observation-only intervals), with 10% padding on either side, at least half a second. Ties prefer the earliest action, then its ID. Marker-only reports show the full snapshot. Reset zoom restores the full timeline.
+
 - Drag horizontally to pan; scroll over the chart to zoom. Reset zoom restores the full snapshot. The details panel’s “Zoom to action” button focuses short events in long conversations. Filter by category or search action names/IDs.
 - Bars show recorded intervals. Diamonds show point records, zero-duration records, or unfinished actions. Click either, or select an action from the searchable list, for full recorded details.
 - Elapsed seconds appear on the axis; absolute timestamps use UTC. Observation-only bars represent call/output record arrival, **not measured execution duration**. Their execution duration stays unknown.
