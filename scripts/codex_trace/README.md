@@ -4,6 +4,18 @@ Turn local Codex records into a fixed, offline HTML timeline. The main agent and
 
 ## Install
 
+With this repository's shell configuration loaded, run from any directory:
+
+```bash
+codex-flamechart 'codex://threads/01a116a6-54cb-7013-b78e-b06677c418d9'
+```
+
+The command creates the isolated environment and installs pinned dependencies on first use (network required). Later runs reuse it; changes to the dependency lock trigger an update. It saves to Desktop and opens the report automatically. Pass `--output /path/to/report.html` for another destination. `--help` does not install anything. Open a new terminal after updating the repository to load the function from `bashrc_main`.
+
+The skill uses the same automatic setup. `CODEX_FLAMECHART_PYTHON` selects an existing environment and disables automatic installation into it.
+
+For manual installation instead:
+
 Python 3.11 or newer. From the setup_scripts repository:
 
 ```bash
@@ -52,7 +64,7 @@ Each database is read inside its own read-only transaction; each rollout is read
 Install `pytest` and `pyyaml` in the isolated environment, then:
 
 ```bash
-~/.local/share/codex-flamechart/venv/bin/python -m pytest tests/test_codex_flamechart.py tests/test_skill_structure.py -v
+~/.local/share/codex-flamechart/venv/bin/python -m pytest tests/test_codex_flamechart.py tests/test_codex_flamechart_launcher.py tests/test_skill_structure.py -v
 ```
 
 The optional offline browser test also requires `playwright` and Chromium. Set `CODEX_FLAMECHART_TEST_BROWSER` to the Chromium executable and rerun the same command. The browser context disables networking and checks lanes, filtering, details, and zoom.

@@ -89,6 +89,8 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 
 ### How skills are installed
 
+Run `codex-flamechart 'codex://threads/<thread-id>'` from any terminal directory to generate and open a report on Desktop. The shell command installs its isolated dependencies on first use; see [flame chart usage](scripts/codex_trace/README.md).
+
 - **Claude Code:** `setup.sh` symlinks `skills/` to `~/.claude/skills/`
 - **Codex CLI:** `sync-skills` in `bashrc_main` symlinks each skill to `~/.codex/skills/` on every shell startup
 - **Repo-specific skills:** Check project-local skills into `<project>/.agents/skills/`.
