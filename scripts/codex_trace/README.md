@@ -22,7 +22,7 @@ The lock pins the full rendering dependency set, including bundled Vega assets. 
 ~/.local/share/codex-flamechart/venv/bin/python scripts/codex_flamechart.py codex://threads/01a116a6-54cb-7013-b78e-b06677c418d9 --output conversation.html --open
 ```
 
-`--output` defaults to `<thread-id>.html` in the current directory. `--codex-home` overrides `CODEX_HOME`, otherwise `~/.codex` is used. Only `--open` launches a browser. An existing report is replaced atomically after successful generation. A failed run preserves it.
+`--output` defaults to `~/Desktop/<thread-id>.html`. Supply `--output` to choose another destination. `--codex-home` overrides `CODEX_HOME`, otherwise `~/.codex` is used. Only `--open` launches a browser. An existing report is replaced atomically after successful generation. A failed run preserves it.
 
 The skill's `scripts/run.py` resolves symlinks to this repository and uses the environment above. Set `CODEX_FLAMECHART_PYTHON` to use another compatible Python environment.
 

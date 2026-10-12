@@ -15,7 +15,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("thread", help="codex://threads/<UUID>")
     parser.add_argument(
-        "--output", type=Path, help="HTML destination (default: <thread-id>.html)"
+        "--output", type=Path, help="HTML destination (default: ~/Desktop/<thread-id>.html)"
     )
     parser.add_argument(
         "--codex-home",
@@ -33,7 +33,7 @@ def main(argv=None):
         from codex_trace.render import render
 
         html = render(report)
-        output = (args.output or Path(f"{tid}.html")).expanduser().resolve()
+        output = (args.output or Path.home() / "Desktop" / f"{tid}.html").expanduser().resolve()
         with tempfile.NamedTemporaryFile(
             mode="w",
             encoding="utf-8",

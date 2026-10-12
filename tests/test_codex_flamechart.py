@@ -374,12 +374,14 @@ def test_deterministic_offline_html_and_escaping(home, monkeypatch):
     assert utc(BASE) == "2023-11-14T22:13:20.000Z"
 
 
-def test_cli_output_path_independence(home):
+def test_cli_output_path_independence(home, monkeypatch):
     pytest.importorskip("altair")
     pytest.importorskip("vl_convert")
     home.put(ROOT, [item("ok")])
-    outputs = [home.path / "one.html", home.path / "two.html"]
-    for output in outputs:
+    monkeypatch.setenv("HOME", str(home.path))
+    (home.path / "Desktop").mkdir()
+    outputs = [home.path / "Desktop" / f"{ROOT}.html", home.path / "two.html"]
+    for index, output in enumerate(outputs):
         result = subprocess.run(
             [
                 sys.executable,
@@ -387,13 +389,12 @@ def test_cli_output_path_independence(home):
                 f"codex://threads/{ROOT}",
                 "--codex-home",
                 str(home.path),
-                "--output",
-                str(output),
-            ],
+            ] + (["--output", str(output)] if index else []),
             capture_output=True,
             text=True,
         )
         assert result.returncode == 0, result.stderr
+        assert result.stdout.strip() == str(output)
     assert outputs[0].read_bytes() == outputs[1].read_bytes()
 
 
