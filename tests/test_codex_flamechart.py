@@ -435,6 +435,19 @@ def test_offline_browser_interactions(home, tmp_path):
         page.goto(output.as_uri())
         page.wait_for_function("window.chartReady || window.chartError")
         assert not page.evaluate("window.chartError")
+        initial_width = page.evaluate('chartView.width()')
+        initial_zoom = page.evaluate('chartView.scale("x").domain()')
+        for width in (2200, 1000, 800, 1600):
+            page.set_viewport_size({"width": width, "height": 1000})
+            page.wait_for_function("""() => {
+                const plot = document.querySelector('#chart canvas').getBoundingClientRect();
+                const container = document.getElementById('scroll').getBoundingClientRect();
+                return Math.abs(plot.right - container.right) < 5;
+            }""")
+            assert page.evaluate('chartView.scale("x").domain()') == initial_zoom
+            if width == 2200:
+                assert page.evaluate('chartView.width()') > initial_width
+        assert page.evaluate("document.getElementById('scroll').scrollWidth <= document.getElementById('scroll').clientWidth + 2")
         assert page.locator(".lane").count() == 2
         assert "Incomplete data" in page.locator("#notices").inner_text()
         coordinates = page.evaluate(

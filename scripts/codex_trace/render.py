@@ -149,7 +149,11 @@ def chart_spec(report):
     chart = (
         alt.layer(bars, points, labels)
         .add_params(chosen, zoom)
-        .properties(width=1050, height=max(130, report["rows"] * 26))
+        .properties(
+            width="container",
+            height=max(130, report["rows"] * 26),
+            autosize=alt.AutoSizeParams(type="fit-x", contains="padding", resize=True),
+        )
         .configure_view(stroke=None)
         .configure_axis(
             labelFont="sans-serif", titleFont="sans-serif", gridColor="#e8ecf2"
