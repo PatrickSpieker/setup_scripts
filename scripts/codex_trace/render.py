@@ -26,6 +26,14 @@ def viewer_bundle():
     return vl_convert.javascript_bundle(vl_version="6.4")
 
 
+def readable_duration(duration_ms):
+    if duration_ms is None:
+        return "Unknown"
+    minutes, milliseconds = divmod(duration_ms, 60000)
+    seconds = f"{milliseconds / 1000:.3f}".rstrip("0").rstrip(".")
+    return f"{int(minutes)}m {seconds}s"
+
+
 def chart_spec(report):
     import altair as alt
 
@@ -76,6 +84,7 @@ def chart_spec(report):
                 "timing": a["timing"],
                 "depth": a["depth"],
                 "duration_ms": a["duration_ms"],
+                "duration": readable_duration(a["duration_ms"]),
             }
         )
     extent = max((d["end"] for d in data), default=1) or 1
@@ -106,6 +115,7 @@ def chart_spec(report):
         alt.Tooltip("status:N", title="Status"),
         alt.Tooltip("start_utc:N", title="Start / observation (UTC)"),
         alt.Tooltip("end_utc:N", title="End / output observation (UTC)"),
+        alt.Tooltip("duration:N", title="Recorded duration"),
         alt.Tooltip("duration_ms:Q", title="Recorded duration (ms)"),
         alt.Tooltip("timing:N", title="Timing"),
     ]
@@ -166,7 +176,14 @@ def chart_spec(report):
 
 def render(report):
     spec, origin = chart_spec(report)
-    payload = {**report, "origin_ms": origin}
+    payload = {
+        **report,
+        "origin_ms": origin,
+        "actions": [
+            {**a, "duration": readable_duration(a["duration_ms"])}
+            for a in report["actions"]
+        ],
+    }
     template = Path(__file__).with_name("viewer.html").read_text()
     # Substitute each token in one pass so record text cannot introduce a token.
     import re

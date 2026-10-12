@@ -65,6 +65,7 @@
       category: a.category,
       start_utc: a.start_utc,
       end_utc: a.end_utc,
+      duration: a.duration,
       duration_ms: a.duration_ms,
       observed_start_utc: a.observed_start_utc,
       observed_end_utc: a.observed_end_utc,

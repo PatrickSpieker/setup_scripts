@@ -13,7 +13,7 @@ import pytest
 SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 from codex_trace.model import Action, layout, utc  # noqa: E402
-from codex_trace.render import render  # noqa: E402
+from codex_trace.render import readable_duration, render  # noqa: E402
 from codex_trace.sources import TraceError, normalize, snapshot, thread_id  # noqa: E402
 
 ROOT = "00000000-0000-4000-8000-000000000001"
@@ -455,6 +455,10 @@ def test_offline_browser_interactions(home, tmp_path):
         )
         page.locator("canvas").click(position=coordinates)
         assert "echo example" in page.locator("#details h2").inner_text()
+        assert '"duration": "0m 1s"' in page.locator("#details").inner_text()
+        assert '"duration_ms": 1000' in page.locator("#details").inner_text()
+        page.locator("canvas").hover(position=coordinates)
+        assert "0m 1s" in page.locator("#vg-tooltip-element").inner_text()
         assert page.evaluate("window.PWNED") is None
         initial_domain = page.evaluate('chartView.scale("x").domain()')
         assert initial_domain == [0, 1.5]
@@ -708,3 +712,13 @@ def test_initial_zoom_window(actions, expected):
     report = {"actions": [a.export() for a in actions], "rows": 1}
     spec, _ = chart_spec(report)
     assert spec["usermeta"]["initial_window"] == expected
+
+
+@pytest.mark.parametrize(
+    ("milliseconds", "expected"),
+    [(None, "Unknown"), (0, "0m 0s"), (1, "0m 0.001s"),
+     (59999, "0m 59.999s"), (60000, "1m 0s"),
+     (379211, "6m 19.211s"), (3600000, "60m 0s")],
+)
+def test_readable_duration(milliseconds, expected):
+    assert readable_duration(milliseconds) == expected
