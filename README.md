@@ -80,6 +80,7 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 | `pdf-viewing` | OCR PDFs with page tracking and rasterize to images |
 | `perfume-notes-board` | Create Pinterest-first top/middle/base perfume notes boards from a visual corpus |
 | `cc-llms` | Load context on the Claude Developer Platform from a bundled llms.txt reference |
+| `codex-flamechart` | Generate an offline conversation flame chart from a Codex thread deep link |
 | `codex-llms-full` | Load context on OpenAI Codex (CLI, IDE, cloud, SDK) from a bundled llms.txt reference |
 | `linear-llms` | Load context on Linear (issues, GraphQL API, SDK) from a bundled llms.txt index |
 | `moat-llms-full` | Load context on Moat (container runtime for AI agents) from a bundled llms.txt reference |
@@ -87,6 +88,8 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 | `firebase-auth-basics` | Set up and use Firebase Authentication (provisioning, sign-in flows, security rules) |
 
 ### How skills are installed
+
+Run `codex-flamechart 'codex://threads/<thread-id>'` from any terminal directory to generate and open a report on Desktop. The shell command installs its isolated dependencies on first use; see [flame chart usage](scripts/codex_trace/README.md).
 
 - **Claude Code:** `setup.sh` symlinks `skills/` to `~/.claude/skills/`
 - **Codex CLI:** `sync-skills` in `bashrc_main` symlinks each skill to `~/.codex/skills/` on every shell startup

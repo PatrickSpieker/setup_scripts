@@ -298,6 +298,10 @@ alias vim="nvim"
 
 
 # ===== CODEX SKILLS =====
+codex-flamechart() {
+  python3 "$HOME/setup_scripts/skills/codex-flamechart/scripts/run.py" "$@" --open
+}
+
 # Sync skills from this repo into ~/.codex/skills on every shell start.
 # ln -sfn is idempotent, so this is safe to run repeatedly.
 sync-skills() {
