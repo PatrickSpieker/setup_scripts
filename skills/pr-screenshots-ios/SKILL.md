@@ -43,12 +43,12 @@ Follow the server's session contract:
 2. If project/workspace context is missing or incorrect, call `discover_projs` from the repository root.
 3. Prefer a workspace when it is the repository's established build entry point; otherwise use the project.
 4. Call `list_schemes` and inspect build settings/repository instructions to select the app scheme. Do not guess when multiple plausible app schemes produce different products. Select a UI-test target only if you intentionally choose an existing screenshot tour for this capture.
-5. Call `list_sims` and choose one available iPhone on the newest installed iOS runtime. Prefer a standard Pro-size phone when several exist. Use portrait orientation.
-6. Set project/workspace, scheme, and simulator defaults with `session_set_defaults`, then report the selected context.
+5. Call `list_sims` and inspect installed runtimes through XcodeBuildMCP. Select the newest available installed iOS runtime by numeric version, with **iOS 26.5 as the minimum**, before choosing a device. Reuse an available iPhone on that exact runtime; prefer a standard Pro-size phone and portrait orientation. Never choose an older runtime because it already has a preferred or booted device. If runtime discovery is unavailable or no qualifying runtime/device exists, return a blocker. Create a missing device only on the selected runtime when supported; do not download/reinstall older runtimes or create devices on them.
+6. Set project/workspace, scheme, and the exact simulator UDID with `session_set_defaults`, replacing any stale device/name defaults. Verify the selected runtime and use that UDID for every build, test, launch, UI action, and screenshot. Report the UDID and runtime. SDK/`actool` incompatibility is a blocker; never fall back to an older runtime.
 
 The required capabilities are project discovery, simulator management, app build/run, and UI automation (`build_run_sim`, `screenshot`, `snapshot_ui`, `tap`, `batch`, and any needed text/scroll/button actions). Simulator testing (`test_sim`) is optional and should be used only when an existing XCUITest tour is the chosen capture path. XcodeBuildMCP exposes tools by enabled workflow. If an expected tool is missing, inspect the enabled workflows. Do not silently switch to shell tools; report that XcodeBuildMCP must be configured/reloaded.
 
-Use one simulator by default. Add another device or orientation only when the diff specifically changes adaptive UI, size-class behavior, iPad layout, or rotation.
+Use one simulator by default. Every additional device must use the same selected runtime. Add another device or orientation only when the diff specifically changes adaptive UI, size-class behavior, iPad layout, or rotation.
 
 ## 3. Plan the targeted MCP capture
 
@@ -220,7 +220,7 @@ Report the PR URL, selected simulator context, and screenshot count by journey.
 
 - Call `session_show_defaults` first; stale defaults can build the wrong scheme or simulator.
 - XcodeBuildMCP tools are workflow-scoped. Missing UI/test tools require configuration and session reload, not a raw shell fallback.
-- Do not hard-code a device model or iOS version; choose from `list_sims`.
+- Do not pin an old device or runtime. Discover the newest available installed iOS runtime numerically, enforce the 26.5 minimum, and select by exact UDID; `OS=latest` or a name alone does not establish this policy.
 - Default to direct MCP UI actions targeted to the changed flow; do not search for or maintain a broad tour before trying the efficient direct path.
 - When a tour is intentionally reused, ensure the tour file belongs to the UI-test target before diagnosing a missing test.
 - Do not create a tour just for screenshots; drive the app with MCP UI actions and save direct screenshots.
