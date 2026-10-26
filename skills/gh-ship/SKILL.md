@@ -121,7 +121,7 @@ For each changed UI surface, load and follow the corresponding skill in **captur
 Pass the resolved base, slug, changed journeys, and pending diff context. Capture the resulting branch only, never a before image. Use one representative environment by default:
 
 - Web: desktop `1400x860`; add mobile/tablet only for responsive changes.
-- iOS: newest available portrait iPhone simulator; add devices/orientations only for adaptive changes.
+- iOS: use a portrait iPhone on the newest available installed iOS runtime, minimum iOS 26.5. Pass its exact UDID and runtime to the screenshot skill; replace stale session defaults. Reuse existing devices; any additional devices must use that same runtime. Never download/reinstall older runtimes, create devices on them, or fall back to them for build compatibility. Missing runtime/device or SDK incompatibility is a capture blocker (ship draft), not a reason to downgrade. Add devices/orientations only for adaptive changes.
 
 The delegated skill must remove obsolete PNGs only inside its platform directory, use isolated fixture/demo data or a fresh throwaway staging account, inspect every generated image, and return the captured paths grouped by journey or a precise blocker. If authentication or persisted server state is needed for a representative capture, create the staging account and test records yourself when the repository exposes a safe staging path; do not treat account creation as a reason to bail. Do not stage unsafe screenshots containing credentials, personal data, production records, or notifications. If representative evidence still cannot be produced safely, treat it as incomplete.
 
