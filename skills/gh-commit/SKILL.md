@@ -36,6 +36,7 @@ git diff --stat
 
 3. Batch changes (typical: `feat|fix`, then `test`, then `docs`, then `refactor/chore`)
 - Keep commits atomic
+- For production hotfixes in repositories with fast-forward promotions, preserve merge ancestry: merge production back into main after release, even if main already has the patch. Do not squash, rebase, or cherry-pick that reconciliation; follow the production-hotfix guidance in `gh-ship`.
 - Do not mix unrelated concerns
 - Never `git add .`
 

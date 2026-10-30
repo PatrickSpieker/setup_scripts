@@ -283,6 +283,27 @@ Never mark an existing draft ready automatically, even when all evidence is now 
 
 Report the PR URL, readiness state, captured screenshot counts by platform/journey, API contract count, and any unresolved evidence.
 
+## Production hotfixes
+
+For repositories that promote `main` to `production` by fast-forward, every direct
+production hotfix or cherry-pick must be followed by merging `production` back into
+`main`. Include this in the PR rollout steps and complete it when the authorized
+release scope includes merging. Otherwise, identify the pending merge-back explicitly.
+Use a real merge preserving both parents, including when main already contains the
+same patch. Squash, rebase, or another cherry-pick will not restore ancestry. Inspect
+and resolve conflicts without dropping either branch's changes; never force-push or
+use the `ours` strategy to bypass reconciliation.
+
+After merging, fetch both remote branches and verify:
+
+```bash
+git fetch origin main production
+git merge-base --is-ancestor origin/production origin/main
+```
+
+Do not call the hotfix release complete until this succeeds. For a history-only
+repair, also verify the merge changes no files relative to the pre-merge main tip.
+
 ## Edge cases
 
 - **Working tree has unrelated changes:** leave them unstaged and unmentioned in the commit.
