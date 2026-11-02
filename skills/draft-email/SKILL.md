@@ -19,6 +19,9 @@ commitments, familiarity, or urgency. Drafting does not authorize sending.
 
 ## Principles
 
+- **Wording and punctuation.** Always use "Thanks" instead of "Thank you."
+  Never use em dashes in email subjects or bodies. Use a comma, colon,
+  parentheses, or a separate sentence instead.
 - **Purpose first.** Use a specific subject line for a new email and make the
   purpose clear immediately. A short contextual opening is fine when it helps
   the reader understand the request. Avoid long setup before revealing the ask.
