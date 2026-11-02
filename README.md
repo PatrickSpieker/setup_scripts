@@ -54,6 +54,7 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 
 | Skill | Description |
 |-------|-------------|
+| `draft-email` | Draft and revise every email in Patrick's direct, conversational voice |
 | `convert-pdf-to-epub` | Configure and run deterministic PDF-to-EPUB conversion |
 | `gh-commit` | Create small, logical commits with conventional commit messages |
 | `gh-ship` | Commit, push, and create PR in one step |
