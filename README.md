@@ -31,13 +31,12 @@ setup_scripts/
 │   └── init.lua             #   Minimal starter: hyper+R reloads, alert on load
 ├── defaults/
 │   ├── settings.json        # Claude Code defaults on the host (symlinked to ~/.claude/settings.json)
-│   ├── settings-moat.json   # Claude Code defaults inside Moat (linked by bootstrap_agent_homes.sh --moat; headless Playwright + --no-sandbox)
+│   ├── settings-moat.json   # Claude Code defaults inside Moat (linked by bootstrap_agent_homes.sh --moat)
 │   └── codex-moat-config.toml # Codex defaults inside Moat (copied to ~/.codex/config.toml)
 ├── hooks/
 │   └── pre-push             # Blocks Claude Code from pushing to main/master (generic)
 ├── scripts/
 │   ├── bootstrap_agent_homes.sh # Links skills/, settings.json, AGENTS.md into ~/.claude and ~/.codex (used by moat.yaml pre_run)
-│   └── playwright-mcp.sh    # Launcher for @playwright/mcp inside Moat — resolves bundled Chromium, bridges HTTPS_PROXY auth, ignores TLS-intercept certs
 ├── templates/
 │   ├── moat.yaml            # Template moat config for Claude Code projects (used by `mcl`)
 │   └── moat-codex.yaml      # Template moat config for Codex projects (used by `mco`)
@@ -61,7 +60,7 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 | `gh-review-pr` | Review a GitHub PR focusing on correctness, tests, and risk |
 | `gh-fix-ci` | Find the first failing CI check and fix it |
 | `gh-address-pr-comments` | Resolve actionable PR review comments one-by-one |
-| `pr-screenshots` | Capture Playwright web screenshots for each changed user journey and embed them in the PR description |
+| `pr-screenshots` | Capture web screenshots with Chrome computer use for each changed user journey and embed them in the PR description |
 | `pr-screenshots-ios` | Capture deterministic iOS Simulator screenshots through XcodeBuildMCP and embed them in the PR description |
 | `make-tests` | Add tests for the change you're working on |
 | `tdd` | Test-driven development with red-green-refactor loop |
@@ -114,22 +113,17 @@ Run `codex-flamechart 'codex://threads/<thread-id>'` from any terminal directory
 `moat.yaml` configures the [Moat](https://majorcontext.com/moat/llms.txt) sandbox runtime:
 
 - **Grants:** `claude`, `github`, `ssh:github.com`
-- **post_build hook:** Runs once at image-build time. Sets up isolated git config files, configures `http.proxyAuthMethod` for Moat's authenticated proxy, runs `npx playwright install chromium`, and warms the `@playwright/mcp` npx cache so the first MCP probe doesn't time out.
+- **post_build hook:** Sets up isolated git config files and configures `http.proxyAuthMethod` for Moat’s authenticated proxy.
 - **pre_run hook:** Runs on every container start. Clones this repo to `/tmp/setup-scripts`, runs `bootstrap_agent_homes.sh --moat` (which symlinks `skills/`, `AGENTS.md`, and the container settings file into `~/.claude` and `~/.codex`), copies `defaults/codex-moat-config.toml` to `~/.codex/config.toml`, and sets per-worktree `core.hooksPath` so the repo's hooks fire inside the container.
-- **Env:** `IN_MOAT=1` flags the container so tooling (e.g., the `pr-screenshots` skill) can pick between headful and headless behavior.
+- **Env:** `IN_MOAT=1` identifies the container environment.
 
 Because the clone happens in `pre_run` (not `post_build`), every Moat session pulls the latest `main` of `setup_scripts` rather than whatever was current at image-build time — skill edits on the host show up in the next container start without rebuilding the image.
 
 The `pre_run` hook also enables `extensions.worktreeConfig` before writing `core.hooksPath` with `git config --worktree`, so each Moat container's hook configuration is isolated and doesn't write to the shared git common directory across worktrees.
 
-### Playwright: host-headful, container-headless
+### Browser automation
 
-The Claude settings file is split so the Playwright MCP server behaves differently in each context:
-
-- **Host** (`defaults/settings.json`, symlinked to `~/.claude/settings.json` on the laptop): Playwright runs **headful** via `npx @playwright/mcp@latest --isolated`, so you can watch the browser.
-- **Container** (`defaults/settings-moat.json`, linked by `bootstrap_agent_homes.sh --moat`): Playwright runs **headless** with `--no-sandbox`, since the container has no display.
-
-There is no CDP, WebSocket, or port forwarding between host and container — each runs its own browser, fully isolated.
+Browser skills use Chrome computer use through the integration available in the session. Read its current tool schemas and use a task-owned tab. If Chrome is unavailable or cannot reach the app, report the blocker; setup does not install a standalone browser automation stack.
 
 `templates/moat.yaml` is a starter config for Claude Code projects (used by `mcl`); `templates/moat-codex.yaml` is the equivalent for Codex projects (used by `mco`). Both use the same `hooksPath` approach, which means all hooks in `hooks/` are active. The hooks here are generic (only `pre-push` currently), so they're safe to drop into any repo.
 
