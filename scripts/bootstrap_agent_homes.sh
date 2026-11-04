@@ -6,8 +6,7 @@ set -euo pipefail
 # Links skills and Claude settings into $HOME/.claude and $HOME/.codex.
 # Pass --moat when running inside a Moat container so the container-specific
 # settings file (defaults/settings-moat.json) is linked instead of the host
-# file. The container file differs only in the Playwright MCP args (headless,
-# no-sandbox).
+# file.
 
 MOAT_MODE=false
 POSITIONAL=()

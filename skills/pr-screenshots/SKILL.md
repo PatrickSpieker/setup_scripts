@@ -1,7 +1,9 @@
 ---
 name: pr-screenshots
-description: Capture and verify web UI screenshots for affected pull-request journeys with Playwright, store them under a commit-pinned walkthrough, or refresh the web walkthrough on an existing PR. Use directly when adding web PR screenshots or when gh-ship delegates a consumer-visible web change.
+description: Capture and verify web UI screenshots for affected pull-request journeys with Chrome computer use, store them under a commit-pinned walkthrough, or refresh the web walkthrough on an existing PR. Use directly when adding web PR screenshots or when gh-ship delegates a consumer-visible web change.
 ---
+
+Use Chrome computer use for all browser work. This overrides browser-selection and fallback instructions below. Read the chrome-browser skill for Claude in Chrome; in Codex use the Chrome computer-use integration available in the session. Discover and follow its current tool schemas. Use a new task tab and close only task-created tabs. Do not install a standalone browser automation package. If Chrome cannot perform a required action (including request interception or isolation), report that blocker before proceeding. Browser actions below describe intent, not callable API names.
 
 # Web PR Screenshots
 
@@ -38,11 +40,11 @@ If no consumer-visible web UI changed, return `not required`. Do not capture mer
 
 ## 2. Discover and start the app
 
-Inspect package-manager files, workspace configuration, scripts, and contributor instructions. Prefer the repository's established dev or preview command. Do not install a second browser automation stack; use the configured Playwright MCP/browser tools.
+Inspect package-manager files, workspace configuration, scripts, and contributor instructions. Prefer the repository's established dev or preview command. Do not install a second browser automation stack; use the configured browser tools available in this session.
 
 Determine the local URL from configuration or server output. Start the app with isolated fixture/demo data. When the changed journey requires authentication or persisted server state and the repository exposes a safe staging environment, create a fresh throwaway staging account and representative test records for the capture; do not bail merely because no reusable account exists. Never point screenshot setup at production data or the user's personal data directory.
 
-If the app cannot start, authentication still cannot be satisfied safely after creating or attempting an allowed throwaway staging account, Playwright is unavailable, or a required journey cannot be reached, return a precise blocker. In refresh mode, continue to the draft handling step rather than silently retaining stale evidence.
+If the app cannot start, authentication still cannot be satisfied safely after creating or attempting an allowed throwaway staging account, Chrome computer use is unavailable, or a required journey cannot be reached, return a precise blocker. In refresh mode, continue to the draft handling step rather than silently retaining stale evidence.
 
 ## 3. Prepare scoped output
 
@@ -55,13 +57,9 @@ find "$OUT" -maxdepth 1 -type f -name '*.png' -delete
 
 Delete obsolete files only from this exact generated platform directory. Never clean another PR slug, the iOS directory, or manually managed screenshot paths.
 
-## 4. Capture with Playwright
+## 4. Capture with Chrome computer use
 
-Set the default viewport once:
-
-```text
-browser_resize(width=1400, height=860)
-```
+Use the browser tool’s documented API to set a 1400 × 860 viewport when supported.
 
 Add mobile/tablet viewports only when the diff changes responsive or breakpoint-specific behavior.
 
@@ -170,6 +168,6 @@ For Epic-linked fixtures, follow the repository-local QA skill rather than copyi
 
 - Re-snapshot after navigation or DOM changes; stale accessibility refs are invalid.
 - Resolve browser dialogs before the next action.
-- Verify where the Playwright server writes relative paths; use the absolute `$OUT` path when uncertain.
+- Verify where the browser tool writes relative paths; use the absolute `$OUT` path when uncertain.
 - Regenerate URLs with the latest screenshot commit SHA to bypass GitHub's image cache.
-- If the browser cannot reach localhost or reports proxy/certificate failures inside Moat, verify that the repository's Playwright MCP uses the shared `scripts/playwright-mcp.sh` launcher. Report the launcher/configuration blocker; do not install an ad hoc browser.
+- If the browser cannot reach localhost, report the connectivity blocker; do not install an ad hoc browser.
