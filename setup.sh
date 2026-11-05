@@ -112,11 +112,26 @@ curl https://cursor.com/install -fsS | bash
 mkdir -p ~/.claude
 ln -sfn "$REPO_DIR/skills" ~/.claude/skills
 
+# Register Playwright MCP at user scope so it's available in every project.
+# Claude Code stores user-scope MCPs in ~/.claude.json under top-level
+# `mcpServers` — `mcpServers` in ~/.claude/settings.json is NOT honored.
+# `|| true` swallows the "already exists" error on re-run.
+claude mcp add --scope user playwright -- npx -y @playwright/mcp@latest --browser chrome --sandbox --isolated || true
+
+
+
 # ===== CODEX =====
 # reminder: codex skills are invoked with $skill_name, not /skill_name
 mkdir -p ~/.codex
 ln -sfn "$REPO_DIR/skills" ~/.codex/skills
 
+
+
+# ===== PLAYWRIGHT =====
+# Use installed, auto-updating Chrome; do not download bundled Chromium.
+if [[ ! -d "/Applications/Google Chrome.app" ]]; then
+  brew install --cask google-chrome
+fi
 
 
 # ===== SWIFTBAR =====
