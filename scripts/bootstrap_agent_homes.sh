@@ -6,7 +6,7 @@ set -euo pipefail
 # Links skills and Claude settings into $HOME/.claude and $HOME/.codex.
 # Pass --moat when running inside a Moat container so the container-specific
 # settings file (defaults/settings-moat.json) is linked instead of the host
-# file.
+# file. Moat declares its MCP servers separately in moat.yaml.
 
 MOAT_MODE=false
 POSITIONAL=()

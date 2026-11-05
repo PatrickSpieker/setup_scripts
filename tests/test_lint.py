@@ -47,6 +47,11 @@ def test_shellcheck_bootstrap_agent_homes():
     assert r.returncode == 0, r.stdout + r.stderr
 
 
+def test_shellcheck_playwright_mcp():
+    r = run_shellcheck(REPO_DIR / "scripts/playwright-mcp.sh")
+    assert r.returncode == 0, r.stdout + r.stderr
+
+
 def test_hammerspoon_init_lua_valid():
     luac = shutil.which("luac")
     if not luac:
@@ -57,6 +62,15 @@ def test_hammerspoon_init_lua_valid():
         text=True,
     )
     assert r.returncode == 0, r.stdout + r.stderr
+
+
+def test_playwright_mcp_is_executable():
+    """The MCP wrapper is invoked directly by Moat via `command:`, so it must
+    have the execute bit set."""
+    import os
+    import stat
+    mode = (REPO_DIR / "scripts/playwright-mcp.sh").stat().st_mode
+    assert mode & stat.S_IXUSR, "scripts/playwright-mcp.sh is not executable"
 
 
 # ===== Config validation =====
@@ -87,6 +101,85 @@ def test_settings_moat_has_no_mcp_servers():
     assert "mcpServers" not in moat
 
 
+def test_moat_yaml_declares_playwright_via_shim():
+    """Playwright MCP must launch via scripts/playwright-mcp.sh — the shim
+    selects installed Chrome, the local auth-injecting proxy that
+    fronts Moat's authenticated HTTPS_PROXY, and the --config file with all
+    launchOptions (headless, isolated, sandboxed,
+    --ignore-certificate-errors). moat.yaml's args should be empty so the
+    shim's config is the single source of truth."""
+    moat = yaml.safe_load((REPO_DIR / "moat.yaml").read_text())
+    pw = moat["claude"]["mcp"]["playwright"]
+    assert pw["command"].endswith("/playwright-mcp.sh"), (
+        "playwright MCP must launch via scripts/playwright-mcp.sh "
+        "(see docstring in the script for why)"
+    )
+    assert pw.get("args", []) == [], (
+        "moat.yaml playwright args should be empty — the shim builds an MCP "
+        "--config JSON with everything needed; CLI args here only confuse."
+    )
+
+
+def test_template_moat_yaml_mirrors_root_playwright_wiring():
+    """templates/moat.yaml gets copied into client repos by `mcl` and is the
+    snapshot that other projects use. It must declare the same Playwright
+    wiring as the root moat.yaml (shim path, empty args, post_build_root for
+    install-deps, npx-warm in post_build) so containers spawned in other
+    repos get a working Playwright MCP too. Drift here silently breaks
+    clients that already have a snapshot."""
+    template = yaml.safe_load((REPO_DIR / "templates/moat.yaml").read_text())
+    pw = template["claude"]["mcp"]["playwright"]
+    assert pw["command"].endswith("/playwright-mcp.sh")
+    assert pw.get("args", []) == []
+    hooks = template["hooks"]
+    assert "install --with-deps chrome" in hooks["post_build_root"], (
+        "templates/moat.yaml must install Chrome and its system libraries as root."
+    )
+    assert "@playwright/mcp@latest --help" in hooks["post_build"], (
+        "templates/moat.yaml post_build must warm the @playwright/mcp npx "
+        "cache so the first MCP probe doesn't time out."
+    )
+
+
+def test_template_moat_codex_yaml_has_playwright_wiring():
+    """templates/moat-codex.yaml is the snapshot `mco` copies into Codex
+    client repos. It must declare Playwright under codex.mcp (per Moat docs
+    — Codex sandbox-local MCPs use codex.mcp, written to .mcp.json), and
+    install Chrome and its system libs / warm the MCP cache the same way the
+    Claude templates do."""
+    template = yaml.safe_load((REPO_DIR / "templates/moat-codex.yaml").read_text())
+    pw = template["codex"]["mcp"]["playwright"]
+    assert pw["command"].endswith("/playwright-mcp.sh"), (
+        "Codex Playwright MCP must launch via the shared shim — the shim "
+        "selects the Chrome channel and the auth-injecting proxy."
+    )
+    assert pw.get("args", []) == []
+    hooks = template["hooks"]
+    assert "install --with-deps chrome" in hooks["post_build_root"]
+    assert "install chromium" not in hooks["post_build"]
+    assert "@playwright/mcp@latest --help" in hooks["post_build"], (
+        "post_build must warm the @playwright/mcp npx cache."
+    )
+
+
+def test_playwright_shim_includes_proxy_bridging():
+    """The shim must spawn a local CONNECT proxy so Chromium can use Moat's
+    authenticated HTTPS_PROXY (Chromium's --proxy-server doesn't accept
+    inline basic auth). Catch regressions where someone simplifies the shim."""
+    shim = (REPO_DIR / "scripts/playwright-mcp.sh").read_text()
+    assert 'Proxy-Authorization' in shim, "shim must inject Proxy-Authorization to upstream"
+    assert '127.0.0.1' in shim, "shim must point Chromium at a localhost proxy"
+    assert '--ignore-certificate-errors' in shim, (
+        "Moat's TLS-intercepting CA isn't in chromium's trust store; "
+        "shim must pass --ignore-certificate-errors"
+    )
+    assert '--browser chrome --sandbox' in shim
+    assert '--no-sandbox' not in shim
+    assert 'executablePath' not in shim
+    assert 'channel: "chrome"' in shim
+    assert 'chromiumSandbox: true' in shim
+
+
 def test_settings_json_has_no_mcp_servers():
     """User-scope Claude Code MCPs live in ~/.claude.json (top-level
     `mcpServers`), written by `claude mcp add --scope user`. The
@@ -98,6 +191,27 @@ def test_settings_json_has_no_mcp_servers():
         "Remove `mcpServers` from defaults/settings.json — it is not read by "
         "Claude Code. Register user-scope MCPs via `claude mcp add --scope "
         "user` (encoded in setup.sh) instead."
+    )
+
+
+def test_setup_sh_registers_playwright_user_scope():
+    """setup.sh must register Playwright at user scope so a fresh laptop
+    gets headful Playwright in every repo, not just ones where Claude was
+    previously run with a per-project entry."""
+    setup = (REPO_DIR / "setup.sh").read_text()
+    assert "claude mcp add --scope user playwright" in setup, (
+        "setup.sh must run `claude mcp add --scope user playwright -- npx "
+        "-y @playwright/mcp@latest --isolated` so Playwright is available "
+        "in every project on a fresh laptop."
+    )
+    assert "@playwright/mcp@latest --browser chrome --sandbox --isolated" in setup
+    assert "--isolated" in setup, (
+        "Host Playwright should pass --isolated so each session uses a "
+        "fresh browser profile."
+    )
+    assert "--headless" not in setup.split("claude mcp add --scope user playwright")[1].split("\n")[0], (
+        "Host Playwright stays headful so the user can watch the browser; "
+        "do not pass --headless on the `claude mcp add` line."
     )
 
 
@@ -123,17 +237,3 @@ def test_codex_moat_config_toml_valid():
     assert config["approval_policy"] == "never"
     assert config["sandbox_mode"] == "danger-full-access"
     assert config["projects"]["/workspace"]["trust_level"] == "trusted"
-
-
-@pytest.mark.parametrize("path", [
-    "setup.sh", "moat.yaml", "templates/moat.yaml", "templates/moat-codex.yaml",
-    "defaults/codex-config.toml", "defaults/codex-moat-config.toml",
-])
-def test_bootstrap_does_not_restore_removed_browser_stack(path):
-    assert "playwright" not in (REPO_DIR / path).read_text().lower()
-
-
-def test_web_screenshots_use_chrome_computer_use():
-    skill = (REPO_DIR / "skills/pr-screenshots/SKILL.md").read_text()
-    assert "Chrome computer use" in skill
-    assert "playwright" not in skill.lower()
