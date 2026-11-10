@@ -37,9 +37,6 @@ enabled = true
 [plugins."template-creator@openai-primary-runtime"]
 enabled = true
 
-[plugins."sites@openai-bundled"]
-enabled = true
-
 [plugins."visualize@openai-bundled"]
 enabled = true
 
@@ -196,6 +193,9 @@ trust_level = "trusted"
 [projects."/Users/patrickspieker/Documents/Codex/2026-09-01/cr"]
 trust_level = "trusted"
 
+[projects."/Users/patrickspieker/code/antaeus/internal-mcp"]
+trust_level = "trusted"
+
 [mcp_servers.xcode]
 command = "xcrun"
 args = ["mcpbridge"]
@@ -215,6 +215,7 @@ approval_mode = "approve"
 [mcp_servers.node_repl]
 args = []
 command = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl"
+env_vars = ["BROWSER_USE_ACCESS_EXECUTOR_ID", "BROWSER_USE_ACCESS_PIPE_PATH", "BROWSER_USE_ACCESS_VERIFYING_IDENTITY"]
 startup_timeout_sec = 120
 
 [mcp_servers.node_repl.env]
@@ -223,16 +224,16 @@ NODE_REPL_NODE_MODULE_DIRS = "/Applications/ChatGPT.app/Contents/Resources/cua_n
 NODE_REPL_NODE_PATH = "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node"
 NODE_REPL_TRUSTED_CODE_PATHS = "/Users/patrickspieker/.codex:/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules"
 CODEX_HOME = "/Users/patrickspieker/.codex"
-BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
+BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab,mcpapps"
 BROWSER_USE_TINYSKY_ENABLED = "1"
 NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER = ""
 NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME = ""
 NODE_REPL_INSTRUCTIONS_USE_CASE_COMPUTER_USE = ""
 BROWSER_USE_CODEX_APP_BUILD_FLAVOR = "prod"
-BROWSER_USE_CODEX_APP_VERSION = "26.908.40834"
-NODE_REPL_TRUSTED_SERVICES = '{"browser":"/Users/patrickspieker/.codex/plugins/cache/openai-bundled/browser/26.908.40834/scripts/browser-service.mjs","sky":"@oai/sky/service"}'
+BROWSER_USE_CODEX_APP_VERSION = "26.1103.60933"
+NODE_REPL_TRUSTED_SERVICES = '{"browser":"/Users/patrickspieker/.codex/plugins/cache/openai-bundled/browser/26.1103.60933/scripts/browser-service.mjs","sky":"@oai/sky/service"}'
 SKY_CUA_SERVICE_PATH = "/Users/patrickspieker/.codex/computer-use/Codex Computer Use.app"
-CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex"
+CODEX_CLI_PATH = "/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex"
 
 [mcp_servers.XcodeBuildMCP]
 command = "xcodebuildmcp"
@@ -251,11 +252,16 @@ enabled = false
 [mcp_servers.openaiDeveloperDocs]
 url = "https://developers.openai.com/mcp"
 
+[mcp_servers.internal-mcp]
+command = "/opt/homebrew/bin/node"
+args = ["/Users/patrickspieker/code/antaeus/internal-mcp/dist/index.js"]
+
 [desktop]
-followUpQueueMode = "queue"
 dock-icon-preference = "codex-system"
 open-link-in-target-preference = "in-app-browser"
 keepRemoteControlAwakeWhilePluggedIn = true
+code-review-github-link-target = "github"
+migratedFollowUpQueueToSteer = true
 
 [desktop.open-in-target-preferences]
 global = "vscode"
@@ -272,3 +278,11 @@ js_repl = false
 
 [shell_environment_policy.set]
 NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "9230e2bd8b24b7ac7a0ba6774c64bf0d78ecdabbdd91d0ed627b02a587bae2df"
+
+[tui]
+screen_reader_detection_done = true
+
+
+[mcp_servers.antaeus]
+url = "https://mcp.antaeus.health/mcp"
+bearer_token_env_var = "ant_mcp_ZU0btZ7t7ezp0qoq0ihvdYwNFAalOpLDLdUdPIqNPr8"
