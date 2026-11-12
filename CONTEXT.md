@@ -72,3 +72,34 @@ Inspect the recorded actions in a Codex conversation over time.
 
 > **Developer:** Should repeated calls be aggregated?
 > **User:** No; preserve their ordering, gaps, and overlap.
+
+# UI Flow Reports
+
+Map an app's observed interactions into a portable visual report.
+
+## Language
+
+**UI flow report**: A screenshot graph of discovered app states and the actions connecting them within a recorded exploration scope.
+
+**Captured state**: A meaningful visible app state observed through actual navigation and represented by a screenshot.
+
+**Unexplored branch**: A known interaction not followed because of a production restriction, requested workflow boundary, unreachable destination, or exploration limit.
+
+**Exploration scope**: The selected app, environment, role, device configuration, and optional workflow or explicit exploration limits.
+
+## Relationships
+
+- A **UI flow report** contains **Captured states** and **Unexplored branches** within one **Exploration scope**.
+- Multiple actions may converge on one **Captured state**; repeated records share a state unless behavior differs.
+
+## Interpretation rules
+
+- Production is the default; staging requires explicit selection.
+- Production permits test-account mutations but excludes effects outside the test account.
+- Source code guides discovery; only actual navigation supplies captured states.
+- Coverage describes discovered interactions within scope, not guaranteed enumeration of every theoretical state.
+
+## Example dialogue
+
+> **Developer:** Does a workflow-only report hide other interactions?
+> **User:** Show where those branches were truncated and explain why.
