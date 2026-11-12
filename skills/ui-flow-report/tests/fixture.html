@@ -1,0 +1,15 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Flow fixture</title><style>body{font:18px system-ui;background:#edf3f8;color:#213448;margin:48px}main{max-width:600px;background:white;border-radius:16px;padding:28px}button,input{font:inherit;padding:12px;margin:8px;border:1px solid #9eb3c9;border-radius:6px}dialog{border:1px solid #789;border-radius:12px;padding:30px}#error{color:#b22}#loading{padding:30px;background:#def}</style><main><h1>Test workspace</h1><p id="name">Test Member</p><button id="menu-button">Menu</button><div id="menu" hidden><button id="settings">Settings</button><button id="close-menu">Close menu</button></div><button id="edit">Edit profile</button><button id="load">Load records</button><div id="loading" hidden>Loading records…</div><div id="records" hidden><button class="record">Record 1</button><button class="record">Record 2</button><button id="special">Archived record</button></div><section id="record-view" hidden><h2 id="record-title">Record details</h2><button id="archive">Archive</button><button id="restore">Restore</button><button id="back">Back</button></section><button id="external">Send to external recipient</button><p id="notice"></p></main><dialog id="profile"><h2>Edit profile</h2><label>Name <input id="input" aria-label="Name"></label><p id="error" hidden>Name is required</p><button id="save">Save</button><button id="cancel">Cancel</button></dialog><script>
+const $=id=>document.getElementById(id);
+$('menu-button').onclick=()=>{$('menu').hidden=false};$('close-menu').onclick=()=>{$('menu').hidden=true};
+$('edit').onclick=()=>{$('input').value='';$('error').hidden=true;$('profile').showModal()};
+$('cancel').onclick=()=>{$('profile').close()};
+$('save').onclick=async()=>{if(!$('input').value.trim()){$('error').hidden=false;return}await fetch('/profile',{method:'POST',body:JSON.stringify({name:$('input').value})});$('name').textContent=$('input').value;$('profile').close()};
+$('load').onclick=()=>{$('loading').hidden=false;setTimeout(()=>{$('loading').hidden=true;$('records').hidden=false},2000)};
+for(const button of document.querySelectorAll('.record'))button.onclick=()=>{showRecord(false)};
+$('special').onclick=()=>showRecord(true);
+function showRecord(archived){$('record-view').hidden=false;$('archive').hidden=archived;$('restore').hidden=!archived;$('record-title').textContent='Record details'}
+$('back').onclick=()=>{$('record-view').hidden=true};
+$('external').onclick=async()=>{await fetch('/external',{method:'POST',body:'{}'});$('notice').textContent='External send simulated'};
+// Source-discovered branch: admin-only screen cannot be reached by this member fixture.
+function adminOnly(){if(false)$('notice').textContent='Admin settings'}
+</script></html>
