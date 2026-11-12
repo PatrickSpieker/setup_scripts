@@ -98,6 +98,8 @@ def limit_reason(graph):
 def transition(graph, args, run):
     command = args.command
     record = json.loads(Path(args.input).read_text()) if getattr(args, 'input', None) else None
+    if command in ('state', 'action'):
+        require(graph['status'] == 'active', 'Run is not active; resume it first')
     if command == 'state':
         fields(record, 'id title key screenshot evidence url prerequisites observations', 'id title key screenshot evidence')
         require(not any(s['id'] == record['id'] for s in graph['states']), 'State ID already exists')
@@ -182,8 +184,8 @@ def render(graph, run, output):
     payload = json.dumps(public, ensure_ascii=True).replace('<', '\\u003c').replace('>', '\\u003e').replace('&', '\\u0026')
     html = (ASSETS / 'report.html').read_text()
     html = html.replace('/* REPORT_STYLE */', (ASSETS / 'report.css').read_text())
-    html = html.replace('/* REPORT_DATA */', payload)
     html = html.replace('/* REPORT_SCRIPT */', (ASSETS / 'report.js').read_text())
+    html = html.replace('/* REPORT_DATA */', payload)
     atomic(output, html)
 
 
