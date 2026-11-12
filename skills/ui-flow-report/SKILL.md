@@ -25,8 +25,24 @@ Read [references/checkpoints.md](references/checkpoints.md) for CLI commands and
 4. Reestablish the action's source through its recorded route and prerequisites, and verify the current appearance/behavior matches that source. Record newly discovered transitions along the way. Save any practical restoration record, then call `begin` **before** performing the action. Navigate with the selected UI driver, capture the destination, then `resolve` the action to its state ID. A control with no meaningful visual change is a self-loop if it is a meaningful interaction. Record conditional outcomes as distinct action records with their prerequisites.
 5. Continue until the pending frontier is empty and inspection finds no new states; no arbitrary default cap. Deduplicate by appearance AND behavior, not screenshot bytes, URLs, or record IDs alone. A requested workflow limits exploration: mark known exits `outside requested workflow`, rather than silently dropping them. On limits or interruption, known pending branches render as `exploration limit`; uncertainty about undiscovered branches stays visible.
 6. Restore owned test-account changes when practical, comparing current values/versions before restoring. Do not overwrite unrelated changes. Mark each change restored or left behind with an explanation. UI transitions must be captured through UI actions; setup/restoration APIs may arrange prerequisites but cannot stand in for observed transitions.
-7. Finish with `exhausted` only after inspecting the whole discovered frontier; otherwise `stopped` and explain the interruption or blocker. The helper renders after every saved mutation, so a portable partial report is normally already available. An abrupt kill may require `render` on resume. An interrupted run is not complete just because its last screenshot exists.
+7. After each captured state is resolved and rendered, publish the current partial report as described below. Also publish after finishing, stopping, or updating report layout. Publishing failures must not stop exploration.
+8. Finish with `exhausted` only after inspecting the whole discovered frontier; otherwise `stopped` and explain the interruption or blocker. The helper renders after every saved mutation, so a portable partial report is normally already available. An abrupt kill may require `render` on resume. An interrupted run is not complete just because its last screenshot exists.
 
 ## Deliver
 
 Open the generated HTML and verify layout and screenshots. Check representative branches/loops, labels, search, fit/pan/zoom, details, and enlargement. Verify all images are genuine, legible, and free of credentials. Fix captures or omit them with an explicit explanation; do not silently edit UI evidence. Return the HTML link, coverage limits, unexplored reasons, and any test-data changes left behind. Only the HTML is needed for sharing; preserve the working directory for resumption.
+
+
+## Publish an authenticated share link
+
+Automatically publish complete and partial reports through the internal MCP `admin_publish_ui_flow_report` tool. Discover the tool in the current session. Run:
+
+```sh
+python3 scripts/report.py --run /absolute/path/to/run prepare-publication
+```
+
+Pass the resulting JSON as the MCP tool arguments. It contains an immutable local HTML snapshot path, a stable run UUID, a monotonically increasing revision, status, title, and retry key. The MCP server must be able to read that absolute path. Never paste embedded screenshots or HTML into a tool argument. Preserve `publication.json` and snapshot files when resuming or moving the run; do not generate a new run ID for an existing run or reuse a revision/key with different bytes. Coordinate concurrent work through a single run directory.
+
+Return the URL confirmed by the tool, normally `https://admin.antaeus.health/tools/ui-flow-reports/<run-id>`, plus the local HTML fallback. Never claim upload success or invent a usable URL when the tool fails. The same link shows the latest revision, remains available until explicitly deleted, and requires an authorized admin login. Any authorized admin can view or download it. There is no report library. Downloaded HTML remains independently shareable offline.
+
+On transient timeout/unavailability, retry the identical snapshot and arguments at most twice with short delays (2 and 5 seconds). Use `admin_get_operation_status` or `admin_get_ui_flow_report` to reconcile uncertain outcomes. Do not retry authorization, missing-file, size, or revision conflicts blindly. If publishing remains unavailable, preserve all local data, report the publishing failure and local HTML link, and continue exploration. Retry on the next checkpoint or resume. A stale revision must never replace a newer report. Deletion is explicit only: `admin_delete_ui_flow_report` or the viewer's Delete control; a deleted run cannot be republished under its old ID.

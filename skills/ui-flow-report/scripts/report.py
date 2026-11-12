@@ -11,6 +11,7 @@ from pathlib import Path
 import re
 import tempfile
 import time
+import uuid
 from urllib.parse import urlsplit, urlunsplit
 
 REASONS = ('production restriction', 'outside requested workflow', 'unreachable', 'exploration limit')
@@ -189,6 +190,29 @@ def render(graph, run, output):
     atomic(output, html)
 
 
+def prepare_publication(graph, run):
+    """Freeze an upload snapshot so retries cannot publish changed bytes with the same key."""
+    render(graph, run, run / 'report.html')
+    html = (run / 'report.html').read_text()
+    digest = hashlib.sha256(html.encode()).hexdigest()
+    path = run / 'publication.json'
+    previous = json.loads(path.read_text()) if path.exists() else {}
+    if previous.get('sha256') == digest:
+        snapshot = Path(previous['arguments']['html_path'])
+        require(snapshot.is_file() and hashlib.sha256(snapshot.read_bytes()).hexdigest() == digest,
+                'Publication snapshot changed or is missing; restore it before retrying')
+        return previous['arguments']
+    revision = previous.get('arguments', {}).get('revision', 0) + 1
+    run_id = previous.get('arguments', {}).get('run_id', str(uuid.uuid4()))
+    snapshot = run / f'publication-{revision:06d}.html'
+    atomic(snapshot, html)
+    arguments = {'run_id': run_id, 'revision': revision, 'title': graph['title'][:200],
+                 'status': 'complete' if graph['status'] == 'exhausted' else 'partial',
+                 'html_path': str(snapshot), 'idempotency_key': str(uuid.uuid4())}
+    atomic(path, json.dumps({'sha256': digest, 'arguments': arguments}, indent=2) + '\n')
+    return arguments
+
+
 def parser():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--run', type=Path, required=True)
@@ -216,6 +240,7 @@ def parser():
     finish.add_argument('--explanation', required=True)
     sub.add_parser('resume')
     sub.add_parser('inspect')
+    sub.add_parser('prepare-publication')
     sub.add_parser('render').add_argument('--output', type=Path)
     return p
 
@@ -235,6 +260,9 @@ def main():
             else:
                 graph = json.loads(checkpoint.read_text())
                 require(graph.get('version') == 1, 'Unsupported checkpoint version')
+                if args.command == 'prepare-publication':
+                    print(json.dumps(prepare_publication(graph, run), indent=2))
+                    return
                 if args.command == 'inspect':
                     print(json.dumps(graph, indent=2))
                     return

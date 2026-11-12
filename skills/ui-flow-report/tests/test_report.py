@@ -44,6 +44,24 @@ class ReportTest(unittest.TestCase):
     def graph(self):
         return json.loads((self.run / 'graph.json').read_text())
 
+    def test_publication_snapshots_resume_and_revision_safety(self):
+        self.state()
+        first = json.loads(self.cli('prepare-publication'))
+        self.assertEqual(first['status'], 'partial')
+        snapshot = Path(first['html_path']).read_bytes()
+        self.assertEqual(first, json.loads(self.cli('prepare-publication')))
+        self.cli('finish', '--status', 'exhausted', '--explanation', 'No more states')
+        second = json.loads(self.cli('prepare-publication'))
+        self.assertEqual(second['run_id'], first['run_id'])
+        self.assertEqual(second['revision'], 2)
+        self.assertEqual(second['status'], 'complete')
+        self.assertNotEqual(second['idempotency_key'], first['idempotency_key'])
+        self.assertEqual(Path(first['html_path']).read_bytes(), snapshot)
+        self.assertEqual(second, json.loads(self.cli('prepare-publication')))
+        Path(second['html_path']).write_text('modified')
+        self.assertIn('snapshot changed', self.cli('prepare-publication', ok=False))
+        self.assertTrue((self.run / 'report.html').is_file())
+
     def test_default_production_allows_test_changes_blocks_external(self):
         self.state()
         self.action()
