@@ -79,8 +79,10 @@ function search() {
   for (const edge of edgeModels) {
     const match = Boolean(query) && edge.action.label.toLocaleLowerCase().includes(query);
     edge.path.classList.toggle('match', match);
-    edge.label.classList.toggle('match', match);
-    if (match) results.push({x: edge.labelX + 130, y: edge.labelY + edge.labelH / 2});
+    for (const label of edge.labels) {
+      label.element.classList.toggle('match', match);
+      if (match) results.push({x: label.x + label.w / 2, y: label.y + label.h / 2});
+    }
   }
   resultIndex = -1;
   $('matches').textContent = query ? `${results.length} matches` : '';
@@ -123,67 +125,138 @@ async function build() {
     edgeModels.push({action, source, target});
   }
   await Promise.all([...document.querySelectorAll('.shot img')].map(img => img.decode()));
-  // Assign discovery depth, preserving disconnected roots and cycles.
+  // A discovery spanning tree keeps each branch inside its own subtree.
+  // Revisited destinations (cycles and merges) are local labeled exit arrows.
+  const roots = [], seen = new Set();
+  for (const node of nodeModels) { node.children = []; node.returns = []; node.h = node.element.offsetHeight; }
   for (const root of nodeModels) {
-    if (root.rank !== null) continue;
-    root.rank = 0;
+    if (seen.has(root)) continue;
+    roots.push(root); seen.add(root);
     const queue = [root];
     for (let i = 0; i < queue.length; i++) {
-      for (const edge of edgeModels.filter(e => e.source === queue[i])) {
-        if (edge.target.rank === null) { edge.target.rank = queue[i].rank + 1; queue.push(edge.target); }
+      const node = queue[i];
+      for (const edge of edgeModels.filter(e => e.source === node)) {
+        edge.reference = seen.has(edge.target);
+        if (edge.reference) node.returns.push(edge);
+        else { seen.add(edge.target); node.children.push(edge); queue.push(edge.target); }
       }
     }
   }
-  const rows = [];
-  for (const node of nodeModels) { (rows[node.rank] ||= []).push(node); node.h = node.element.offsetHeight; }
-  const maxColumns = Math.max(1, ...rows.map(row => row.length));
-  const outgoingRows = rows.map((_, rank) => edgeModels.filter(e => e.source.rank === rank));
-  const coreWidth = Math.max(maxColumns * 400, ...outgoingRows.map(edges => edges.length * 300));
   const measure = el('div'); measure.id = 'measure'; document.body.append(measure);
   for (const edge of edgeModels) {
     edge.label = el('button', edge.action.label, 'edge-label');
+    if (edge.reference) {
+      edge.label.classList.add('return-label');
+      edge.label.append(el('small', `(goes to ${edge.target.title})`));
+    }
     edge.label.onclick = () => openAction(edge.action);
     measure.append(edge.label); edge.labelH = edge.label.offsetHeight;
-    edge.outer = edge.target.rank !== edge.source.rank + 1;
   }
-  let y = 45, lane = 0;
-  for (let rank = 0; rank < rows.length; rank++) {
-    const incoming = edgeModels.filter(e => e.outer && e.target.rank === rank);
-    for (const edge of incoming) { edge.entryY = y; y += 30; }
-    y += 30;
-    const row = rows[rank];
-    row.forEach((node, i) => { node.x = (coreWidth - row.length * 400) / 2 + i * 400 + 60; node.y = y; node.element.style.left = node.x + 'px'; node.element.style.top = y + 'px'; });
-    y += Math.max(...row.map(node => node.h)) + 35;
-    const outgoing = outgoingRows[rank];
-    // Fan out above the labels and converge below them. Each label has its own lane.
-    for (const edge of outgoing) { edge.departY = y; y += 30; }
-    y += 20;
-    outgoing.forEach((edge, i) => {
-      edge.branchX = (coreWidth - outgoing.length * 300) / 2 + i * 300 + 150;
-      edge.labelX = edge.branchX - 130; edge.labelY = y;
-      if (edge.outer) edge.laneX = coreWidth + 60 + lane++ * 36;
-    });
-    y += Math.max(0, ...outgoing.map(edge => edge.labelH)) + 30;
-    for (const edge of outgoing) { edge.arriveY = y; y += 30; }
-    y += 45;
+  const gap = 90, nodeWidth = 280, referenceWidth = 360;
+  function size(node) {
+    node.blockWidth = nodeWidth + (node.returns.length ? referenceWidth * 2 : 0);
+    node.blockHeight = Math.max(node.h, 32 + node.returns.reduce((sum, e) => sum + e.labelH + 24, 0));
+    node.children.forEach(e => size(e.target));
+    const childrenWidth = node.children.reduce((sum, e) => sum + e.target.subtreeWidth, 0) + Math.max(0, node.children.length - 1) * gap;
+    node.subtreeWidth = Math.max(node.blockWidth, childrenWidth);
+    node.childrenWidth = childrenWidth;
   }
-  width = coreWidth + (lane ? 100 + lane * 36 : 0); height = y;
+  function place(node, left, top) {
+    node.x = left + node.subtreeWidth / 2 - nodeWidth / 2;
+    node.y = top;
+    node.element.style.left = node.x + 'px'; node.element.style.top = top + 'px';
+    let returnY = top + 32;
+    for (const edge of node.returns) {
+      edge.labelX = node.x + nodeWidth + 32;
+      edge.labelY = returnY;
+      edge.d = `M ${node.x + nodeWidth + 8} ${returnY + edge.labelH / 2} H ${node.x + nodeWidth + referenceWidth - 8}`;
+      returnY += edge.labelH + 24;
+    }
+    const sx = node.x + nodeWidth / 2;
+    const startY = top + node.blockHeight + 28;
+    let childLeft = left + (node.subtreeWidth - node.childrenWidth) / 2;
+    for (const edge of node.children) {
+      edge.childLeft = childLeft;
+      edge.tx = childLeft + edge.target.subtreeWidth / 2;
+      childLeft += edge.target.subtreeWidth + gap;
+    }
+    // Label each exclusive branch near its source. Route outer branches first
+    // so their vertical segments cannot pass through an inner branch's label.
+    const lanes = {left: startY, right: startY};
+    const ordered = [...node.children].sort((a, b) => Math.abs(b.tx - sx) - Math.abs(a.tx - sx));
+    for (const edge of ordered) {
+      const dx = edge.tx - sx;
+      if (Math.abs(dx) < 160) {
+        edge.labelY = Math.max(lanes.left, lanes.right) + 24;
+        edge.labelX = edge.tx - 130;
+        edge.departY = edge.labelY - 16;
+        lanes.left = lanes.right = edge.labelY + edge.labelH + 24;
+      } else {
+        const side = dx < 0 ? 'left' : 'right';
+        edge.labelW = Math.min(260, Math.abs(dx) - 40);
+        edge.label.style.width = edge.labelW + 'px';
+        edge.labelH = edge.label.offsetHeight;
+        edge.labelX = dx < 0 ? sx - 20 - edge.labelW : sx + 20;
+        edge.labelY = lanes[side];
+        edge.departY = edge.labelY + edge.labelH / 2;
+        lanes[side] += edge.labelH + 24;
+      }
+    }
+    const childY = Math.max(lanes.left, lanes.right) + 65;
+    for (const edge of node.children) {
+      place(edge.target, edge.childLeft, childY);
+      edge.d = `M ${sx} ${top + node.h + 8} V ${edge.departY} H ${edge.tx} V ${childY - 10}`;
+    }
+    height = Math.max(height, top + node.blockHeight + 45);
+  }
+  roots.forEach(size);
+  width = roots.reduce((sum, root) => sum + root.subtreeWidth, 0) + Math.max(0, roots.length - 1) * gap + 90;
+  height = 1;
+  let rootLeft = 45;
+  for (const root of roots) { place(root, rootLeft, 45); rootLeft += root.subtreeWidth + gap; }
   $('world').style.width = width + 'px'; $('world').style.height = height + 'px';
   $('edges').setAttribute('width', width); $('edges').setAttribute('height', height);
   const defs = svg('defs', {}), marker = svg('marker', {id:'arrow', viewBox:'0 0 10 10', refX:9, refY:5, markerWidth:7, markerHeight:7, orient:'auto-start-reverse'});
   marker.append(svg('path', {d:'M 0 0 L 10 5 L 0 10 z', fill:'#7b90a7'})); defs.append(marker); $('edges').append(defs);
-  // Paths first, labels last so every label stays legible above crossing lines.
   for (const edge of edgeModels) {
-    const sx = edge.source.x + 140, sy = edge.source.y + edge.source.h;
-    const tx = edge.target.x + 140, ty = edge.target.y - 4;
-    let d = `M ${sx} ${sy} V ${edge.departY} H ${edge.branchX} V ${edge.arriveY}`;
-    d += edge.outer ? ` H ${edge.laneX} V ${edge.entryY} H ${tx} V ${ty}` : ` H ${tx} V ${ty}`;
-    edge.path = svg('path', {d, class:'edge' + (edge.action.status !== 'observed' ? ' pending' : ''), 'marker-end':'url(#arrow)'});
+    edge.path = svg('path', {d:edge.d, class:'edge' + (edge.reference ? ' return-edge' : '') + (edge.action.status !== 'observed' ? ' pending' : ''), 'marker-end':'url(#arrow)'});
     $('edges').append(edge.path);
   }
+  // Repeat long-branch labels at reading intervals, without covering cards or
+  // other labels. Only label the exclusive segments, never a shared stem.
+  const occupied = nodeModels.map(n => ({x:n.x, y:n.y, w:280, h:n.h}));
   for (const edge of edgeModels) {
-    const foreign = svg('foreignObject', {x:edge.labelX, y:edge.labelY, width:260, height:edge.labelH + 2});
-    foreign.append(edge.label); $('edges').append(foreign);
+    edge.labels = [{element:edge.label, x:edge.labelX, y:edge.labelY, w:edge.labelW || 260, h:edge.labelH}];
+    occupied.push(edge.labels[0]);
+  }
+  function repeatLabel(edge, cx, cy) {
+    const box = {x:cx - (edge.labelW || 260) / 2, y:cy - edge.labelH / 2, w:edge.labelW || 260, h:edge.labelH};
+    if (occupied.some(b => box.x < b.x + b.w + 16 && box.x + box.w + 16 > b.x && box.y < b.y + b.h + 16 && box.y + box.h + 16 > b.y)) return;
+    const label = edge.label.cloneNode(true);
+    label.classList.add('repeated-label');
+    label.onclick = () => openAction(edge.action);
+    box.element = label;
+    edge.labels.push(box); occupied.push(box);
+  }
+  const repeatSpacing = 650;
+  for (const edge of edgeModels) {
+    if (edge.reference) continue;
+    const sx = edge.source.x + 140;
+    const distance = Math.abs(edge.tx - sx), direction = Math.sign(edge.tx - sx);
+    for (let along = repeatSpacing; along < distance - 160; along += repeatSpacing) {
+      repeatLabel(edge, sx + direction * along, edge.departY);
+    }
+    const endY = edge.target.y - 10;
+    for (let y = edge.departY + repeatSpacing; y < endY - 50; y += repeatSpacing) {
+      repeatLabel(edge, edge.tx, y);
+    }
+  }
+  for (const edge of edgeModels) {
+    for (const label of edge.labels) {
+      const foreign = svg('foreignObject', {x:label.x, y:label.y, width:label.w, height:label.h + 2});
+      label.element.dataset.actionId = edge.action.id;
+      foreign.append(label.element); $('edges').append(foreign);
+    }
   }
   measure.remove();
   scale = Math.max(0.005, Math.min(1, ($('viewport').clientWidth - 60) / width));

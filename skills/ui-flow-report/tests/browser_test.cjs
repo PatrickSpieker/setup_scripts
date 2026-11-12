@@ -87,6 +87,7 @@ async function step(page, id, from, to, label, operation, title) {
   assert.equal(labelProblems,0);
   const labelRoutes = await page.locator('.edge-label').evaluateAll(labels => {
     const paths = [...document.querySelectorAll('.edge')];
+    const actionIds = [...document.querySelectorAll('.edge-label:not(.repeated-label)')].map(label => label.dataset.actionId);
     const points = paths.map(path => {
       const matrix = path.getScreenCTM(), result = [];
       for (let distance = 0; distance <= path.getTotalLength(); distance += 4) {
@@ -94,7 +95,8 @@ async function step(page, id, from, to, label, operation, title) {
       }
       return result;
     });
-    return labels.map((label, index) => {
+    return labels.map(label => {
+      const index = actionIds.indexOf(label.dataset.actionId);
       const box = label.getBoundingClientRect();
       const enters = p => p.x > box.left + 1 && p.x < box.right - 1 && p.y > box.top + 1 && p.y < box.bottom - 1;
       return {label:label.textContent, ownPath:points[index].some(enters), otherPaths:points.flatMap((samples,i) => i !== index && samples.some(enters) ? [i] : [])};
@@ -104,8 +106,23 @@ async function step(page, id, from, to, label, operation, title) {
     assert.equal(route.ownPath,true, 'Label detached from its action: ' + route.label);
     assert.deepEqual(route.otherPaths,[], 'Unrelated paths cross action label: ' + route.label);
   }
+  const returns = page.locator('.return-edge');
+  assert.ok(await returns.count() > 0);
+  for (const d of await returns.evaluateAll(paths => paths.map(path => path.getAttribute('d')))) {
+    assert.match(d, /^M [\d.]+ [\d.]+ H [\d.]+$/);
+  }
+  const repeated = page.locator('.repeated-label').first();
+  assert.ok(await repeated.count() > 0);
+  const repeatedText = await repeated.innerText();
+  const repeatedId = await repeated.getAttribute('data-action-id');
+  await page.getByRole('searchbox').fill(repeatedText);
+  assert.ok(await repeated.evaluate(label => label.classList.contains('match')));
+  await page.locator('#fit').click();
+  await repeated.click();
+  assert.ok((await page.locator('#detail-content').innerText()).includes(repeatedId));
+  await page.locator('#close-details').click();
   await page.getByRole('searchbox').fill('Click Menu');
-  await page.getByRole('button',{name:'Click Menu',exact:true}).click();
+  await page.getByRole('button',{name:'Click Menu',exact:true}).first().click();
   assert.match(await page.locator('#detail-content').innerText(),/Action ID\s+menu/);
   await page.locator('#close-details').click();
   await page.getByRole('searchbox').fill('Edit profile');

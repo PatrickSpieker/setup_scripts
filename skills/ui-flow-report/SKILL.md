@@ -5,7 +5,7 @@ description: Explore a web or native mobile app through real UI navigation and c
 
 # UI Flow Report
 
-Create one top-to-bottom screenshot graph of all discoverable interactions. Branch horizontally, merge equivalent destinations, and loop return actions back to existing states. No workflow tabs. Use `scripts/report.py` to checkpoint and render; do not hand-build the HTML.
+Create one top-to-bottom screenshot graph of all discoverable interactions. Lay out descendants as a tree: branch horizontally, then continue downward within each parent’s subtree. Place action labels near the source on each branch’s exclusive segment, with separate lanes to avoid overlap. Repeat action labels along long exclusive edge segments so readers can follow them; repeated labels retain search highlighting and action details. Show each equivalent destination once. Represent cycles and other revisits with short local arrows labeled with the action and destination (for example, “Back — goes to Screen 2”); never draw long return lines across the tree. No workflow tabs. Use `scripts/report.py` to checkpoint and render; do not hand-build the HTML.
 
 ## Establish scope
 
