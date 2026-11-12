@@ -6,6 +6,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from argparse import Namespace
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / 'scripts/report.py'
@@ -117,7 +118,11 @@ class ReportTest(unittest.TestCase):
         graph = self.graph()
         graph['limits']['seconds'] = 1
         graph['started_at'] = 0
-        self.assertIn('Elapsed time', module.limit_reason(graph))
+        graph['actions'] = [{'id':'timed', 'status':'pending', 'effect':'read-only'}]
+        message = module.transition(graph, Namespace(command='begin', id='timed'), self.run)
+        self.assertIn('STOPPED: Elapsed time', message)
+        self.assertEqual(graph['status'], 'stopped')
+        self.assertEqual(graph['actions'][0]['status'], 'pending')
 
 
 if __name__ == '__main__':

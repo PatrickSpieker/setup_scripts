@@ -205,6 +205,8 @@ $('viewport').addEventListener('keydown', e => {
   else if (e.key === '0') fit();
   else if (e.key.startsWith('Arrow')) { e.preventDefault(); offsetX += e.key === 'ArrowLeft' ? 50 : e.key === 'ArrowRight' ? -50 : 0; offsetY += e.key === 'ArrowUp' ? 50 : e.key === 'ArrowDown' ? -50 : 0; transform(); }
 });
-window.addEventListener('resize', () => { $('viewport').style.height = (innerHeight - document.querySelector('header').offsetHeight) + 'px'; });
-window.dispatchEvent(new Event('resize'));
+function resizeViewport() { $('viewport').style.height = Math.max(120, innerHeight - document.querySelector('header').offsetHeight) + 'px'; }
+window.addEventListener('resize', resizeViewport);
+new ResizeObserver(resizeViewport).observe(document.querySelector('header'));
+resizeViewport();
 build().catch(error => details('Report could not render', [['Error', error.message]]));
