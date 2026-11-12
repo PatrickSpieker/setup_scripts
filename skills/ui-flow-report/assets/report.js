@@ -137,7 +137,8 @@ async function build() {
   const rows = [];
   for (const node of nodeModels) { (rows[node.rank] ||= []).push(node); node.h = node.element.offsetHeight; }
   const maxColumns = Math.max(1, ...rows.map(row => row.length));
-  const coreWidth = maxColumns * 400;
+  const outgoingRows = rows.map((_, rank) => edgeModels.filter(e => e.source.rank === rank));
+  const coreWidth = Math.max(maxColumns * 400, ...outgoingRows.map(edges => edges.length * 300));
   const measure = el('div'); measure.id = 'measure'; document.body.append(measure);
   for (const edge of edgeModels) {
     edge.label = el('button', edge.action.label, 'edge-label');
@@ -153,12 +154,17 @@ async function build() {
     const row = rows[rank];
     row.forEach((node, i) => { node.x = (coreWidth - row.length * 400) / 2 + i * 400 + 60; node.y = y; node.element.style.left = node.x + 'px'; node.element.style.top = y + 'px'; });
     y += Math.max(...row.map(node => node.h)) + 35;
-    for (const edge of edgeModels.filter(e => e.source.rank === rank)) {
-      edge.labelX = edge.source.x + 10; edge.labelY = y;
-      edge.routeY = y + edge.labelH / 2;
+    const outgoing = outgoingRows[rank];
+    // Fan out above the labels and converge below them. Each label has its own lane.
+    for (const edge of outgoing) { edge.departY = y; y += 30; }
+    y += 20;
+    outgoing.forEach((edge, i) => {
+      edge.branchX = (coreWidth - outgoing.length * 300) / 2 + i * 300 + 150;
+      edge.labelX = edge.branchX - 130; edge.labelY = y;
       if (edge.outer) edge.laneX = coreWidth + 60 + lane++ * 36;
-      y += edge.labelH + 30;
-    }
+    });
+    y += Math.max(0, ...outgoing.map(edge => edge.labelH)) + 30;
+    for (const edge of outgoing) { edge.arriveY = y; y += 30; }
     y += 45;
   }
   width = coreWidth + (lane ? 100 + lane * 36 : 0); height = y;
@@ -170,7 +176,7 @@ async function build() {
   for (const edge of edgeModels) {
     const sx = edge.source.x + 140, sy = edge.source.y + edge.source.h;
     const tx = edge.target.x + 140, ty = edge.target.y - 4;
-    let d = `M ${sx} ${sy} V ${edge.routeY}`;
+    let d = `M ${sx} ${sy} V ${edge.departY} H ${edge.branchX} V ${edge.arriveY}`;
     d += edge.outer ? ` H ${edge.laneX} V ${edge.entryY} H ${tx} V ${ty}` : ` H ${tx} V ${ty}`;
     edge.path = svg('path', {d, class:'edge' + (edge.action.status !== 'observed' ? ' pending' : ''), 'marker-end':'url(#arrow)'});
     $('edges').append(edge.path);

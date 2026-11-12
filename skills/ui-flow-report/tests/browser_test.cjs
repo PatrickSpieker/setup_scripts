@@ -85,11 +85,34 @@ async function step(page, id, from, to, label, operation, title) {
     return labels.filter((label,i)=>label.scrollHeight>label.clientHeight+1||nodes.some(n=>intersects(boxes[i],n))||boxes.some((b,j)=>j>i&&intersects(boxes[i],b))).length;
   });
   assert.equal(labelProblems,0);
+  const labelRoutes = await page.locator('.edge-label').evaluateAll(labels => {
+    const paths = [...document.querySelectorAll('.edge')];
+    const points = paths.map(path => {
+      const matrix = path.getScreenCTM(), result = [];
+      for (let distance = 0; distance <= path.getTotalLength(); distance += 4) {
+        result.push(path.getPointAtLength(distance).matrixTransform(matrix));
+      }
+      return result;
+    });
+    return labels.map((label, index) => {
+      const box = label.getBoundingClientRect();
+      const enters = p => p.x > box.left + 1 && p.x < box.right - 1 && p.y > box.top + 1 && p.y < box.bottom - 1;
+      return {label:label.textContent, ownPath:points[index].some(enters), otherPaths:points.flatMap((samples,i) => i !== index && samples.some(enters) ? [i] : [])};
+    });
+  });
+  for (const route of labelRoutes) {
+    assert.equal(route.ownPath,true, 'Label detached from its action: ' + route.label);
+    assert.deepEqual(route.otherPaths,[], 'Unrelated paths cross action label: ' + route.label);
+  }
+  await page.getByRole('searchbox').fill('Click Menu');
+  await page.getByRole('button',{name:'Click Menu',exact:true}).click();
+  assert.match(await page.locator('#detail-content').innerText(),/Action ID\s+menu/);
+  await page.locator('#close-details').click();
   await page.getByRole('searchbox').fill('Edit profile');
   assert.match(await page.locator('#matches').innerText(),/\/2/);
   await page.locator('#search').fill(''); await page.locator('#fit').click();
-  await page.locator('.shot').first().click({force:true}); assert.equal(await page.locator('dialog[open]').count(),1); await page.getByRole('button',{name:'Close',exact:true}).click();
-  await page.locator('.heading').first().click({force:true}); assert.match(await page.locator('#detail-content').innerText(),/Navigation evidence/); await page.locator('#close-details').click();
+  await page.locator('.shot').first().click(); assert.equal(await page.locator('dialog[open]').count(),1); await page.getByRole('button',{name:'Close',exact:true}).click();
+  await page.locator('.heading').first().click(); assert.match(await page.locator('#detail-content').innerText(),/Navigation evidence/); await page.locator('#close-details').click();
   const before=await page.locator('#world').getAttribute('style'); await page.locator('#in').click(); assert.notEqual(await page.locator('#world').getAttribute('style'),before);
   const beforePan=await page.locator('#world').getAttribute('style');await page.mouse.move(20,300);await page.mouse.down();await page.mouse.move(100,350);await page.mouse.up();assert.notEqual(await page.locator('#world').getAttribute('style'),beforePan);
   await page.locator('#coverage').click(); assert.match(await page.locator('#detail-content').innerText(),/preserved unrelated edit/); await page.locator('#close-details').click(); await page.locator('#fit').click();
