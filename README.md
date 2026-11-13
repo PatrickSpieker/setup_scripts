@@ -62,6 +62,7 @@ Skills are tool-agnostic workflows that work in both Claude Code (`/skill-name`)
 | `gh-fix-ci` | Find the first failing CI check and fix it |
 | `gh-address-pr-comments` | Resolve actionable PR review comments one-by-one |
 | `pr-screenshots` | Capture Playwright web screenshots for each changed user journey and embed them in the PR description |
+| `record-product-demo` | Record and edit Antaeus web/iOS demos, preview locally, and optionally upload to Drive |
 | `pr-screenshots-ios` | Capture deterministic iOS Simulator screenshots through XcodeBuildMCP and embed them in the PR description |
 | `make-tests` | Add tests for the change you're working on |
 | `tdd` | Test-driven development with red-green-refactor loop |

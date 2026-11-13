@@ -72,3 +72,46 @@ Inspect the recorded actions in a Codex conversation over time.
 
 > **Developer:** Should repeated calls be aggregated?
 > **User:** No; preserve their ordering, gaps, and overlap.
+
+# Antaeus Product Demos
+
+Agent-driven recordings that demonstrate a requested Antaeus product feature or flow.
+
+## Language
+
+**Demo flow**: The product task requested by the user, performed by the agent in a web app or iOS app.
+
+**Demo video**: An edited recording of a completed demo flow, showing only page content or the iOS app screen at its natural aspect ratio.
+
+**Local preview**: The demo video displayed in the Codex chat before an optional upload.
+
+## Relationships
+
+- A **Demo flow** produces a **Demo video** with dead time removed and fixed full-content framing, without zooms, pans, captions, or narration.
+- A **Demo video** has a **Local preview** before the user decides whether to upload it to Antaeus Google Drive's **Antaeus Health Demos** folder.
+
+## Demo rules
+
+- Begin from a request such as “record a demo of flow Y”; no shot-list approval is required.
+- Record until the flow completes, unless the user specifies a duration.
+- iOS interactions use Device Hub with Xcode open; native Mac desktop apps are outside scope.
+- Upload only after explicit approval of the local preview.
+- Name videos `YYYY-MM-DD_HH_MM_SS_generated_demo_name.mp4`, with timestamps in America/New_York.
+
+## Example dialogue
+
+> **User:** Record a demo of the product doing X.
+> **Agent:** Records and edits the flow, displays the local preview, then asks whether to upload it to Antaeus Drive.
+
+## Recovery and retention
+
+- Retry recoverable setup or interaction failures automatically; report blockers rather than presenting an incomplete flow as a finished demo.
+- Keep the raw recording and temporary editing files alongside the final MP4 for revisions until upload succeeds.
+- After verifying a successful upload, delete the raw recording and temporary editing files, retaining the final MP4 locally.
+- If upload fails or the user declines, retain all recording and editing artifacts.
+
+## Demo targets
+
+- Web demos use the user's existing Chrome session and logged-in Antaeus accounts.
+- iOS demos use the device or simulator already selected in Device Hub, with Xcode open.
+- Ask for an iOS target only when none is selected or the selection is ambiguous.
