@@ -18,7 +18,7 @@ Select the observed `Capture screen N` entry for the display containing the enti
 python3 "$DEMO" bounds --rect 120 160 1200 780 --origin 0 0 --scale 2 2
 ```
 
-These numbers illustrate argument order only. Use real observed bounds. `bounds` converts x/y relative to the display origin and rounds width/height down to even pixels (at most one pixel), preserving the content's aspect ratio to encoding precision. Focus rectangles use the same scales, but are relative to the content origin. Keep the page unobscured and the window stationary. Screen capture records whatever covers the chosen region; reject spoiled takes.
+These numbers illustrate argument order only. Use real observed bounds. `bounds` converts x/y relative to the display origin and rounds width/height down to even pixels (at most one pixel), preserving the content's aspect ratio to encoding precision. Keep the page unobscured and the window stationary. Screen capture records whatever covers the chosen region; reject spoiled takes.
 
 Start with the discovered video input and content-only crop:
 

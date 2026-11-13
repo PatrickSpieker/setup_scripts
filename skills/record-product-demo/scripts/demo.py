@@ -237,7 +237,7 @@ def import_video(run, source, offset=0, move=False):
     save(run, data)
 
 
-def mark(run, label=None, focus=None, at=None, end=False):
+def mark(run, label=None, at=None, end=False):
     data = load(run)
     require(data['status'] in ('recording', 'external', 'captured'), 'Capture is not ready')
     if at is None:
@@ -252,10 +252,7 @@ def mark(run, label=None, focus=None, at=None, end=False):
     else:
         require(label and (not data['actions'] or 'end' in data['actions'][-1]),
                 'Finish the prior action and supply --label')
-        if focus:
-            require(len(focus) == 4 and all(math.isfinite(v) for v in focus)
-                    and min(focus[:2]) >= 0 and min(focus[2:]) > 0, 'Invalid focus rectangle')
-        data['actions'].append(dict(label=label, start=at, focus=focus))
+        data['actions'].append(dict(label=label, start=at))
     save(run, data)
 
 
@@ -277,49 +274,9 @@ def intervals(actions, duration):
     return spans
 
 
-def map_time(t, spans):
-    elapsed = 0
-    for a, b in spans:
-        if t <= b:
-            return elapsed + max(0, t-a)
-        elapsed += b-a
-    return elapsed
-
-
-def framing(focus, width, height):
-    if not focus:
-        return (1.0, 0.5, 0.5)
-    x, y, w, h = focus
-    require(x >= 0 and y >= 0 and w > 0 and h > 0 and x+w <= width and y+h <= height,
-            'Focus rectangle is outside content pixels')
-    z = max(1, min(2.2, width/(w*1.5), height/(h*1.5)))
-    return z, (x+w/2)/width, (y+h/2)/height
-
-
-def curve(keys, component):
-    expression = f'{keys[-1][1][component]:.8f}'
-    for (a, av), (b, bv) in reversed(list(zip(keys, keys[1:]))):
-        u = f'clip((on/30-{a:.8f})/{b-a:.8f},0,1)'
-        smooth = f'({u}*{u}*(3-2*{u}))'
-        value = f'{av[component]:.8f}+({bv[component]-av[component]:.8f})*{smooth}'
-        expression = f'if(lt(on/30,{b:.8f}),{value},{expression})'
-    return expression
-
-
 def edit_plan(data):
-    info = data['source']
-    spans = intervals(data['actions'], info['duration'])
-    duration = sum(b-a for a, b in spans)
-    full = (1.0, 0.5, 0.5)
-    keys = [(0.0, full)]
-    for action in data['actions']:
-        t = max(keys[-1][0] + 0.6, map_time(action['start'], spans) + 0.6)
-        if t < duration - 1.2:
-            keys.append((t, framing(action.get('focus'), info['width'], info['height'])))
-    if duration > keys[-1][0] + 1.2:
-        keys.append((duration - 0.8, keys[-1][1]))
-    keys.append((max(duration - 1/30, keys[-1][0]+1/30), full))
-    return spans, duration, keys
+    spans = intervals(data['actions'], data['source']['duration'])
+    return spans, sum(b-a for a, b in spans)
 
 
 def render(run):
@@ -328,7 +285,7 @@ def render(run):
     require(data['complete'] and data.get('completion_evidence'), 'Verify flow completion before rendering')
     raw = Path(run) / 'work/raw.mp4'
     data['source'] = probe(raw)
-    spans, duration, keys = edit_plan(data)
+    spans, duration = edit_plan(data)
     w, h = data['source']['width'], data['source']['height']
     require(w % 2 == 0 and h % 2 == 0, 'Source dimensions must be even for H.264')
     # Native Device Hub exports are variable-rate and omit unchanged frames.
@@ -339,15 +296,11 @@ def render(run):
     for i, (a, b) in enumerate(spans):
         filters.append(f'[in{i}]trim=start={a:.8f}:end={b:.8f},setpts=PTS-STARTPTS[s{i}]')
     filters.append(''.join(f'[s{i}]' for i in range(len(spans))) +
-                   f'concat=n={len(spans)}:v=1:a=0,fps=30[cut]')
-    z, cx, cy = [curve(keys, i) for i in range(3)]
-    filters.append(f"[cut]zoompan=z='{z}':x='max(0,min(iw-iw/zoom,iw*({cx})-iw/zoom/2))':"
-                   f"y='max(0,min(ih-ih/zoom,ih*({cy})-ih/zoom/2))':d=1:s={w}x{h}:fps=30,"
-                   'setsar=1,format=yuv420p[out]')
+                   f'concat=n={len(spans)}:v=1:a=0,fps=30,setsar=1,format=yuv420p[out]')
     script = own(run, 'work/filter.txt')
     script.write_text(';\n'.join(filters))
     timeline = own(run, 'work/timeline.json')
-    timeline.write_text(json.dumps(dict(spans=spans, duration=duration, keys=keys), indent=2))
+    timeline.write_text(json.dumps(dict(spans=spans, duration=duration), indent=2))
     pending = own(run, 'work/render.mp4')
     subprocess.run([binary('ffmpeg'), '-hide_banner', '-loglevel', 'error', '-nostdin', '-y',
                     '-i', str(raw), '-filter_complex', script.read_text(), '-map', '[out]',
@@ -481,7 +434,6 @@ def main():
             p.add_argument('--move', action='store_true', help='Adopt a newly created export into this run')
         elif name == 'mark':
             p.add_argument('--label')
-            p.add_argument('--focus', type=float, nargs=4)
             p.add_argument('--at', type=float)
             p.add_argument('--end', action='store_true')
         elif name == 'finish':
@@ -517,7 +469,7 @@ def main():
     elif c == 'import':
         import_video(args.run, args.source, args.offset, args.move)
     elif c == 'mark':
-        mark(args.run, args.label, args.focus, args.at, args.end)
+        mark(args.run, args.label, args.at, args.end)
     elif c == 'finish':
         data = load(args.run)
         require(data['status'] == 'captured' and args.evidence.strip(), 'Finalize capture and verify the result first')

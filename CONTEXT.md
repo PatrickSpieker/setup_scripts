@@ -87,7 +87,7 @@ Agent-driven recordings that demonstrate a requested Antaeus product feature or 
 
 ## Relationships
 
-- A **Demo flow** produces a **Demo video** with dead time removed and automatic zooms and pans, without captions or narration.
+- A **Demo flow** produces a **Demo video** with dead time removed and fixed full-content framing, without zooms, pans, captions, or narration.
 - A **Demo video** has a **Local preview** before the user decides whether to upload it to Antaeus Google Drive's **Antaeus Health Demos** folder.
 
 ## Demo rules

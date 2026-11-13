@@ -1,6 +1,6 @@
 ---
 name: record-product-demo
-description: Record an agent-driven Antaeus web or iOS product flow, trim waits, add smooth zooms and pans, preview the MP4 in chat, and optionally upload it to Antaeus Google Drive.
+description: Record an agent-driven Antaeus web or iOS product flow, trim waits, preserve fixed framing, preview the MP4 in chat, and optionally upload it to Antaeus Google Drive.
 ---
 
 # Record Product Demo
@@ -9,7 +9,7 @@ Start from “record a demo of the product doing X” or “record a demo of flo
 
 Use existing Chrome sign-ins for web. For iOS use the already-selected Device Hub device/simulator, with Xcode open. Ask about the target only when none is selected or it is ambiguous. Do not replace these choices with an isolated browser profile or a different simulator.
 
-Record until the flow completes; honor a requested duration but never label a truncated flow complete. Automatically cut dead time and add restrained zooms/pans. No captions, narration, or audio by default. Preserve the page/device's natural aspect ratio. Show the final MP4 inline in Codex before asking about Drive upload.
+Record until the flow completes; honor a requested duration but never label a truncated flow complete. Automatically cut dead time. Keep the entire page/device content at a fixed scale and position throughout; do not add zooms or pans. No captions, narration, or audio by default. Preserve the page/device's natural aspect ratio. Show the final MP4 inline in Codex before asking about Drive upload.
 
 ## Prepare the target
 
@@ -32,10 +32,10 @@ Web capture uses the helper's FFmpeg recorder. Device Hub recording uses its nat
 
 For web, wait for `Recording ready` before driving the flow. Keep the recording process alive in the execution tool's session; do not wait for it to exit before performing interactions.
 
-Immediately before each meaningful click/type/scroll, record a start marker and focus rectangle. Immediately after the visible transition/result settles, record its end. The rectangle is **content-local source-video pixels** (`x y width height`), not desktop coordinates. Use browser DOM/device hierarchy and measured scale to derive it. For scroll or navigation results, focus the resulting UI rather than a vanished control.
+Immediately before each meaningful click/type/scroll, record a start marker. Immediately after the visible transition/result settles, record its end. No focus rectangles are needed; framing remains fixed.
 
 ```bash
-python3 "$DEMO" mark "$RUN" --label "Open connections" --focus 80 140 480 400
+python3 "$DEMO" mark "$RUN" --label "Open connections"
 # Perform the interaction with browser or Device Hub tools, inspect the resulting UI.
 python3 "$DEMO" mark "$RUN" --end
 ```
@@ -56,9 +56,9 @@ python3 "$DEMO" finish "$RUN" --evidence "The requested result is visible in the
 python3 "$DEMO" render "$RUN"
 ```
 
-The renderer merges marked action intervals with short context pads, removes gaps, remaps focus events through cuts, and renders eased, bounded zooms/pans at 30 fps. It starts/ends at the full content frame and preserves dimensions/aspect ratio. Adjust action focus rectangles/timestamps and rerender if the automatic framing obscures useful context. For very short takes, clarity takes precedence over squeezing in a zoom.
+The renderer merges marked action intervals with short context pads, removes gaps, and outputs 30 fps video with unchanged content framing and dimensions/aspect ratio. Adjust action timestamps and rerender when cuts remove useful context. Existing focus metadata in older manifests is ignored. All frames show the entire captured page/device screen.
 
-The helper verifies duration, frame rate and decodability. Also inspect representative frames at the start, each focus transition, and final result. Verify readable UI, correct target, content-only edges, no missing required action, and no cursor/notification/permission overlay spoiling the take. Keep the local original; edits do not overwrite it.
+The helper verifies duration, frame rate and decodability. Also inspect representative frames at the start, each cut, and final result. Verify readable UI, correct target, content-only edges, no missing required action, and no cursor/notification/permission overlay spoiling the take. Keep the local original; edits do not overwrite it.
 
 Show the final video using `![Demo](ABSOLUTE_FINAL_MP4_PATH)` in the Codex chat, then record that the actual preview was shown:
 

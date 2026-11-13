@@ -47,27 +47,19 @@ def test_trim_and_map_time():
     actions = [dict(start=1, end=2), dict(start=6, end=7), dict(start=7.2, end=8)]
     spans = demo.intervals(actions, 10)
     assert spans == [[0.6, 2.8], [5.6, 8.8]]
-    assert demo.map_time(6, spans) == pytest.approx(2.6)
-    assert demo.map_time(4, spans) == pytest.approx(2.2)
     for bad in ([dict(start=1)], [dict(start=5, end=4)], [dict(start=1, end=11)],
                 [dict(start=0, end=2), dict(start=1, end=3)]):
         with pytest.raises(ValueError):
             demo.intervals(bad, 10)
 
 
-def test_focus_and_easing_bounds():
-    assert demo.framing([0, 0, 50, 50], 320, 240) == (2.2, 25/320, 25/240)
-    assert demo.framing(None, 320, 240) == (1, .5, .5)
-    with pytest.raises(ValueError):
-        demo.framing([300, 0, 50, 50], 320, 240)
+def test_edit_plan_ignores_legacy_focus():
     data = dict(source=dict(width=320, height=240, duration=10), actions=[
         dict(start=0, end=3, focus=[0, 0, 50, 50]),
         dict(start=6, end=9, focus=[250, 160, 50, 50])])
-    spans, duration, keys = demo.edit_plan(data)
-    assert duration < 10
-    assert keys[0][1] == keys[-1][1] == (1, .5, .5)
-    assert all(a[0] < b[0] for a, b in zip(keys, keys[1:]))
-    assert all(1 <= v[0] <= 2.2 and 0 <= v[1] <= 1 and 0 <= v[2] <= 1 for _, v in keys)
+    spans, duration = demo.edit_plan(data)
+    assert spans == [[0, 3.8], [5.6, 9.8]]
+    assert duration == pytest.approx(8)
 
 
 def prepared_video(run):
@@ -238,9 +230,9 @@ def test_real_video_edit_and_decode(run, tmp_path, sparse):
                     *(['-vf', "select='eq(mod(n,45),0)+eq(n,239)'", '-fps_mode', 'vfr'] if sparse else []),
                     '-c:v', 'libx264', str(source)], check=True)
     demo.import_video(run, source)
-    demo.mark(run, 'Left action', [0, 20, 60, 80], 0)
+    demo.mark(run, 'First action', at=0)
     demo.mark(run, at=2, end=True)
-    demo.mark(run, 'Right action', [240, 100, 60, 80], 5)
+    demo.mark(run, 'Second action', at=5)
     demo.mark(run, at=7.5, end=True)
     data = demo.load(run)
     data.update(complete=True, completion_evidence='Both fixture actions complete')
@@ -250,6 +242,15 @@ def test_real_video_edit_and_decode(run, tmp_path, sparse):
     assert info['width'] == 320 and info['height'] == 240 and info['frame_rate'] == '30/1'
     assert info['duration'] == pytest.approx(6.2, abs=.04)
     assert len(info['streams']) == 1
+    if not sparse:
+        def frame(path):
+            return subprocess.check_output([
+                'ffmpeg', '-v', 'error', '-i', str(path), '-vf', "fps=30,select='eq(n,30)'",
+                '-frames:v', '1', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-'])
+        before, after = frame(source), frame(final)
+        assert len(before) == len(after) == 320 * 240 * 3
+        # Full-content framing survives encoding; a zoom/pan changes these pixels substantially.
+        assert sum(abs(a-b) for a, b in zip(before, after)) / len(before) < 3
     demo.decode(final)
     demo.previewed(run)
     demo.decision(run, True)
