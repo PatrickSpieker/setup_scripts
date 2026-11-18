@@ -1,8 +1,10 @@
 # Capture paths
 
-## Web: existing Chrome + cropped FFmpeg
+## Web: Playwright + cropped FFmpeg
 
-Use the connected Chrome browser's DOM-aware tools for interactions and state inspection. Use its existing profile/session; do not launch Playwright with a fresh profile. If the Chrome connection is absent, report that prerequisite rather than silently using the in-app browser. Reuse the requested tab or create a task tab in that existing session according to the browser tool's contract.
+Use the Playwright MCP browser session for interactions and state inspection. Discover its current tool contracts; use accessibility snapshots to identify targets and Playwright tools to navigate, click, type and wait for visible results. Reuse the requested tab when available in that session, or create a task tab. Complete required authentication there before recording; do not assume access to Chrome sign-ins or copy credentials from its profile. If Playwright is unavailable, report that prerequisite.
+
+The FFmpeg recorder requires a headed Playwright browser visible on the local desktop. Confirm that the page being driven by Playwright is the page in the measured capture region. If the session is headless or remote, configure a local headed session through supported tooling before capture; if unavailable, report the capture limitation. Keep the browser size stable throughout the take.
 
 Measure the page-content rectangle in desktop logical coordinates from current UI bounds, and measure the display origin and pixel scale from its screenshot/capture dimensions. Do not assume the main display, a 2× scale, or a fixed browser toolbar height. Verify edges with a current screenshot. If the browser provides exact viewport/screen geometry, prefer that evidence. Window outer bounds alone are insufficient. A tab screenshot can establish the page's dimensions, but is not a continuous recording.
 

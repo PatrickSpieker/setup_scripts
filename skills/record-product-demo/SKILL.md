@@ -7,13 +7,13 @@ description: Record an agent-driven Antaeus web or iOS product flow, trim waits,
 
 Start from “record a demo of the product doing X” or “record a demo of flow Y.” Infer the shortest complete flow and proceed without shot-list approval. Drive the app yourself. Support web and iOS; native Mac desktop apps are outside scope.
 
-Use existing Chrome sign-ins for web. For iOS use the already-selected Device Hub device/simulator, with Xcode open. Ask about the target only when none is selected or it is ambiguous. Do not replace these choices with an isolated browser profile or a different simulator.
+Use the Playwright MCP browser session for web. Prepare any required sign-in in that session before recording; do not depend on the user’s signed-in Chrome profile. For iOS use the already-selected Device Hub device/simulator, with Xcode open. Ask about the iOS target only when none is selected or it is ambiguous; do not substitute a different simulator.
 
 Record until the flow completes; honor a requested duration but never label a truncated flow complete. Automatically cut dead time. Keep the entire page/device content at a fixed scale and position throughout; do not add zooms or pans. No captions, narration, or audio by default. Preserve the page/device's natural aspect ratio. Show the final MP4 inline in Codex before asking about Drive upload.
 
 ## Prepare the target
 
-1. Discover the available browser, computer-use, Xcode and Drive tools. Read their current contracts and relevant browser/computer-use skills. Use `cua_repl` for browser/Device Hub UI when provided; do not invent APIs or use shell input injection. Missing required tools are a blocker, not permission to switch the user's browser/device.
+1. Discover the available Playwright, computer-use, Xcode and Drive tools needed for the target. Read their current contracts and relevant computer-use skills. Use Playwright MCP for web navigation, interactions and state inspection; use `cua_repl` for desktop capture geometry and Device Hub UI when provided. Do not invent APIs or use shell input injection. Missing required tools are a blocker, not permission to switch browser automation or the selected iOS device.
 2. Inspect the actual requested flow and starting state. Reuse the active Antaeus environment/account unless the user named another. Resolve only necessary ambiguity. Never turn a demonstration request into unrelated product changes.
 3. Read [capture.md](references/capture.md) for target setup, measured crop coordinates, native Device Hub recording, and timestamp alignment. Confirm the capture surface contains only page content or the iOS screen. Keep geometry/orientation stable during a take; if it changes, stop and retry with new measurements.
 4. Locate `scripts/demo.py` relative to this skill. Check `ffmpeg` and `ffprobe`; request/install missing dependencies through the environment's normal tooling. Run capture outside the sandbox if required. If macOS denies screen access, report the responsible launching app and request the OS permission; do not change privacy settings silently.
@@ -36,7 +36,7 @@ Immediately before each meaningful click/type/scroll, record a start marker. Imm
 
 ```bash
 python3 "$DEMO" mark "$RUN" --label "Open connections"
-# Perform the interaction with browser or Device Hub tools, inspect the resulting UI.
+# Perform the interaction with Playwright or Device Hub tools, inspect the resulting UI.
 python3 "$DEMO" mark "$RUN" --end
 ```
 
