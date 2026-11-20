@@ -256,6 +256,7 @@ enabled = false
 url = "https://developers.openai.com/mcp"
 
 [mcp_servers.gaia]
+cwd = "/Users/patrickspieker/code/antaeus/gaia"
 command = "/opt/homebrew/bin/node"
 args = ["/Users/patrickspieker/code/antaeus/gaia/dist/index.js"]
 
