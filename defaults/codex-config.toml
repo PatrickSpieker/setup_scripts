@@ -193,7 +193,7 @@ trust_level = "trusted"
 [projects."/Users/patrickspieker/Documents/Codex/2026-09-01/cr"]
 trust_level = "trusted"
 
-[projects."/Users/patrickspieker/code/antaeus/internal-mcp"]
+[projects."/Users/patrickspieker/code/antaeus/gaia"]
 trust_level = "trusted"
 
 [projects."/Users/patrickspieker/code/antaeus/mcp"]
@@ -255,9 +255,9 @@ enabled = false
 [mcp_servers.openaiDeveloperDocs]
 url = "https://developers.openai.com/mcp"
 
-[mcp_servers.internal-mcp]
+[mcp_servers.gaia]
 command = "/opt/homebrew/bin/node"
-args = ["/Users/patrickspieker/code/antaeus/internal-mcp/dist/index.js"]
+args = ["/Users/patrickspieker/code/antaeus/gaia/dist/index.js"]
 
 [desktop]
 dock-icon-preference = "codex-system"
