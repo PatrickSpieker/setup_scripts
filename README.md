@@ -160,3 +160,15 @@ Both are installed by `setup.sh` via a single symlink of `swiftbar_plugins/` to 
 ## PDF to EPUB
 
 Run `scripts/install-pdf-to-epub.sh` to install the `pdf-to-epub` command. See [conversion documentation](scripts/pdf_to_epub/README.md) for usage, supported PDFs, and YAML configuration.
+
+## Gaia MCP registration
+
+The host Codex defaults register `gaia` and launch
+`~/code/antaeus/gaia/dist/index.js`. Before applying these defaults, close clients,
+move the existing checkout from `~/code/antaeus/internal-mcp` to
+`~/code/antaeus/gaia` (including its git-ignored credential file), then run
+`npm ci && npm run build` there. Preserve existing secure MCP environment
+configuration when replacing the registration; do not commit tokens here.
+Remove the old `internal-mcp` or `internal_mcp` entry, restart clients, and call
+Gaia's `hello_world`, which should return `Hello from Gaia`.
+See [Gaia's migration instructions](https://github.com/PatrickSpieker/gaia#migrate-an-existing-registration).
