@@ -163,12 +163,27 @@ Run `scripts/install-pdf-to-epub.sh` to install the `pdf-to-epub` command. See [
 
 ## Gaia MCP registration
 
-The host Codex defaults register `gaia` and launch
-`~/code/antaeus/gaia/dist/index.js`. Before applying these defaults, close clients,
-move the existing checkout from `~/code/antaeus/internal-mcp` to
-`~/code/antaeus/gaia` (including its git-ignored credential file), then run
-`npm ci && npm run build` there. Preserve existing secure MCP environment
-configuration when replacing the registration; do not commit tokens here.
-Remove the old `internal-mcp` or `internal_mcp` entry, restart clients, and call
-Gaia's `hello_world`, which should return `Hello from Gaia`.
+The host Codex defaults register `gaia`, launch
+`~/code/antaeus/gaia/dist/index.js`, and explicitly use the Gaia checkout as the
+server's working directory. This avoids inheriting a chat's stale checkout path.
+
+When migrating an existing registration:
+
+1. Fully quit Codex before moving the checkout or changing its saved project
+   path. Closing a chat or window is insufficient: the running app can overwrite
+   saved project changes with its in-memory state.
+2. Move the whole checkout from `~/code/antaeus/internal-mcp` to
+   `~/code/antaeus/gaia`, including its git-ignored credential file. Run
+   `npm ci && npm run build` from the new checkout.
+3. While Codex remains closed, update the matching project's `rootPaths` entry
+   in `~/.codex/.codex-global-state.json` under `local-projects` to the new
+   checkout path and set its name to `Gaia`. Preserve other projects and settings.
+4. Apply the Gaia registration from the host defaults. Preserve existing secure
+   MCP environment configuration, including any separate environment table,
+   under `mcp_servers.gaia`; do not commit tokens here. Remove the old
+   `internal-mcp` or `internal_mcp` registration.
+5. Reopen Codex and open the Gaia project at its new path. Verify in the actual
+   chat that `mcp__gaia__hello_world` is available and returns `Hello from Gaia`.
+   A standalone server test does not verify the chat's cached MCP connection.
+
 See [Gaia's migration instructions](https://github.com/PatrickSpieker/gaia#migrate-an-existing-registration).
