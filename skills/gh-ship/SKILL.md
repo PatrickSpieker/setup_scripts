@@ -118,6 +118,8 @@ For each changed UI surface, load and follow the corresponding skill in **captur
 - Web: `/pr-screenshots` or `$pr-screenshots`.
 - iOS: `/pr-screenshots-ios` or `$pr-screenshots-ios`.
 
+For iOS, default to direct XcodeBuildMCP UI automation of the changed journeys. Reuse an existing focused XCUITest tour only when the screenshot skill determines it is more efficient; do not create a tour solely for PR screenshots. Let that skill discover and verify the project/workspace, scheme, and simulator context through XcodeBuildMCP before building or capturing. Do not substitute raw `xcodebuild`, `simctl`, or browser screenshots for native iOS evidence.
+
 Pass the resolved base, slug, changed journeys, and pending diff context. Capture the resulting branch only, never a before image. Use one representative environment by default:
 
 - Web: desktop `1400x860`; add mobile/tablet only for responsive changes.
@@ -126,6 +128,12 @@ Pass the resolved base, slug, changed journeys, and pending diff context. Captur
 The delegated skill must remove obsolete PNGs only inside its platform directory, use isolated fixture/demo data or a fresh throwaway staging account, inspect every generated image, and return the captured paths grouped by journey or a precise blocker. If authentication or persisted server state is needed for a representative capture, create the staging account and test records yourself when the repository exposes a safe staging path; do not treat account creation as a reason to bail. Do not stage unsafe screenshots containing credentials, personal data, production records, or notifications. If representative evidence still cannot be produced safely, treat it as incomplete.
 
 Do not abort when capture is blocked. Record the missing platform and blocker for the PR warning, then continue shipping as draft.
+
+### iOS verification
+
+For iOS code or build-configuration changes, follow repository validation instructions and use XcodeBuildMCP to build the affected app and run relevant existing tests. Reuse the verified project/workspace, scheme, and simulator context from capture; when no screenshots are required, discover that context first using the iOS screenshot skill's session setup. A successful screenshot capture establishes only the build and journeys actually exercised, not a passing test suite.
+
+Record the scheme, configuration, simulator/runtime, checks run, results, and any skipped or blocked checks in `## Test Plan`. Use repository CI results when local validation is unavailable, identifying the checked commit. If required iOS validation fails or cannot be established, include the precise blocker and ship draft. A signing or device-only capability that cannot be exercised on the simulator must be reported as unverified, not as passed.
 
 ## 4. Stage and commit
 
@@ -239,6 +247,8 @@ Every PR, including trivial changes, must include `## Rollout Steps`. Read the r
 - Put prerequisites before the action that needs them, even when that means before merge. Order environment changes, migrations, merge, deployment, and promotion by actual dependencies; do not assume merge comes first.
 - For each required environment-variable change, name the variable, whether to create/update/remove it, the target service and environment, the non-secret value or secret source, and any required restart/redeploy. Never put secret values in the PR.
 - For migrations, backfills, or other manual operations, provide exact copyable commands, where to run them, and the target environment/database. Distinguish automatic deploy hooks from manual commands so operators do not run them twice. Include required waits or checks before advancing to the next step.
+- For iOS releases, inspect the repository's release workflows and Fastlane configuration when present. Distinguish merging from distributing an app: identify the applicable version/build number, archive/upload workflow, TestFlight validation, and App Store submission/release steps, including manual or phased release when configured. Name the actual scheme, workflow/lane, and build artifact where established; do not invent a release pipeline or assume merge publishes to the App Store. Include signing, entitlements, or App Store configuration changes only when this diff requires them, referencing credential sources without exposing secrets.
+- When iOS and backend changes ship together, order rollout so already-installed app versions remain supported during review and gradual adoption. State required compatibility windows or feature-flag sequencing from the changed contracts; do not assume all users update immediately.
 - Use one short action per step, with separate `bash` blocks for commands when needed. Include concrete console navigation for UI-only actions. Link the relevant repo deployment instructions; a link alone is not a substitute for the steps.
 - If merge/promotion are the only actions, say so briefly. If instructions or required values cannot be established, identify the specific unresolved item at the affected step instead of inventing a command or assuming no manual work.
 
@@ -250,7 +260,7 @@ When tests were added or changed, include exact copyable commands. Give separate
 
 ## 7. Create or update the PR
 
-Evidence is incomplete when any required platform walkthrough is blocked or any apparent API contract remains uncertain.
+Evidence is incomplete when any required platform walkthrough is blocked, any apparent API contract remains uncertain, or required iOS validation has failed or remains unverified.
 
 For a new PR:
 
